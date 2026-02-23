@@ -6,7 +6,12 @@ import { logSystemActivity } from '@/hooks/useSystemActivity';
 
 export type { Tables };
 
-type RadiusUser = Tables<'radius_users'> & {
+export type UserStatus = 'active' | 'disabled' | 'expired' | 'suspended';
+export type ServiceType = 'hotspot' | 'pppoe';
+
+type RadiusUser = Omit<Tables<'radius_users'>, 'service_type' | 'status'> & {
+  service_type: ServiceType;
+  status: UserStatus;
   plan?: Tables<'billing_plans'> | null;
   creator_name?: string | null;
 };
@@ -50,8 +55,10 @@ export function useRadiusUsers() {
       // Add creator_name to each user
       return (data || []).map(user => ({
         ...user,
+        service_type: user.service_type as ServiceType,
+        status: user.status as UserStatus,
         creator_name: user.created_by ? creatorMap[user.created_by] || null : null,
-      }));
+      })) as RadiusUser[];
     },
   });
 }
