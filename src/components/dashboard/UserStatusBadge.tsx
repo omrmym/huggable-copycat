@@ -1,9 +1,9 @@
 import { cn } from '@/lib/utils';
 
-type UserStatus = 'online' | 'offline' | 'expired' | 'suspended' | 'active' | 'disabled';
+export type UserStatus = 'online' | 'offline' | 'expired' | 'suspended' | 'active' | 'disabled';
 
 interface UserStatusBadgeProps {
-  status: UserStatus;
+  status: string;
 }
 
 const statusConfig: Record<UserStatus, { label: string; className: string }> = {
@@ -34,7 +34,7 @@ const statusConfig: Record<UserStatus, { label: string; className: string }> = {
 };
 
 export function UserStatusBadge({ status }: UserStatusBadgeProps) {
-  const config = statusConfig[status];
+  const config = statusConfig[status as UserStatus] || statusConfig.disabled;
 
   return (
     <span

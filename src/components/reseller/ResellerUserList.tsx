@@ -58,8 +58,11 @@ import { ResellerRechargeDialog } from './ResellerRechargeDialog';
 import { BulkTransferRouterDialog } from '@/components/users/BulkTransferRouterDialog';
 import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
+import type { UserStatus, ServiceType } from '@/hooks/useRadiusUsers';
 
-interface RadiusUserWithPlan extends Tables<'radius_users'> {
+interface RadiusUserWithPlan extends Omit<Tables<'radius_users'>, 'service_type' | 'status'> {
+  service_type: ServiceType;
+  status: UserStatus;
   plan?: {
     id: string;
     name: string;
