@@ -104,7 +104,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     police_station_id: '',
     area_id: '',
     address_details: '',
-    service_type: 'pppoe' as 'pppoe' | 'hotspot',
+    service_type: 'hotspot' as 'pppoe' | 'hotspot',
     connectivity_type: '',
     ip_address: '',
     mac_address: '',
@@ -426,23 +426,12 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
             <TabsContent value="connection" className="space-y-4 mt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="service_type" className="flex items-center gap-1">
-                    Service Type
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
-                  </Label>
-                  <Select
-                    value={formData.service_type}
-                    onValueChange={(value: 'pppoe' | 'hotspot') => setFormData({ ...formData, service_type: value, plan_id: '', monthly_bill: '' })}
-                    disabled={!isAdmin}
-                  >
-                    <SelectTrigger className={!isAdmin ? 'opacity-60' : ''}>
-                      <SelectValue placeholder="Select service type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pppoe">PPPoE</SelectItem>
-                      <SelectItem value="hotspot">Hotspot</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="service_type">Service Type</Label>
+                  <Input
+                    value="Hotspot"
+                    disabled
+                    className="opacity-60"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="connectivity_type">Device</Label>

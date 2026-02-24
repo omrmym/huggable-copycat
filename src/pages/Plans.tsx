@@ -27,11 +27,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Plus,
   Wifi,
-  Network,
   ArrowDown,
   ArrowUp,
   Edit,
@@ -57,7 +55,7 @@ export default function PlansPage() {
     name: '',
     description: '',
     price: '',
-    service_type: '' as 'pppoe' | 'hotspot' | '',
+    service_type: 'hotspot' as 'hotspot' | '',
     type: '' as 'monthly' | 'voucher' | '',
     download_speed: '',
     upload_speed: '',
@@ -88,7 +86,7 @@ export default function PlansPage() {
       name: plan.name,
       description: plan.description || '',
       price: plan.price.toString(),
-      service_type: plan.service_type as '' | 'hotspot' | 'pppoe',
+      service_type: plan.service_type as '' | 'hotspot',
       type: plan.type as '' | 'monthly' | 'voucher',
       download_speed: (plan.download_speed_kbps / 1000).toString(),
       upload_speed: (plan.upload_speed_kbps / 1000).toString(),
@@ -100,7 +98,6 @@ export default function PlansPage() {
   };
 
   const hotspotPlans = plans.filter((p) => p.service_type === 'hotspot');
-  const pppoePlans = plans.filter((p) => p.service_type === 'pppoe');
 
   const formatDataLimit = (limit: number | null) => {
     if (limit === null) return 'Unlimited';
@@ -109,13 +106,13 @@ export default function PlansPage() {
   };
 
   const handleSavePlan = async () => {
-    if (!formData.name || !formData.service_type || !formData.type) return;
+    if (!formData.name || !formData.type) return;
 
     const planData = {
       name: formData.name,
       description: formData.description || null,
       price: parseFloat(formData.price) || 0,
-      service_type: formData.service_type,
+      service_type: 'hotspot',
       type: formData.type,
       download_speed_kbps: (parseFloat(formData.download_speed) || 10) * 1000,
       upload_speed_kbps: (parseFloat(formData.upload_speed) || 5) * 1000,
@@ -161,11 +158,7 @@ export default function PlansPage() {
       )}
       <CardHeader>
         <div className="flex items-center gap-2 mb-2">
-          {plan.service_type === 'hotspot' ? (
-            <Wifi className="w-5 h-5 text-primary" />
-          ) : (
-            <Network className="w-5 h-5 text-primary" />
-          )}
+           <Wifi className="w-5 h-5 text-primary" />
           <span
             className={cn(
               'text-xs px-2 py-0.5 rounded-full',
@@ -270,19 +263,9 @@ export default function PlansPage() {
   );
 
   return (
-    <DashboardLayout title="Plans" subtitle="Configure billing plans and packages">
-      <Tabs defaultValue="pppoe" className="space-y-6">
+    <DashboardLayout title="Plans" subtitle="Configure Hotspot billing plans and packages">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <TabsList className="bg-card border border-border">
-            <TabsTrigger value="pppoe" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Network className="w-4 h-4 mr-2" />
-              PPPoE Plans
-            </TabsTrigger>
-            <TabsTrigger value="hotspot" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Wifi className="w-4 h-4 mr-2" />
-              Hotspot Plans
-            </TabsTrigger>
-          </TabsList>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
@@ -334,19 +317,9 @@ export default function PlansPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Service Type *</Label>
-                    <Select
-                      value={formData.service_type}
-                      onValueChange={(value: 'pppoe' | 'hotspot') => setFormData({ ...formData, service_type: value })}
-                    >
-                      <SelectTrigger className="bg-secondary border-border">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pppoe">PPPoE</SelectItem>
-                        <SelectItem value="hotspot">Hotspot</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label>Service Type</Label>
+                    <Input value="Hotspot" disabled className="bg-muted border-border cursor-not-allowed" />
+                    <input type="hidden" value="hotspot" />
                   </div>
                   <div className="space-y-2">
                     <Label>Plan Type *</Label>
@@ -429,7 +402,7 @@ export default function PlansPage() {
                 <Button 
                   className="bg-gradient-primary text-primary-foreground"
                   onClick={handleSavePlan}
-                  disabled={(editingPlan ? updatePlan.isPending : createPlan.isPending) || !formData.name || !formData.service_type || !formData.type}
+                  disabled={(editingPlan ? updatePlan.isPending : createPlan.isPending) || !formData.name || !formData.type}
                 >
                   {(editingPlan ? updatePlan.isPending : createPlan.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editingPlan ? 'Save Changes' : 'Create Plan'}
@@ -439,34 +412,18 @@ export default function PlansPage() {
           </Dialog>
         </div>
 
-        <TabsContent value="pppoe">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => <PlanSkeleton key={i} />)
-            ) : pppoePlans.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-muted-foreground">
-                No PPPoE plans yet. Create one to get started.
-              </div>
-            ) : (
-              pppoePlans.map((plan) => <PlanCard key={plan.id} plan={plan} />)
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="hotspot">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => <PlanSkeleton key={i} />)
-            ) : hotspotPlans.length === 0 ? (
-              <div className="col-span-full text-center py-12 text-muted-foreground">
-                No Hotspot plans yet. Create one to get started.
-              </div>
-            ) : (
-              hotspotPlans.map((plan) => <PlanCard key={plan.id} plan={plan} />)
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <PlanSkeleton key={i} />)
+          ) : hotspotPlans.length === 0 ? (
+            <div className="col-span-full text-center py-12 text-muted-foreground">
+              No Hotspot plans yet. Create one to get started.
+            </div>
+          ) : (
+            hotspotPlans.map((plan) => <PlanCard key={plan.id} plan={plan} />)
+          )}
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

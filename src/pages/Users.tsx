@@ -303,7 +303,7 @@ export default function UsersPage() {
   };
 
   return (
-    <DashboardLayout title="All User" subtitle="Manage PPPoE and Hotspot users">
+    <DashboardLayout title="All User" subtitle="Manage Hotspot users">
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
@@ -326,16 +326,6 @@ export default function UsersPage() {
               <SelectItem value="disabled">Disabled</SelectItem>
               <SelectItem value="expired">Expired</SelectItem>
               <SelectItem value="suspended">Suspended</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={serviceFilter} onValueChange={setServiceFilter}>
-            <SelectTrigger className="w-32 bg-card border-border">
-              <SelectValue placeholder="Service" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="pppoe">PPPoE</SelectItem>
-              <SelectItem value="hotspot">Hotspot</SelectItem>
             </SelectContent>
           </Select>
           <Select value={billingCycleFilter} onValueChange={setBillingCycleFilter}>

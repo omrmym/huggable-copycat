@@ -43,11 +43,7 @@ export function MikrotikUserDisconnect() {
   };
 
   const getServiceIcon = (serviceType: 'hotspot' | 'pppoe') => {
-    return serviceType === 'hotspot' ? (
-      <Wifi className="w-4 h-4 text-primary" />
-    ) : (
-      <Network className="w-4 h-4 text-primary" />
-    );
+    return <Wifi className="w-4 h-4 text-primary" />;
   };
 
   const getStatusBadge = (status: string) => {

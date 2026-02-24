@@ -424,7 +424,7 @@ export function ResellerEditUserDialog({
                     <Lock className="h-3 w-3 text-muted-foreground" />
                   </Label>
                   <Input
-                    value={user.service_type.toUpperCase()}
+                    value="Hotspot"
                     disabled
                     className="bg-secondary border-border opacity-60"
                   />
