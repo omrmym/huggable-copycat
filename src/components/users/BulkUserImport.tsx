@@ -6,7 +6,6 @@ import { useDistricts } from "@/hooks/useDistricts";
 import { usePoliceStations } from "@/hooks/usePoliceStations";
 import { useAreas } from "@/hooks/useAreas";
 import { useMikrotikRouters } from "@/hooks/useMikrotikRouters";
-import { useConnectivityTypes } from "@/hooks/useConnectivityTypes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,33 +15,22 @@ import { Upload, FileSpreadsheet, Download, Loader2, CheckCircle, XCircle, Alert
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ImportedUser {
-  username: string;
-  password: string;
-  service_type: "pppoe" | "hotspot";
-  // Personal Information
+  // Phone is used as username & password
+  phone: string;
   full_name?: string;
   father_name?: string;
-  phone?: string;
   nid_number?: string;
   gender?: string;
   // Billing Address
   district?: string;
   police_station?: string;
   area?: string;
-  customer_type?: string;
   address_details?: string;
-  // Connectivity Details
-  connectivity_type?: string;
-  reseller_office?: string;
   // MikroTik Configuration
   mikrotik_router?: string;
-  connection_date?: string;
-  expires_at?: string;
   // Billing Information
   plan?: string;
   monthly_bill?: number;
-  connection_fee?: number;
-  billing_type?: string;
   // Status tracking
   status?: "pending" | "success" | "error";
   error?: string;
@@ -56,11 +44,18 @@ export function BulkUserImport() {
   const { data: policeStations = [] } = usePoliceStations();
   const { data: areas = [] } = useAreas();
   const { data: routers = [] } = useMikrotikRouters();
-  const { data: connectivityTypes = [] } = useConnectivityTypes();
 
   const [importedUsers, setImportedUsers] = useState<ImportedUser[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
+
+  // Default expire date: today + 1 month at 9:00 AM
+  const getDefaultExpireDate = () => {
+    const date = new Date();
+    date.setMonth(date.getMonth() + 1);
+    date.setHours(9, 0, 0, 0);
+    return date;
+  };
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -73,43 +68,25 @@ export function BulkUserImport() {
         const jsonData = await readExcelFile(buffer);
 
         const users: ImportedUser[] = jsonData.map((row: any) => ({
-          username: String(row.username || row.user_id || "").trim(),
-          password: String(row.password || "").trim(),
-          service_type: "hotspot" as "pppoe" | "hotspot",
-          // Personal Information
+          phone: String(row.phone || row.mobile || row.mobile_number || "").trim(),
           full_name: row.full_name || row.customer_name || row.name || undefined,
           father_name: row.father_name || undefined,
-          phone: row.phone || row.mobile || undefined,
           nid_number: row.nid_number || row.nid || undefined,
           gender: row.gender?.toLowerCase() || undefined,
-          // Billing Address
           district: row.district || undefined,
           police_station: row.police_station || undefined,
           area: row.area || undefined,
-          customer_type: row.customer_type || undefined,
           address_details: row.address_details || row.address || undefined,
-          // Connectivity Details
-          connectivity_type: row.connectivity_type || undefined,
-          reseller_office: row.reseller_office || row.reseller || undefined,
-          // MikroTik Configuration
           mikrotik_router: row.mikrotik_router || row.router || undefined,
-          connection_date: row.connection_date || undefined,
-          expires_at: row.expires_at || row.expire_date || undefined,
-          // Billing Information
           plan: row.plan || row.plan_name || undefined,
           monthly_bill: parseFloat(row.monthly_bill) || 0,
-          connection_fee: parseFloat(row.connection_fee) || 500,
-          billing_type: row.billing_type?.toLowerCase() || "prepaid",
           status: "pending",
         }));
 
         // Validate required fields
         const validatedUsers = users.map((user) => {
-          if (!user.username) {
-            return { ...user, status: "error" as const, error: "Username is required" };
-          }
-          if (!user.password) {
-            return { ...user, status: "error" as const, error: "Password is required" };
+          if (!user.phone) {
+            return { ...user, status: "error" as const, error: "Mobile number is required (used as User ID & Password)" };
           }
           return user;
         });
@@ -128,8 +105,6 @@ export function BulkUserImport() {
       }
     };
     reader.readAsArrayBuffer(file);
-
-    // Reset input
     event.target.value = "";
   }, [toast]);
 
@@ -149,13 +124,14 @@ export function BulkUserImport() {
 
     let successCount = 0;
     let errorCount = 0;
+    const now = new Date();
+    const expireDate = getDefaultExpireDate();
 
     for (let i = 0; i < importedUsers.length; i++) {
       const user = importedUsers[i];
       if (user.status !== "pending") continue;
 
       try {
-        // Find matching IDs for names
         const districtMatch = districts.find(d => 
           d.name.toLowerCase() === user.district?.toLowerCase() || 
           d.code?.toLowerCase() === user.district?.toLowerCase()
@@ -176,9 +152,9 @@ export function BulkUserImport() {
         );
 
         await createUser.mutateAsync({
-          username: user.username,
-          password_hash: user.password,
-          service_type: user.service_type,
+          username: user.phone,
+          password_hash: user.phone,
+          service_type: "hotspot",
           full_name: user.full_name || null,
           father_name: user.father_name || null,
           phone: user.phone || null,
@@ -187,17 +163,18 @@ export function BulkUserImport() {
           district_id: districtMatch?.id || null,
           police_station_id: policeStationMatch?.id || null,
           area_id: areaMatch?.id || null,
-          customer_type: user.customer_type || null,
+          customer_type: "student",
           address_details: user.address_details || null,
-          connectivity_type: user.connectivity_type || null,
-          reseller_office: user.reseller_office || null,
+          connectivity_type: "shared",
+          reseller_office: "Main-User",
           mikrotik_router_id: routerMatch?.id || null,
-          connection_date: user.connection_date ? new Date(user.connection_date).toISOString() : new Date().toISOString(),
-          expires_at: user.expires_at ? new Date(user.expires_at).toISOString() : null,
+          connection_date: now.toISOString(),
+          expires_at: expireDate.toISOString(),
           plan_id: planMatch?.id || null,
           monthly_bill: planMatch ? planMatch.price : (user.monthly_bill || 0),
-          connection_fee: user.connection_fee || 500,
-          billing_type: user.billing_type || null,
+          connection_fee: 0,
+          billing_type: "prepaid",
+          billing_cycle: "monthly",
         });
 
         setImportedUsers((prev) =>
@@ -227,34 +204,18 @@ export function BulkUserImport() {
   const downloadTemplate = async () => {
     const template = [
       {
-        // Required fields
-        username: "user001",
-        password: "password123",
-        service_type: "hotspot",
-        // Personal Information
+        phone: "01712345678",
         full_name: "John Doe",
         father_name: "Richard Doe",
-        phone: "01712345678",
         nid_number: "1234567890",
         gender: "male",
-        // Billing Address
-        district: "Dhaka",
-        police_station: "Dhanmondi",
+        district: "Mymensingh",
+        police_station: "Mymensingh Sadar",
         area: "Road 27",
-        customer_type: "commercial",
         address_details: "123 Main Street",
-        // Connectivity Details
-        connectivity_type: "fiber",
-        reseller_office: "Main Office",
-        // MikroTik Configuration
         mikrotik_router: "Main Router",
-        connection_date: "2025-01-28",
-        expires_at: "2025-02-28",
-        // Billing Information
         plan: "Home Fiber 20",
         monthly_bill: 1000,
-        connection_fee: 500,
-        billing_type: "prepaid",
       },
     ];
 
@@ -291,7 +252,6 @@ export function BulkUserImport() {
 
   return (
     <div className="space-y-6">
-      {/* Upload Section */}
       <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -326,28 +286,24 @@ export function BulkUserImport() {
           </div>
 
           <div className="mt-4 text-sm text-muted-foreground">
-            <p className="font-medium mb-2">Required columns:</p>
+            <p className="font-medium mb-2">Required column:</p>
             <ul className="list-disc list-inside space-y-1">
-              <li><code className="bg-secondary px-1 rounded">username</code> - Unique user ID</li>
-              <li><code className="bg-secondary px-1 rounded">password</code> - User password</li>
-              <li><code className="bg-secondary px-1 rounded">service_type</code> - "hotspot"</li>
+              <li><code className="bg-secondary px-1 rounded">phone</code> - Mobile number (used as User ID & Password)</li>
             </ul>
-            <p className="mt-2 font-medium mb-2">Optional columns (same as single user form):</p>
+            <p className="mt-2 font-medium mb-2">Optional columns:</p>
             <ul className="list-disc list-inside space-y-1">
-              <li><strong>Personal:</strong> <code className="bg-secondary px-1 rounded">full_name</code>, <code className="bg-secondary px-1 rounded">father_name</code>, <code className="bg-secondary px-1 rounded">phone</code>, <code className="bg-secondary px-1 rounded">nid_number</code>, <code className="bg-secondary px-1 rounded">gender</code></li>
-              <li><strong>Address:</strong> <code className="bg-secondary px-1 rounded">district</code>, <code className="bg-secondary px-1 rounded">police_station</code>, <code className="bg-secondary px-1 rounded">area</code>, <code className="bg-secondary px-1 rounded">customer_type</code>, <code className="bg-secondary px-1 rounded">address_details</code></li>
-              <li><strong>Connectivity:</strong> <code className="bg-secondary px-1 rounded">connectivity_type</code>, <code className="bg-secondary px-1 rounded">reseller_office</code></li>
-              <li><strong>MikroTik:</strong> <code className="bg-secondary px-1 rounded">mikrotik_router</code>, <code className="bg-secondary px-1 rounded">connection_date</code>, <code className="bg-secondary px-1 rounded">expires_at</code></li>
-              <li><strong>Billing:</strong> <code className="bg-secondary px-1 rounded">plan</code>, <code className="bg-secondary px-1 rounded">monthly_bill</code>, <code className="bg-secondary px-1 rounded">connection_fee</code>, <code className="bg-secondary px-1 rounded">billing_type</code></li>
+              <li><strong>Personal:</strong> <code className="bg-secondary px-1 rounded">full_name</code>, <code className="bg-secondary px-1 rounded">father_name</code>, <code className="bg-secondary px-1 rounded">nid_number</code>, <code className="bg-secondary px-1 rounded">gender</code></li>
+              <li><strong>Address:</strong> <code className="bg-secondary px-1 rounded">district</code>, <code className="bg-secondary px-1 rounded">police_station</code>, <code className="bg-secondary px-1 rounded">area</code>, <code className="bg-secondary px-1 rounded">address_details</code></li>
+              <li><strong>MikroTik:</strong> <code className="bg-secondary px-1 rounded">mikrotik_router</code></li>
+              <li><strong>Billing:</strong> <code className="bg-secondary px-1 rounded">plan</code>, <code className="bg-secondary px-1 rounded">monthly_bill</code></li>
             </ul>
             <p className="mt-2 text-xs text-muted-foreground">
-              Note: Use names for district, police_station, area, mikrotik_router, and plan - they will be matched automatically.
+              Fixed values: Service=Hotspot, Connection Type=Wireless, Connectivity=Shared, Client Type=Student, Connection Fee=0, Billing Type=Prepaid
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Preview Section */}
       {importedUsers.length > 0 && (
         <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -383,10 +339,9 @@ export function BulkUserImport() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>#</TableHead>
-                    <TableHead>Username</TableHead>
+                    <TableHead>Phone (User ID)</TableHead>
                     <TableHead>Name</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Service</TableHead>
+                    <TableHead>Plan</TableHead>
                     <TableHead>Monthly Bill</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
@@ -395,14 +350,9 @@ export function BulkUserImport() {
                   {importedUsers.map((user, index) => (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell className="font-medium">{user.username}</TableCell>
+                      <TableCell className="font-medium">{user.phone}</TableCell>
                       <TableCell>{user.full_name || "-"}</TableCell>
-                      <TableCell>{user.phone || "-"}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="capitalize">
-                          {user.service_type}
-                        </Badge>
-                      </TableCell>
+                      <TableCell>{user.plan || "-"}</TableCell>
                       <TableCell>৳{user.monthly_bill || 0}</TableCell>
                       <TableCell>{getStatusBadge(user)}</TableCell>
                     </TableRow>
