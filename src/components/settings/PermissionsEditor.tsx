@@ -10,8 +10,7 @@ import {
   Settings, 
   UserCheck, 
   DollarSign, 
-  BarChart3,
-  Ticket
+  BarChart3
 } from 'lucide-react';
 
 // Define all available permissions with hierarchical structure
@@ -156,15 +155,6 @@ export const PERMISSION_DEFINITIONS = {
       { key: 'plans.create', label: 'Create Plans' },
       { key: 'plans.edit', label: 'Edit Plans' },
       { key: 'plans.delete', label: 'Delete Plans' },
-    ],
-  },
-  vouchers: {
-    label: 'Vouchers',
-    icon: Ticket,
-    permissions: [
-      { key: 'vouchers.view', label: 'View Vouchers' },
-      { key: 'vouchers.create', label: 'Create Vouchers' },
-      { key: 'vouchers.delete', label: 'Delete Vouchers' },
     ],
   },
   recharge: {
