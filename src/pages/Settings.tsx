@@ -50,6 +50,7 @@ import { ExpenseCategoryManagement } from '@/components/settings/ExpenseCategory
 import { DepartmentManagement } from '@/components/settings/DepartmentManagement';
 import { PositionManagement } from '@/components/settings/PositionManagement';
 import { PaymentGatewaySettings } from '@/components/settings/PaymentGatewaySettings';
+import { SuperAdminAccountSettings } from '@/components/settings/SuperAdminAccountSettings';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -1331,6 +1332,9 @@ export default function SettingsPage() {
 
         {/* System Settings */}
         <TabsContent value="system" className="space-y-6">
+          {/* Super Admin Account Settings */}
+          <SuperAdminAccountSettings />
+
           {/* Session Timeout Settings */}
           <SessionTimeoutSettings />
 
