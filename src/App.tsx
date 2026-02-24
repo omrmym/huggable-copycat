@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CustomerAuthProvider } from "@/contexts/CustomerAuthContext";
-import { ResellerAuthProvider } from "@/contexts/ResellerAuthContext";
+
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SessionTimeoutProvider } from "@/components/auth/SessionTimeoutProvider";
 import Index from "./pages/Index";
@@ -29,44 +29,21 @@ import Settings from "./pages/Settings";
 import CustomerLogin from "./pages/portal/CustomerLogin";
 import CustomerAutoLogin from "./pages/portal/CustomerAutoLogin";
 import CustomerDashboard from "./pages/portal/CustomerDashboard";
-import ResellerLogin from "./pages/reseller/ResellerLogin";
-import ResellerDashboard from "./pages/reseller/ResellerDashboard";
-import ResellerUsersPage from "./pages/reseller/ResellerUsersPage";
-import ResellerCreateUserPage from "./pages/reseller/ResellerCreateUserPage";
-import ResellerUserProfilePage from "./pages/reseller/ResellerUserProfilePage";
-import ResellerCreditsPage from "./pages/reseller/ResellerCreditsPage";
-import ResellerBranchesPage from "./pages/reseller/ResellerBranchesPage";
-import ResellerRechargesPage from "./pages/reseller/ResellerRechargesPage";
-import ResellerAreaPage from "./pages/reseller/ResellerAreaPage";
-import ResellerPoliceStationPage from "./pages/reseller/ResellerPoliceStationPage";
-import ResellerDistrictPage from "./pages/reseller/ResellerDistrictPage";
-import ResellerBillingStatistics from "./pages/reseller/recharge/ResellerBillingStatistics";
-import ResellerCustomerRecharge from "./pages/reseller/recharge/ResellerCustomerRecharge";
-import ResellerManageRecharge from "./pages/reseller/recharge/ResellerManageRecharge";
-import ResellerPendingBillCollection from "./pages/reseller/recharge/ResellerPendingBillCollection";
-import ResellerApprovedBillCollection from "./pages/reseller/recharge/ResellerApprovedBillCollection";
-import ResellerBillingReport from "./pages/reseller/reports/ResellerBillingReport";
-import ResellerConnectionFeeReport from "./pages/reseller/reports/ResellerConnectionFeeReport";
-import ResellerManWiseCollectionReport from "./pages/reseller/reports/ResellerManWiseCollectionReport";
-import ResellerMonthlyNewLineReport from "./pages/reseller/reports/ResellerMonthlyNewLineReport";
-import ResellerOnlineOfflineUsers from "./pages/reseller/ResellerOnlineOfflineUsers";
+
+
 
 import PaymentCallback from "./pages/PaymentCallback";
 import HRAdmin from "./pages/HRAdmin";
 import FinanceOverview from "./pages/finance/FinanceOverview";
 import Income from "./pages/finance/Income";
 import Expense from "./pages/finance/Expense";
-import Resellers from "./pages/management/Resellers";
-import Branches from "./pages/management/Branches";
-import ResellerUsers from "./pages/management/ResellerUsers";
-import ResellerPlans from "./pages/management/ResellerPlans";
-import CreditRecharge from "./pages/management/CreditRecharge";
-import UserRechargeList from "./pages/management/UserRechargeList";
+
+
 import BillingReport from "./pages/reports/BillingReport";
 import ConnectionFeeReport from "./pages/reports/ConnectionFeeReport";
 import ExtraIncomeReport from "./pages/reports/ExtraIncomeReport";
 import ExpenseReport from "./pages/reports/ExpenseReport";
-import ResellerCreditReport from "./pages/reports/ResellerCreditReport";
+
 import EmployeeSalaryReport from "./pages/reports/EmployeeSalaryReport";
 import LeaveReport from "./pages/reports/LeaveReport";
 import FinalReport from "./pages/reports/FinalReport";
@@ -92,33 +69,11 @@ const App = () => (
         <AuthProvider>
           <SessionTimeoutProvider>
             <CustomerAuthProvider>
-              <ResellerAuthProvider>
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/portal" element={<CustomerDashboard />} />
                   <Route path="/portal/login" element={<CustomerLogin />} />
                   <Route path="/portal/u/:userId" element={<CustomerAutoLogin />} />
-                  <Route path="/reseller" element={<ResellerDashboard />} />
-                  <Route path="/reseller/login" element={<ResellerLogin />} />
-                  <Route path="/reseller/users" element={<ResellerUsersPage />} />
-                  <Route path="/reseller/users/create" element={<ResellerCreateUserPage />} />
-                  <Route path="/reseller/users/:userId" element={<ResellerUserProfilePage />} />
-                  <Route path="/reseller/users/area" element={<ResellerAreaPage />} />
-                  <Route path="/reseller/users/police-station" element={<ResellerPoliceStationPage />} />
-                  <Route path="/reseller/users/district" element={<ResellerDistrictPage />} />
-                  <Route path="/reseller/credits" element={<ResellerCreditsPage />} />
-                  <Route path="/reseller/branches" element={<ResellerBranchesPage />} />
-                  <Route path="/reseller/recharges" element={<ResellerRechargesPage />} />
-                  <Route path="/reseller/recharge/statistics" element={<ResellerBillingStatistics />} />
-                  <Route path="/reseller/recharge/customer" element={<ResellerCustomerRecharge />} />
-                  <Route path="/reseller/recharge/manage" element={<ResellerManageRecharge />} />
-                  <Route path="/reseller/recharge/pending" element={<ResellerPendingBillCollection />} />
-                  <Route path="/reseller/recharge/approved" element={<ResellerApprovedBillCollection />} />
-                  <Route path="/reseller/reports/billing" element={<ResellerBillingReport />} />
-                  <Route path="/reseller/reports/connection-fee" element={<ResellerConnectionFeeReport />} />
-                  <Route path="/reseller/reports/man-wise-collection" element={<ResellerManWiseCollectionReport />} />
-                  <Route path="/reseller/reports/monthly-new-line" element={<ResellerMonthlyNewLineReport />} />
-                  <Route path="/reseller/users/online-offline" element={<ResellerOnlineOfflineUsers />} />
               <Route
               path="/"
               element={
@@ -279,14 +234,8 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/reports/reseller-credit"
-              element={
-                <ProtectedRoute>
-                  <ResellerCreditReport />
-                </ProtectedRoute>
-              }
-            />
+
+
             <Route
               path="/reports/employee-salary"
               element={
@@ -392,54 +341,8 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/management/resellers"
-              element={
-                <ProtectedRoute>
-                  <Resellers />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/management/branches"
-              element={
-                <ProtectedRoute>
-                  <Branches />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/management/reseller-users"
-              element={
-                <ProtectedRoute>
-                  <ResellerUsers />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/management/reseller-plans"
-              element={
-                <ProtectedRoute>
-                  <ResellerPlans />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/management/credit-recharge"
-              element={
-                <ProtectedRoute>
-                  <CreditRecharge />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/management/user-recharges"
-              element={
-                <ProtectedRoute>
-                  <UserRechargeList />
-                </ProtectedRoute>
-              }
-            />
+
+
             <Route
               path="/device-inventory/list"
               element={
@@ -467,7 +370,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              </ResellerAuthProvider>
+              
             </CustomerAuthProvider>
           </SessionTimeoutProvider>
         </AuthProvider>
