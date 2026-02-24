@@ -63,15 +63,6 @@ const financeSubItems = [{
 
 
 
-const deviceInventorySubItems = [{
-  icon: List,
-  label: 'Device List',
-  path: '/device-inventory/list'
-}, {
-  icon: ClipboardCheck,
-  label: 'Pending Approval',
-  path: '/device-inventory/pending'
-}];
 
 const reportSubItems = [{
   icon: BarChart3,
@@ -119,10 +110,6 @@ const reportSubItems = [{
   icon: Building2,
   label: 'BTRC Report',
   path: '/reports/btrc'
-}, {
-  icon: HardDrive,
-  label: 'Device Report',
-  path: '/reports/device'
 }];
 const navItems = [{
   icon: LayoutDashboard,
@@ -162,13 +149,11 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const isOnRechargeRoute = location.pathname.startsWith('/recharge');
   const isOnFinanceRoute = location.pathname.startsWith('/finance');
   
-  const isOnDeviceInventoryRoute = location.pathname.startsWith('/device-inventory');
+
   const isOnReportsRoute = location.pathname.startsWith('/reports');
   const [isUsersOpen, setIsUsersOpen] = useState(isOnUsersRoute);
   const [isRechargeOpen, setIsRechargeOpen] = useState(isOnRechargeRoute);
   const [isFinanceOpen, setIsFinanceOpen] = useState(isOnFinanceRoute);
-  
-  const [isDeviceInventoryOpen, setIsDeviceInventoryOpen] = useState(isOnDeviceInventoryRoute);
   const [isReportsOpen, setIsReportsOpen] = useState(isOnReportsRoute);
   const handleLogout = async () => {
     await signOut();
@@ -275,25 +260,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
 
 
 
-        {/* Device Inventory with Submenu */}
-        <Collapsible open={isDeviceInventoryOpen} onOpenChange={setIsDeviceInventoryOpen}>
-          <CollapsibleTrigger className="nav-link w-full justify-between">
-            <div className="flex items-center gap-3">
-              <HardDrive className="w-5 h-5" />
-              <span>Device Inventory</span>
-            </div>
-            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDeviceInventoryOpen ? 'rotate-180' : ''}`} />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pl-4 mt-1 space-y-1">
-            {deviceInventorySubItems.map(item => {
-            const isActive = location.pathname === item.path;
-            return <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`}>
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </Link>;
-          })}
-          </CollapsibleContent>
-        </Collapsible>
 
         {/* Reports with Submenu */}
         <Collapsible open={isReportsOpen} onOpenChange={setIsReportsOpen}>

@@ -53,9 +53,6 @@ import MonthlyExpireReport from "./pages/reports/MonthlyExpireReport";
 import BTRCReport from "./pages/reports/BTRCReport";
 import Activity from "./pages/Activity";
 import RoleEdit from "./pages/settings/RoleEdit";
-import DeviceList from "./pages/device-inventory/DeviceList";
-import PendingApproval from "./pages/device-inventory/PendingApproval";
-import DeviceReport from "./pages/reports/DeviceReport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -343,30 +340,6 @@ const App = () => (
             />
 
 
-            <Route
-              path="/device-inventory/list"
-              element={
-                <ProtectedRoute>
-                  <DeviceList />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/device-inventory/pending"
-              element={
-                <ProtectedRoute>
-                  <PendingApproval />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reports/device"
-              element={
-                <ProtectedRoute>
-                  <DeviceReport />
-                </ProtectedRoute>
-              }
-            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
