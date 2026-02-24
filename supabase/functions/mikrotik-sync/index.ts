@@ -37,15 +37,25 @@ async function getDefaultRouter(supabase: ReturnType<typeof createClient>): Prom
   return null;
 }
 
+function getRestPort(router: RouterConfig): number {
+  const port = typeof router.port === "string" ? parseInt(router.port) : router.port;
+  // MikroTik binary API ports - auto-map to REST API ports
+  if (port === 8728) return 80;   // API -> HTTP REST
+  if (port === 8729) return 443;  // API-SSL -> HTTPS REST
+  return port; // User specified a custom port, use as-is
+}
+
 async function mikrotikRestRequest(
   router: RouterConfig,
   path: string,
   method: string = "GET",
   body?: Record<string, unknown>
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  const port = typeof router.port === "string" ? parseInt(router.port) : router.port;
-  const protocol = router.useSsl ? "https" : "http";
-  const url = `${protocol}://${router.host}:${port}/rest${path}`;
+  const restPort = getRestPort(router);
+  const protocol = router.useSsl || restPort === 443 ? "https" : "http";
+  // Don't include port in URL if it's the default for the protocol
+  const portSuffix = (protocol === "http" && restPort === 80) || (protocol === "https" && restPort === 443) ? "" : `:${restPort}`;
+  const url = `${protocol}://${router.host}${portSuffix}/rest${path}`;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -54,7 +64,7 @@ async function mikrotikRestRequest(
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const timeout = setTimeout(() => controller.abort(), 15000);
 
     const response = await fetch(url, {
       method,
@@ -78,9 +88,12 @@ async function mikrotikRestRequest(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes("abort")) {
-      return { success: false, error: "Connection timed out after 10 seconds" };
+      return { 
+        success: false, 
+        error: `Connection timed out. Make sure the MikroTik REST API (www or www-ssl) service is enabled on your router and the router is reachable from the internet. Tried: ${url}` 
+      };
     }
-    return { success: false, error: `Connection failed: ${message}` };
+    return { success: false, error: `Connection failed to ${url}: ${message}. Ensure MikroTik REST API service is enabled (IP > Services > www).` };
   }
 }
 
