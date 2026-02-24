@@ -44,19 +44,14 @@ export function SuperAdminAccountSettings() {
     mutationFn: async () => {
       if (!newEmail.trim()) throw new Error('Email is required');
 
-      // Update auth email
-      const { error: authError } = await supabase.auth.updateUser({ email: newEmail });
-      if (authError) throw authError;
-
-      // Update software_users table
-      const { error: dbError } = await supabase
-        .from('software_users')
-        .update({ email: newEmail })
-        .eq('user_id', user!.id);
-      if (dbError) throw dbError;
+      const { data, error } = await supabase.functions.invoke('update-admin-account', {
+        body: { action: 'update_email', new_email: newEmail },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Failed to update email');
     },
     onSuccess: () => {
-      toast.success('Email updated! Check your new email for confirmation.');
+      toast.success('Email updated successfully! Please log in again with your new email.');
       setNewEmail('');
       queryClient.invalidateQueries({ queryKey: ['software-user-self'] });
     },
@@ -103,16 +98,11 @@ export function SuperAdminAccountSettings() {
       if (newPassword.length < 6) throw new Error('Password must be at least 6 characters');
       if (newPassword !== confirmPassword) throw new Error('Passwords do not match');
 
-      // Verify current password by re-authenticating
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user!.email!,
-        password: currentPassword,
+      const { data, error } = await supabase.functions.invoke('update-admin-account', {
+        body: { action: 'update_password', current_password: currentPassword, new_password: newPassword },
       });
-      if (signInError) throw new Error('Current password is incorrect');
-
-      // Update password
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Failed to update password');
     },
     onSuccess: () => {
       toast.success('Password updated successfully!');
