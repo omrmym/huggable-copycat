@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Wifi, Mail, User, Store } from 'lucide-react';
+import { Loader2, Wifi, Mail, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function Login() {
@@ -152,21 +152,6 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or</span>
-            </div>
-          </div>
-
-          <Link to="/reseller/login">
-            <Button variant="outline" className="w-full">
-              <Store className="w-4 h-4 mr-2" />
-              Reseller Login
-            </Button>
-          </Link>
         </CardContent>
       </Card>
     </div>
