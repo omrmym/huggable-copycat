@@ -60,23 +60,8 @@ const financeSubItems = [{
   label: 'Expense',
   path: '/finance/expense'
 }];
-const managementSubItems = [{
-  icon: Store,
-  label: 'Resellers',
-  path: '/management/resellers'
-}, {
-  icon: CreditCard,
-  label: 'Reseller Plans',
-  path: '/management/reseller-plans'
-}, {
-  icon: Wallet,
-  label: 'Credit Recharge',
-  path: '/management/credit-recharge'
-}, {
-  icon: BarChart3,
-  label: 'User Recharge List',
-  path: '/management/user-recharges'
-}];
+
+
 
 const deviceInventorySubItems = [{
   icon: List,
@@ -105,10 +90,8 @@ const reportSubItems = [{
   label: 'Expense',
   path: '/reports/expense'
 }, {
-  icon: Store,
-  label: 'Reseller Credit',
-  path: '/reports/reseller-credit'
-}, {
+
+
   icon: UserCog,
   label: 'Employee Salary',
   path: '/reports/employee-salary'
@@ -178,13 +161,13 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const isOnUsersRoute = location.pathname.startsWith('/users');
   const isOnRechargeRoute = location.pathname.startsWith('/recharge');
   const isOnFinanceRoute = location.pathname.startsWith('/finance');
-  const isOnManagementRoute = location.pathname.startsWith('/management');
+  
   const isOnDeviceInventoryRoute = location.pathname.startsWith('/device-inventory');
   const isOnReportsRoute = location.pathname.startsWith('/reports');
   const [isUsersOpen, setIsUsersOpen] = useState(isOnUsersRoute);
   const [isRechargeOpen, setIsRechargeOpen] = useState(isOnRechargeRoute);
   const [isFinanceOpen, setIsFinanceOpen] = useState(isOnFinanceRoute);
-  const [isManagementOpen, setIsManagementOpen] = useState(isOnManagementRoute);
+  
   const [isDeviceInventoryOpen, setIsDeviceInventoryOpen] = useState(isOnDeviceInventoryRoute);
   const [isReportsOpen, setIsReportsOpen] = useState(isOnReportsRoute);
   const handleLogout = async () => {
@@ -290,25 +273,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Management with Submenu */}
-        <Collapsible open={isManagementOpen} onOpenChange={setIsManagementOpen}>
-          <CollapsibleTrigger className="nav-link w-full justify-between">
-            <div className="flex items-center gap-3">
-              <Store className="w-5 h-5" />
-              <span>Reseller/Branch</span>
-            </div>
-            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isManagementOpen ? 'rotate-180' : ''}`} />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pl-4 mt-1 space-y-1">
-            {managementSubItems.map(item => {
-            const isActive = location.pathname === item.path;
-            return <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`}>
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </Link>;
-          })}
-          </CollapsibleContent>
-        </Collapsible>
+
 
         {/* Device Inventory with Submenu */}
         <Collapsible open={isDeviceInventoryOpen} onOpenChange={setIsDeviceInventoryOpen}>
