@@ -71,31 +71,22 @@ export default function ResellerCreateUserPage() {
     monthly_bill: "",
     connection_fee: "500",
     billing_type: "",
-    billing_cycle: "monthly" as "30_day" | "monthly",
+    
     plan_id: "",
     connectivity_type: "",
     mac_serial: "",
     service_type: "hotspot" as "hotspot", // Fixed to Hotspot
   });
 
-  const calculateExpirationDate = (connectionDate: Date, billingCycle: "30_day" | "monthly"): Date => {
+  const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
-    if (billingCycle === "30_day") {
-      expireDate.setDate(expireDate.getDate() + 30);
-    } else {
-      expireDate.setMonth(expireDate.getMonth() + 1);
-    }
+    expireDate.setMonth(expireDate.getMonth() + 1);
     expireDate.setHours(9, 0, 0, 0);
     return expireDate;
   };
 
-  const handleBillingCycleChange = (cycle: "30_day" | "monthly") => {
-    const newExpireDate = calculateExpirationDate(formData.connection_date, cycle);
-    setFormData({ ...formData, billing_cycle: cycle, expires_at: newExpireDate });
-  };
-
   const handleConnectionDateChange = (date: Date) => {
-    const newExpireDate = calculateExpirationDate(date, formData.billing_cycle);
+    const newExpireDate = calculateExpirationDate(date);
     setFormData({ ...formData, connection_date: date, expires_at: newExpireDate });
   };
 
@@ -163,7 +154,7 @@ export default function ResellerCreateUserPage() {
         monthly_bill: parseFloat(formData.monthly_bill) || 0,
         connection_fee: parseFloat(formData.connection_fee) || 0,
         billing_type: formData.billing_type || null,
-        billing_cycle: formData.billing_cycle || 'monthly',
+        billing_cycle: 'monthly',
         plan_id: formData.plan_id || null,
         connectivity_type: formData.connectivity_type || null,
         mac_serial: formData.mac_serial || null,
@@ -520,21 +511,6 @@ export default function ResellerCreateUserPage() {
                         />
                       </PopoverContent>
                     </Popover>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Billing Cycle *</Label>
-                    <Select
-                      value={formData.billing_cycle}
-                      onValueChange={(value: "30_day" | "monthly") => handleBillingCycleChange(value)}
-                    >
-                      <SelectTrigger className="bg-secondary border-border">
-                        <SelectValue placeholder="Select billing cycle" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30_day">30 Day Count (expires after 30 days)</SelectItem>
-                        <SelectItem value="monthly">Monthly (same day next month at 9 AM)</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>Expire Date</Label>

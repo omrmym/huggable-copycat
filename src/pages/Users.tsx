@@ -72,7 +72,7 @@ export default function UsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [serviceFilter, setServiceFilter] = useState<string>('all');
-  const [billingCycleFilter, setBillingCycleFilter] = useState<string>('all');
+  
   const [billingFilter, setBillingFilter] = useState<string>('all'); // free, paid, all
   const [rechargeDialogOpen, setRechargeDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<RadiusUser | null>(null);
@@ -117,7 +117,7 @@ export default function UsersPage() {
 
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     const matchesService = serviceFilter === 'all' || user.service_type === serviceFilter;
-    const matchesBillingCycle = billingCycleFilter === 'all' || (user as any).billing_cycle === billingCycleFilter;
+    
     
     // Billing filter: free (monthly_bill = 0), paid (balance > 0)
     let matchesBilling = true;
@@ -129,7 +129,7 @@ export default function UsersPage() {
       matchesBilling = user.auto_renew === true;
     }
 
-    return matchesSearch && matchesStatus && matchesService && matchesBillingCycle && matchesBilling;
+    return matchesSearch && matchesStatus && matchesService && matchesBilling;
   });
 
   const getPlanName = (planId: string | null) => {
@@ -288,7 +288,7 @@ export default function UsersPage() {
       'Plan': getPlanName(user.plan_id),
       'Monthly Bill': user.monthly_bill || 0,
       'Balance': user.balance || 0,
-      'Billing Cycle': user.billing_cycle === 'monthly' ? 'Monthly' : '30 Days',
+      
       'Status': user.status,
       'Expires At': user.expires_at ? new Date(user.expires_at).toLocaleDateString() : '',
       'Grace Days Used': user.grace_days_used || 0,
@@ -326,16 +326,6 @@ export default function UsersPage() {
               <SelectItem value="disabled">Disabled</SelectItem>
               <SelectItem value="expired">Expired</SelectItem>
               <SelectItem value="suspended">Suspended</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={billingCycleFilter} onValueChange={setBillingCycleFilter}>
-            <SelectTrigger className="w-36 bg-card border-border">
-              <SelectValue placeholder="Billing Cycle" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Cycles</SelectItem>
-              <SelectItem value="30_day">30 Days</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline" className="border-border" onClick={handleExport}>
@@ -411,9 +401,6 @@ export default function UsersPage() {
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Balance
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Billing Cycle
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Expires
@@ -540,15 +527,6 @@ export default function UsersPage() {
                         }`}
                       >
                         ৳{user.balance.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        (user as any).billing_cycle === '30_day' 
-                          ? 'bg-blue-500/20 text-blue-400' 
-                          : 'bg-purple-500/20 text-purple-400'
-                      }`}>
-                        {(user as any).billing_cycle === '30_day' ? '30 Days' : 'Monthly'}
                       </span>
                     </td>
                     <td className="px-4 py-3">

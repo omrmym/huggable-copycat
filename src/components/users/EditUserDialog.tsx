@@ -114,7 +114,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     reseller_office: '',
     plan_id: '',
     billing_type: '',
-    billing_cycle: 'monthly' as '30_day' | 'monthly',
+    billing_cycle: 'monthly',
     monthly_bill: '',
     connection_fee: '',
     connection_date: new Date().toISOString(),
@@ -123,22 +123,12 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     auto_renew: false,
   });
 
-  // Calculate expiration date based on billing cycle
-  const calculateExpirationDate = (connectionDate: Date, billingCycle: '30_day' | 'monthly'): Date => {
+  // Calculate expiration date
+  const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
-    if (billingCycle === '30_day') {
-      expireDate.setDate(expireDate.getDate() + 30);
-    } else {
-      expireDate.setMonth(expireDate.getMonth() + 1);
-    }
+    expireDate.setMonth(expireDate.getMonth() + 1);
     expireDate.setHours(9, 0, 0, 0);
     return expireDate;
-  };
-
-  const handleBillingCycleChange = (cycle: '30_day' | 'monthly') => {
-    const connectionDate = new Date(formData.connection_date);
-    const newExpireDate = calculateExpirationDate(connectionDate, cycle);
-    setFormData({ ...formData, billing_cycle: cycle, expires_at: newExpireDate.toISOString() });
   };
 
   useEffect(() => {
@@ -165,7 +155,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         reseller_office: user.reseller_office || (user.reseller_id === null ? 'Main-User' : ''),
         plan_id: user.plan_id || '',
         billing_type: user.billing_type || '',
-        billing_cycle: (user.billing_cycle as '30_day' | 'monthly') || 'monthly',
+        billing_cycle: 'monthly',
         monthly_bill: user.monthly_bill?.toString() || '',
         connection_fee: user.connection_fee?.toString() || '',
         connection_date: user.connection_date || new Date().toISOString(),
@@ -601,25 +591,6 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     <SelectContent>
                       <SelectItem value="prepaid">Prepaid</SelectItem>
                       <SelectItem value="postpaid">Postpaid</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="billing_cycle" className="flex items-center gap-1">
-                    Billing Cycle
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
-                  </Label>
-                  <Select
-                    value={formData.billing_cycle}
-                    onValueChange={(value: '30_day' | 'monthly') => handleBillingCycleChange(value)}
-                    disabled={!isAdmin}
-                  >
-                    <SelectTrigger className={!isAdmin ? 'opacity-60' : ''}>
-                      <SelectValue placeholder="Select billing cycle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="30_day">30 Day Count</SelectItem>
-                      <SelectItem value="monthly">Monthly (same day next month at 9 AM)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

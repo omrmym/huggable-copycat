@@ -83,7 +83,7 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [serviceFilter, setServiceFilter] = useState<string>('all');
-  const [billingCycleFilter, setBillingCycleFilter] = useState<string>('all');
+  
   const [billingFilter, setBillingFilter] = useState<string>('all');
   const [resellerFilter, setResellerFilter] = useState<string>('all');
   const [rechargeDialogOpen, setRechargeDialogOpen] = useState(false);
@@ -296,7 +296,7 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
 
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     const matchesService = serviceFilter === 'all' || user.service_type === serviceFilter;
-    const matchesBillingCycle = billingCycleFilter === 'all' || (user as any).billing_cycle === billingCycleFilter;
+    
 
     // Billing filter: free (monthly_bill = 0), paid (balance > 0)
     let matchesBilling = true;
@@ -308,7 +308,7 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
       matchesBilling = user.auto_renew === true;
     }
 
-    return matchesSearch && matchesStatus && matchesService && matchesBillingCycle && matchesBilling;
+    return matchesSearch && matchesStatus && matchesService && matchesBilling;
   });
 
   const handleSelectUser = (userId: string, checked: boolean) => {
@@ -448,16 +448,6 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
               <SelectItem value="suspended">Suspended</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={billingCycleFilter} onValueChange={setBillingCycleFilter}>
-            <SelectTrigger className="w-36 bg-card border-border">
-              <SelectValue placeholder="Billing Cycle" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Cycles</SelectItem>
-              <SelectItem value="30_day">30 Days</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
           <Button variant="outline" className="border-border">
             <Download className="w-4 h-4 mr-2" />
             Export
@@ -528,9 +518,6 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Balance
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Billing Cycle
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Expires
@@ -649,15 +636,6 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
                         }`}
                       >
                         ৳{user.balance.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        (user as any).billing_cycle === '30_day' 
-                          ? 'bg-blue-500/20 text-blue-400' 
-                          : 'bg-purple-500/20 text-purple-400'
-                      }`}>
-                        {(user as any).billing_cycle === '30_day' ? '30 Days' : 'Monthly'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
