@@ -11,9 +11,7 @@ import {
   UserCheck, 
   DollarSign, 
   BarChart3,
-  Ticket,
-  Store,
-  HardDrive
+  Ticket
 } from 'lucide-react';
 
 // Define all available permissions with hierarchical structure
@@ -180,17 +178,6 @@ export const PERMISSION_DEFINITIONS = {
       { key: 'recharge.statistics', label: 'View Billing Statistics' },
     ],
   },
-  resellers: {
-    label: 'Reseller Management',
-    icon: Store,
-    permissions: [
-      { key: 'resellers.view', label: 'View Resellers' },
-      { key: 'resellers.create', label: 'Create Resellers' },
-      { key: 'resellers.edit', label: 'Edit Resellers' },
-      { key: 'resellers.delete', label: 'Delete Resellers' },
-      { key: 'resellers.credits', label: 'Manage Credits' },
-    ],
-  },
   finance: {
     label: 'Finance',
     icon: BarChart3,
@@ -237,7 +224,6 @@ export const PERMISSION_DEFINITIONS = {
         permissions: [
           { key: 'reports.expense', label: 'Expense Report' },
           { key: 'reports.income', label: 'Extra Income Report' },
-          { key: 'reports.reseller', label: 'Reseller Credit Report' },
           { key: 'reports.final', label: 'Final Report' },
         ],
       },
@@ -254,24 +240,8 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'reports.btrc', label: 'BTRC Report' },
         ],
       },
-      device: {
-        label: 'Device Reports',
-        permissions: [
-          { key: 'reports.device', label: 'Device Report' },
-        ],
-      },
     },
     permissions: [],
-  },
-  device_inventory: {
-    label: 'Device Inventory',
-    icon: HardDrive,
-    subcategories: {},
-    permissions: [
-      { key: 'device_inventory.view', label: 'View Device List' },
-      { key: 'device_inventory.pending', label: 'View Pending Approvals' },
-      { key: 'device_inventory.approve', label: 'Approve/Reject Changes' },
-    ],
   },
   settings: {
     label: 'Settings',
