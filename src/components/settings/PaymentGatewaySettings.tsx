@@ -19,6 +19,9 @@ interface PaymentGatewayConfig {
   nagad_enabled: boolean;
   nagad_merchant_id: string;
   nagad_api_key: string;
+  ssl_enabled: boolean;
+  ssl_store_id: string;
+  ssl_store_password: string;
 }
 
 const defaultConfig: PaymentGatewayConfig = {
@@ -30,6 +33,9 @@ const defaultConfig: PaymentGatewayConfig = {
   nagad_enabled: false,
   nagad_merchant_id: '',
   nagad_api_key: '',
+  ssl_enabled: false,
+  ssl_store_id: '',
+  ssl_store_password: '',
 };
 
 export function PaymentGatewaySettings() {
@@ -218,6 +224,49 @@ export function PaymentGatewaySettings() {
                   <Switch
                     checked={config.nagad_enabled}
                     onCheckedChange={(checked) => setConfig({ ...config, nagad_enabled: checked })}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-secondary border-border">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">SSLCommerz</h4>
+                  <p className="text-xs text-muted-foreground">Payment Gateway</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Store ID</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter Store ID"
+                    className="bg-background border-border"
+                    value={config.ssl_store_id}
+                    onChange={(e) => setConfig({ ...config, ssl_store_id: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Store Password</Label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    className="bg-background border-border"
+                    value={config.ssl_store_password}
+                    onChange={(e) => setConfig({ ...config, ssl_store_password: e.target.value })}
+                  />
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <Label className="text-sm">Enable SSLCommerz</Label>
+                  <Switch
+                    checked={config.ssl_enabled}
+                    onCheckedChange={(checked) => setConfig({ ...config, ssl_enabled: checked })}
                   />
                 </div>
               </div>
