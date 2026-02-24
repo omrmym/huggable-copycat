@@ -43,7 +43,7 @@ import { ConnectivityTypeManagement } from '@/components/settings/ConnectivityTy
 import { PaymentMethodManagement } from '@/components/settings/PaymentMethodManagement';
 import { DisconnectRouterButton } from '@/components/settings/DisconnectRouterButton';
 import { RoleManagement } from '@/components/settings/RoleManagement';
-import { MikrotikExpirationSettings } from '@/components/settings/MikrotikExpirationSettings';
+
 import { MikrotikRouterManagement } from '@/components/settings/MikrotikRouterManagement';
 import { IncomeCategoryManagement } from '@/components/settings/IncomeCategoryManagement';
 import { ExpenseCategoryManagement } from '@/components/settings/ExpenseCategoryManagement';
@@ -703,9 +703,6 @@ export default function SettingsPage() {
 
           {/* Setup Guide */}
           <MikrotikSetupGuide />
-
-          {/* Expiration Behavior Settings */}
-          <MikrotikExpirationSettings />
 
           <Card className="bg-card border-border">
             <CardHeader>
