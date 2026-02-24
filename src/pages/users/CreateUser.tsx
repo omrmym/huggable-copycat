@@ -7,17 +7,14 @@ import { useDistricts } from "@/hooks/useDistricts";
 import { usePoliceStations } from "@/hooks/usePoliceStations";
 import { useAreas } from "@/hooks/useAreas";
 import { useMikrotikRouters } from "@/hooks/useMikrotikRouters";
-import { useConnectivityTypes } from "@/hooks/useConnectivityTypes";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, UserPlus, User, MapPin, Router, Receipt, Wifi, CalendarIcon, Users } from "lucide-react";
+import { Loader2, UserPlus, User, MapPin, Router, Receipt, Wifi, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,7 +28,6 @@ export default function CreateUserPage() {
   const { data: policeStations = [] } = usePoliceStations();
   const { data: areas = [] } = useAreas();
   const { data: routers = [] } = useMikrotikRouters();
-  const { data: connectivityTypes = [] } = useConnectivityTypes();
   const createUser = useCreateRadiusUser();
 
   // reseller_office will be set to "Main-User" for admin panel users
@@ -59,7 +55,7 @@ export default function CreateUserPage() {
     district_id: DEFAULT_DISTRICT_ID, // Default: Mymensingh
     police_station_id: DEFAULT_POLICE_STATION_ID, // Default: Mymensingh Sadar
     area_id: "",
-    customer_type: "home", // Default: Home
+    customer_type: "student", // Default: Student
     address_details: "",
 
     // Mikrotik
@@ -71,17 +67,14 @@ export default function CreateUserPage() {
 
     // Bill
     monthly_bill: "",
-    connection_fee: "500",
-    billing_type: "",
+    connection_fee: "0", // Default: 0
+    billing_type: "prepaid", // Fixed default
     billing_cycle: "monthly" as "30_day" | "monthly", // Default: Monthly
     plan_id: "",
 
     // Connectivity Details
-    device: "",
-    mac_serial: "",
-    connection_type: "wired", // Default: Wired
-    connectivity_type: "shared", // Default: Shared
-    reseller_office: "",
+    connection_type: "wireless", // Fixed: Wireless
+    connectivity_type: "shared", // Fixed: Shared
     service_type: "hotspot" as "hotspot", // Hotspot only
   });
 
@@ -115,11 +108,11 @@ export default function CreateUserPage() {
   // Calculate total amount
   const totalAmount = (parseFloat(formData.monthly_bill) || 0) + (parseFloat(formData.connection_fee) || 0);
 
-  const handleCreateUser = async () => {
-    // Validate required fields
-    // Check if device requires mac/serial
-    const deviceRequiresMacSerial = ['onu', 'fiber_onu', 'fiber+onu'].includes(formData.device?.toLowerCase?.() || '');
+  // Auto-set username and password to phone number
+  const effectiveUsername = formData.phone;
+  const effectivePassword = formData.phone;
 
+  const handleCreateUser = async () => {
     const requiredFields = [
       { field: formData.full_name, name: 'Customer Name' },
       { field: formData.phone, name: 'Mobile Number' },
@@ -127,12 +120,8 @@ export default function CreateUserPage() {
       { field: formData.police_station_id, name: 'Police Station' },
       { field: formData.area_id, name: 'Area' },
       { field: formData.address_details, name: 'Address Details' },
-      { field: formData.service_type, name: 'Service Type' },
-      { field: formData.device, name: 'Device' },
       { field: formData.mikrotik_router_id, name: 'Select MikroTik' },
-      { field: formData.billing_type, name: 'Billing Type' },
       { field: formData.plan_id, name: 'Plan' },
-      ...(deviceRequiresMacSerial ? [{ field: formData.mac_serial, name: 'Mac/Serial Number' }] : []),
     ];
 
     const missingFields = requiredFields.filter(f => !f.field).map(f => f.name);
@@ -146,10 +135,10 @@ export default function CreateUserPage() {
       return;
     }
 
-    if (!formData.username || !formData.password) {
+    if (!formData.phone) {
       toast({
         title: "Validation Error",
-        description: "Username and password are required for MikroTik configuration.",
+        description: "Mobile number is required (used as User ID & Password).",
         variant: "destructive",
       });
       return;
@@ -168,8 +157,8 @@ export default function CreateUserPage() {
         customer_type: formData.customer_type || null,
         address_details: formData.address_details || null,
         mikrotik_router_id: formData.mikrotik_router_id || null,
-        username: formData.username,
-        password_hash: formData.password,
+        username: effectiveUsername,
+        password_hash: effectivePassword,
         connection_date: formData.connection_date?.toISOString() || null,
         expires_at: formData.expires_at?.toISOString() || null,
         monthly_bill: parseFloat(formData.monthly_bill) || 0,
@@ -177,8 +166,7 @@ export default function CreateUserPage() {
         billing_type: formData.billing_type || null,
         billing_cycle: formData.billing_cycle || 'monthly',
         plan_id: formData.plan_id || null,
-        connectivity_type: formData.device || null,
-        mac_serial: formData.mac_serial || null,
+        connectivity_type: formData.connectivity_type || null,
         reseller_office: "Main-User",
         service_type: "hotspot",
       });
@@ -285,6 +273,7 @@ export default function CreateUserPage() {
                     <SelectValue placeholder="Select client type" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
                     <SelectItem value="home">Home</SelectItem>
                     <SelectItem value="corporate">Corporate</SelectItem>
                   </SelectContent>
@@ -396,77 +385,22 @@ export default function CreateUserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Device *</Label>
-                <Select
-                  value={formData.device}
-                  onValueChange={(value) => setFormData({ ...formData, device: value })}
-                  required
-                >
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select device" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {connectivityTypes.map((type) => (
-                      <SelectItem key={type.id} value={type.name}>
-                        {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Connection Type *</Label>
-                <Select
-                  value={formData.connection_type}
-                  onValueChange={(value) => setFormData({ ...formData, connection_type: value })}
-                >
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select connection type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="wired">Wired</SelectItem>
-                    <SelectItem value="wireless">Wireless</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Connectivity Type *</Label>
-                <Select
-                  value={formData.connectivity_type}
-                  onValueChange={(value) => setFormData({ ...formData, connectivity_type: value })}
-                >
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select connectivity type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="shared">Shared</SelectItem>
-                    <SelectItem value="dedicated">Dedicated</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Reseller/Branch</Label>
+                <Label>Connection Type</Label>
                 <Input
                   className="bg-muted border-border cursor-not-allowed"
-                  value="Main-User"
+                  value="Wireless"
                   disabled
                   readOnly
                 />
               </div>
               <div className="space-y-2">
-                <Label>
-                  Mac/Serial Number {['onu', 'fibre+onu'].includes(formData.device?.toLowerCase?.() || '') ? '*' : ''}
-                </Label>
+                <Label>Connectivity Type</Label>
                 <Input
-                  placeholder="Enter Mac or Serial number"
-                  className="bg-secondary border-border"
-                  value={formData.mac_serial}
-                  onChange={(e) => setFormData({ ...formData, mac_serial: e.target.value })}
-                  required={['onu', 'fibre+onu'].includes(formData.device?.toLowerCase?.() || '')}
+                  className="bg-muted border-border cursor-not-allowed"
+                  value="Shared"
+                  disabled
+                  readOnly
                 />
-                {['onu', 'fibre+onu'].includes(formData.device?.toLowerCase?.() || '') && !formData.mac_serial && (
-                  <p className="text-xs text-destructive">Required for ONU / Fibre+ONU devices</p>
-                )}
               </div>
             </div>
           </CardContent>
@@ -502,90 +436,40 @@ export default function CreateUserPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>User ID *</Label>
+                <Label>User ID (Mobile Number)</Label>
                 <Input
-                  placeholder="Enter user ID"
-                  className="bg-secondary border-border"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  className="bg-muted border-border cursor-not-allowed"
+                  value={formData.phone || '(Enter mobile number above)'}
+                  disabled
+                  readOnly
                 />
               </div>
               <div className="space-y-2">
-                <Label>Password *</Label>
+                <Label>Password (Mobile Number)</Label>
                 <Input
-                  type="password"
-                  placeholder="Enter password"
-                  className="bg-secondary border-border"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="bg-muted border-border cursor-not-allowed"
+                  value={formData.phone || '(Enter mobile number above)'}
+                  disabled
+                  readOnly
                 />
               </div>
               <div className="space-y-2">
                 <Label>Connection Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal bg-secondary border-border",
-                        !formData.connection_date && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.connection_date ? format(formData.connection_date, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.connection_date}
-                      onSelect={(date) => handleConnectionDateChange(date || new Date())}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2">
-                <Label>Billing Cycle *</Label>
-                <Select
-                  value={formData.billing_cycle}
-                  onValueChange={(value: "30_day" | "monthly") => handleBillingCycleChange(value)}
-                >
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select billing cycle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="30_day">30 Day Count (expires after 30 days)</SelectItem>
-                    <SelectItem value="monthly">Monthly (same day next month at 9 AM)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  className="bg-muted border-border cursor-not-allowed"
+                  value={formData.connection_date ? format(formData.connection_date, "PPP") : ""}
+                  disabled
+                  readOnly
+                />
               </div>
               <div className="space-y-2">
                 <Label>Expire Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal bg-secondary border-border",
-                        !formData.expires_at && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.expires_at ? format(formData.expires_at, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.expires_at || undefined}
-                      onSelect={(date) => setFormData({ ...formData, expires_at: date || null })}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Input
+                  className="bg-muted border-border cursor-not-allowed"
+                  value={formData.expires_at ? format(formData.expires_at, "PPP") : ""}
+                  disabled
+                  readOnly
+                />
               </div>
             </div>
           </CardContent>
@@ -632,20 +516,13 @@ export default function CreateUserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Billing Type *</Label>
-                <Select
-                  value={formData.billing_type}
-                  onValueChange={(value) => setFormData({ ...formData, billing_type: value })}
-                  required
-                >
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select billing type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="prepaid">Prepaid</SelectItem>
-                    <SelectItem value="postpaid">Postpaid</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Billing Type</Label>
+                <Input
+                  className="bg-muted border-border cursor-not-allowed"
+                  value="Prepaid"
+                  disabled
+                  readOnly
+                />
               </div>
               <div className="space-y-2">
                 <Label>Plan *</Label>
@@ -686,7 +563,7 @@ export default function CreateUserPage() {
           <Button
             className="bg-gradient-primary text-primary-foreground"
             onClick={handleCreateUser}
-            disabled={createUser.isPending || !formData.username || !formData.password || !formData.service_type}
+            disabled={createUser.isPending || !formData.phone}
           >
             {createUser.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             <UserPlus className="w-4 h-4 mr-2" />
