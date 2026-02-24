@@ -105,7 +105,7 @@ export const PERMISSION_DEFINITIONS = {
         permissions: [
           { key: 'users.create.service_type', label: 'Service Type' },
           { key: 'users.create.connection_date', label: 'Connection Date' },
-          { key: 'users.create.billing_cycle', label: 'Billing Cycle' },
+          
           { key: 'users.create.expire_date', label: 'Expire Date' },
           { key: 'users.create.monthly_bill', label: 'Monthly Bill' },
         ],

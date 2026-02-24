@@ -69,7 +69,6 @@ export default function CreateUserPage() {
     monthly_bill: "",
     connection_fee: "0", // Default: 0
     billing_type: "prepaid", // Fixed default
-    billing_cycle: "monthly" as "30_day" | "monthly", // Default: Monthly
     plan_id: "",
 
     // Connectivity Details
@@ -78,28 +77,17 @@ export default function CreateUserPage() {
     service_type: "hotspot" as "hotspot", // Hotspot only
   });
 
-  // Calculate expiration date based on billing cycle
-  const calculateExpirationDate = (connectionDate: Date, billingCycle: "30_day" | "monthly"): Date => {
+  // Calculate expiration date based on plan duration
+  const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
-    if (billingCycle === "30_day") {
-      // 30 days from connection date at 9:00 AM
-      expireDate.setDate(expireDate.getDate() + 30);
-    } else {
-      // Monthly: same day next month at 9:00 AM
-      expireDate.setMonth(expireDate.getMonth() + 1);
-    }
+    // Monthly: same day next month at 9:00 AM
+    expireDate.setMonth(expireDate.getMonth() + 1);
     expireDate.setHours(9, 0, 0, 0);
     return expireDate;
   };
 
-  // Auto-update expiration when billing cycle or connection date changes
-  const handleBillingCycleChange = (cycle: "30_day" | "monthly") => {
-    const newExpireDate = calculateExpirationDate(formData.connection_date, cycle);
-    setFormData({ ...formData, billing_cycle: cycle, expires_at: newExpireDate });
-  };
-
   const handleConnectionDateChange = (date: Date) => {
-    const newExpireDate = calculateExpirationDate(date, formData.billing_cycle);
+    const newExpireDate = calculateExpirationDate(date);
     setFormData({ ...formData, connection_date: date, expires_at: newExpireDate });
   };
 
@@ -164,7 +152,7 @@ export default function CreateUserPage() {
         monthly_bill: parseFloat(formData.monthly_bill) || 0,
         connection_fee: parseFloat(formData.connection_fee) || 0,
         billing_type: formData.billing_type || null,
-        billing_cycle: formData.billing_cycle || 'monthly',
+        billing_cycle: 'monthly',
         plan_id: formData.plan_id || null,
         connectivity_type: formData.connectivity_type || null,
         reseller_office: "Main-User",

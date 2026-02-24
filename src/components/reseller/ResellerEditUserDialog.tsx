@@ -576,17 +576,6 @@ export function ResellerEditUserDialog({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="billing_cycle" className="flex items-center gap-1">
-                    Billing Cycle
-                    <Lock className="h-3 w-3 text-muted-foreground" />
-                  </Label>
-                  <Input
-                    value={user.billing_cycle === '30_day' ? '30 Day Count' : 'Monthly'}
-                    disabled
-                    className="bg-secondary border-border opacity-60"
-                  />
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="monthly_bill" className="flex items-center gap-1">
                     Monthly Bill (৳)
                     <Lock className="h-3 w-3 text-muted-foreground" />

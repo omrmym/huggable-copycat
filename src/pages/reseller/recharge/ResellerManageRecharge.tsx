@@ -436,7 +436,7 @@ export default function ResellerManageRecharge() {
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>Remove the transaction record</li>
                 <li>Reduce user balance by ৳{invoiceToDelete ? Number(invoiceToDelete.amount).toLocaleString() : 0}</li>
-                <li>Reduce user expire date by {invoiceToDelete?.radius_users?.billing_cycle === 'monthly' ? '1 month' : '30 days'}</li>
+                <li>Reduce user expire date by 1 month</li>
               </ul>
             </AlertDialogDescription>
           </AlertDialogHeader>
