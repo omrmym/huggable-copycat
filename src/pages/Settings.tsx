@@ -266,35 +266,6 @@ export default function SettingsPage() {
     },
   });
 
-  const syncPPPoEUsers = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('mikrotik-sync', {
-        body: { action: 'sync-users', service_type: 'pppoe' },
-      });
-
-      if (error) {
-        return { success: false, error: extractEdgeFunctionErrorMessage(error) };
-      }
-      return data;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        const results = data.data as { synced?: number; failed?: number; total?: number; message?: string };
-        if (results.message) {
-          toast.info(results.message);
-        } else if ((results.failed || 0) === 0) {
-          toast.success(`Synced ${results.synced || 0} PPPoE users successfully!`);
-        } else {
-          toast.warning(`Synced ${results.synced || 0} PPPoE users, ${results.failed || 0} failed`);
-        }
-      } else {
-        toast.error(data.error || 'PPPoE users sync failed');
-      }
-    },
-    onError: (error: Error) => {
-      toast.error(`PPPoE users sync failed: ${extractEdgeFunctionErrorMessage(error)}`);
-    },
-  });
 
   const syncHotspotUsers = useMutation({
     mutationFn: async () => {
@@ -326,28 +297,6 @@ export default function SettingsPage() {
     },
   });
 
-  const syncPPPoEPlans = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('mikrotik-sync', {
-        body: { action: 'sync-plans', service_type: 'pppoe' },
-      });
-
-      if (error) {
-        return { success: false, error: extractEdgeFunctionErrorMessage(error) };
-      }
-      return data;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success('PPPoE plans synced successfully!');
-      } else {
-        toast.error(data.error || 'PPPoE plan sync failed');
-      }
-    },
-    onError: (error: Error) => {
-      toast.error(`PPPoE plan sync failed: ${extractEdgeFunctionErrorMessage(error)}`);
-    },
-  });
 
   const syncHotspotPlans = useMutation({
     mutationFn: async () => {
@@ -372,36 +321,6 @@ export default function SettingsPage() {
     },
   });
 
-  const importPPPoEUsers = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('mikrotik-sync', {
-        body: { action: 'import-users', service_type: 'pppoe' },
-      });
-
-      if (error) {
-        return { success: false, error: extractEdgeFunctionErrorMessage(error) };
-      }
-      return data;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        const results = data.data as { imported?: number; skipped?: number; total?: number; message?: string };
-        if (results.message) {
-          toast.info(results.message);
-        } else if ((results.imported || 0) > 0) {
-          toast.success(`Imported ${results.imported} PPPoE users! (${results.skipped || 0} skipped)`);
-        } else {
-          toast.info(`No new PPPoE users to import. ${results.skipped || 0} already exist.`);
-        }
-        queryClient.invalidateQueries({ queryKey: ['radius-users'] });
-      } else {
-        toast.error(data.error || 'PPPoE users import failed');
-      }
-    },
-    onError: (error: Error) => {
-      toast.error(`PPPoE users import failed: ${extractEdgeFunctionErrorMessage(error)}`);
-    },
-  });
 
   const importHotspotUsers = useMutation({
     mutationFn: async () => {
@@ -434,36 +353,6 @@ export default function SettingsPage() {
     },
   });
 
-  const importPPPoEPlans = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('mikrotik-sync', {
-        body: { action: 'import-plans', service_type: 'pppoe' },
-      });
-
-      if (error) {
-        return { success: false, error: extractEdgeFunctionErrorMessage(error) };
-      }
-      return data;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        const results = data.data as { imported?: number; skipped?: number; total?: number; message?: string };
-        if (results.message) {
-          toast.info(results.message);
-        } else if ((results.imported || 0) > 0) {
-          toast.success(`Imported ${results.imported} PPPoE plans! (${results.skipped || 0} skipped)`);
-        } else {
-          toast.info(`No new PPPoE plans to import. ${results.skipped || 0} already exist.`);
-        }
-        queryClient.invalidateQueries({ queryKey: ['billing-plans'] });
-      } else {
-        toast.error(data.error || 'PPPoE plans import failed');
-      }
-    },
-    onError: (error: Error) => {
-      toast.error(`PPPoE plans import failed: ${extractEdgeFunctionErrorMessage(error)}`);
-    },
-  });
 
   const importHotspotPlans = useMutation({
     mutationFn: async () => {
@@ -832,7 +721,7 @@ export default function SettingsPage() {
               {/* User Sync Section */}
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">User Sync</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card className="bg-secondary border-border">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-3 mb-3">
@@ -890,74 +779,13 @@ export default function SettingsPage() {
                       </Button>
                     </CardContent>
                   </Card>
-
-                  <Card className="bg-secondary border-border">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
-                          <Network className="w-5 h-5 text-success" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">PPPoE Users</h4>
-                          <p className="text-xs text-muted-foreground">Sync PPPoE users only</p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        className="w-full border-border"
-                        onClick={() => syncPPPoEUsers.mutate()}
-                        disabled={syncPPPoEUsers.isPending}
-                      >
-                        {syncPPPoEUsers.isPending ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Syncing...
-                          </>
-                        ) : (
-                          'Sync PPPoE'
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
                 </div>
               </div>
 
               {/* Import Users Section */}
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">Import Users from MikroTik</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-secondary border-border">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
-                          <Download className="w-5 h-5 text-success" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Import PPPoE Users</h4>
-                          <p className="text-xs text-muted-foreground">Pull PPPoE secrets from router</p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        className="w-full border-border"
-                        onClick={() => importPPPoEUsers.mutate()}
-                        disabled={importPPPoEUsers.isPending}
-                      >
-                        {importPPPoEUsers.isPending ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Importing...
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-4 h-4 mr-2" />
-                            Import PPPoE
-                          </>
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                   <Card className="bg-secondary border-border">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-3 mb-3">
@@ -998,36 +826,7 @@ export default function SettingsPage() {
               {/* Plan Sync Section */}
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">Plan Sync</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-secondary border-border">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
-                          <Package className="w-5 h-5 text-success" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">PPPoE Plans</h4>
-                          <p className="text-xs text-muted-foreground">Sync PPPoE profiles to router</p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        className="w-full border-border"
-                        onClick={() => syncPPPoEPlans.mutate()}
-                        disabled={syncPPPoEPlans.isPending}
-                      >
-                        {syncPPPoEPlans.isPending ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Syncing...
-                          </>
-                        ) : (
-                          'Sync PPPoE Plans'
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                   <Card className="bg-secondary border-border">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-3 mb-3">
@@ -1065,39 +864,7 @@ export default function SettingsPage() {
               {/* Import Plans Section */}
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">Import Plans from MikroTik</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-secondary border-border">
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
-                          <Download className="w-5 h-5 text-success" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Import PPPoE Profiles</h4>
-                          <p className="text-xs text-muted-foreground">Pull PPPoE profiles from router</p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        className="w-full border-border"
-                        onClick={() => importPPPoEPlans.mutate()}
-                        disabled={importPPPoEPlans.isPending}
-                      >
-                        {importPPPoEPlans.isPending ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Importing...
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-4 h-4 mr-2" />
-                            Import PPPoE Plans
-                          </>
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                   <Card className="bg-secondary border-border">
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-3 mb-3">
