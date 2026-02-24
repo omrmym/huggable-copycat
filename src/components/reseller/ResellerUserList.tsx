@@ -159,7 +159,7 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
   });
 
   const bulkDeleteUsers = useMutation({
-    mutationFn: async (usersToDelete: { id: string; username: string; service_type: 'hotspot' | 'pppoe' }[]) => {
+    mutationFn: async (usersToDelete: { id: string; username: string; service_type: string }[]) => {
       // Delete from MikroTik first for each user
       for (const user of usersToDelete) {
         try {
@@ -204,7 +204,7 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
       users: usersToTransfer,
       targetRouterId,
     }: {
-      users: { id: string; username: string; service_type: 'hotspot' | 'pppoe'; mikrotik_router_id: string | null }[];
+      users: { id: string; username: string; service_type: string; mikrotik_router_id: string | null }[];
       targetRouterId: string;
     }) => {
       // For each user, delete from old router
@@ -446,16 +446,6 @@ export function ResellerUserList({ resellerId, isSuperAdmin = false }: ResellerU
               <SelectItem value="disabled">Disabled</SelectItem>
               <SelectItem value="expired">Expired</SelectItem>
               <SelectItem value="suspended">Suspended</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={serviceFilter} onValueChange={setServiceFilter}>
-            <SelectTrigger className="w-32 bg-card border-border">
-              <SelectValue placeholder="Service" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="pppoe">PPPoE</SelectItem>
-              <SelectItem value="hotspot">Hotspot</SelectItem>
             </SelectContent>
           </Select>
           <Select value={billingCycleFilter} onValueChange={setBillingCycleFilter}>

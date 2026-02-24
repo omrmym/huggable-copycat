@@ -75,7 +75,7 @@ export default function ResellerCreateUserPage() {
     plan_id: "",
     connectivity_type: "",
     mac_serial: "",
-    service_type: "pppoe" as "pppoe" | "hotspot", // Fixed to PPPoE for resellers
+    service_type: "hotspot" as "hotspot", // Fixed to Hotspot
   });
 
   const calculateExpirationDate = (connectionDate: Date, billingCycle: "30_day" | "monthly"): Date => {
@@ -167,7 +167,7 @@ export default function ResellerCreateUserPage() {
         plan_id: formData.plan_id || null,
         connectivity_type: formData.connectivity_type || null,
         mac_serial: formData.mac_serial || null,
-        service_type: formData.service_type as "pppoe" | "hotspot",
+        service_type: "hotspot",
         status: 'active',
         balance: 0,
         data_used_mb: 0,
@@ -213,7 +213,7 @@ export default function ResellerCreateUserPage() {
   if (!reseller) return null;
 
   return (
-    <ResellerLayout title="Create User" subtitle="Add a new PPPoE or Hotspot user">
+    <ResellerLayout title="Create User" subtitle="Add a new Hotspot user">
       <Tabs defaultValue="single" className="max-w-4xl">
         <TabsList className="mb-6 bg-secondary">
           <TabsTrigger value="single" className="flex items-center gap-2">
@@ -397,7 +397,7 @@ export default function ResellerCreateUserPage() {
                     <Label>Service Type</Label>
                     <Input
                       className="bg-muted border-border cursor-not-allowed"
-                      value="PPPoE"
+                      value="Hotspot"
                       disabled
                       readOnly
                     />

@@ -82,7 +82,7 @@ export default function CreateUserPage() {
     connection_type: "wired", // Default: Wired
     connectivity_type: "shared", // Default: Shared
     reseller_office: "",
-    service_type: "pppoe" as "pppoe" | "hotspot" | "", // Default: PPPoE
+    service_type: "hotspot" as "hotspot", // Hotspot only
   });
 
   // Calculate expiration date based on billing cycle
@@ -180,7 +180,7 @@ export default function CreateUserPage() {
         connectivity_type: formData.device || null,
         mac_serial: formData.mac_serial || null,
         reseller_office: "Main-User",
-        service_type: formData.service_type as "pppoe" | "hotspot",
+        service_type: "hotspot",
       });
 
       toast({
@@ -199,7 +199,7 @@ export default function CreateUserPage() {
   };
 
   return (
-    <DashboardLayout title="Create User" subtitle="Add a new PPPoE or Hotspot user">
+    <DashboardLayout title="Create User" subtitle="Add a new Hotspot user">
       <Tabs defaultValue="single" className="max-w-4xl">
         <TabsList className="mb-6 bg-secondary">
           <TabsTrigger value="single" className="flex items-center gap-2">
@@ -387,19 +387,13 @@ export default function CreateUserPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Service Type *</Label>
-                <Select
-                  value={formData.service_type}
-                  onValueChange={(value: "pppoe" | "hotspot") => setFormData({ ...formData, service_type: value, plan_id: '', monthly_bill: '' })}
-                >
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Select service type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pppoe">PPPoE</SelectItem>
-                    <SelectItem value="hotspot">Hotspot</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Service Type</Label>
+                <Input
+                  className="bg-muted border-border cursor-not-allowed"
+                  value="Hotspot"
+                  disabled
+                  readOnly
+                />
               </div>
               <div className="space-y-2">
                 <Label>Device *</Label>

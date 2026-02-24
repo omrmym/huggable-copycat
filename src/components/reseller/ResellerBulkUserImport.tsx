@@ -73,7 +73,7 @@ export function ResellerBulkUserImport({ resellerId, resellerName }: ResellerBul
         const users: ImportedUser[] = jsonData.map((row: any) => ({
           username: String(row.username || row.user_id || "").trim(),
           password: String(row.password || "").trim(),
-          service_type: (row.service_type?.toLowerCase() === "hotspot" ? "hotspot" : "pppoe") as "pppoe" | "hotspot",
+          service_type: "hotspot" as "pppoe" | "hotspot",
           full_name: row.full_name || row.customer_name || row.name || undefined,
           father_name: row.father_name || undefined,
           phone: row.phone || row.mobile || undefined,
@@ -218,7 +218,7 @@ export function ResellerBulkUserImport({ resellerId, resellerName }: ResellerBul
       {
         username: "user001",
         password: "password123",
-        service_type: "pppoe",
+        service_type: "hotspot",
         full_name: "John Doe",
         father_name: "Richard Doe",
         phone: "01712345678",
@@ -311,7 +311,7 @@ export function ResellerBulkUserImport({ resellerId, resellerName }: ResellerBul
             <ul className="list-disc list-inside space-y-1">
               <li><code className="bg-secondary px-1 rounded">username</code> - Unique user ID</li>
               <li><code className="bg-secondary px-1 rounded">password</code> - User password</li>
-              <li><code className="bg-secondary px-1 rounded">service_type</code> - "pppoe" or "hotspot"</li>
+              <li><code className="bg-secondary px-1 rounded">service_type</code> - "hotspot"</li>
             </ul>
             <p className="mt-2 font-medium mb-2">Optional columns:</p>
             <ul className="list-disc list-inside space-y-1">

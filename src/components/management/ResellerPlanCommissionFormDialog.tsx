@@ -109,7 +109,7 @@ export function ResellerPlanCommissionFormDialog({ open, onOpenChange, commissio
                 <SelectValue placeholder="Select a plan" />
               </SelectTrigger>
               <SelectContent>
-                {plans?.filter(p => p.is_active && p.service_type === 'pppoe').map((plan) => (
+                {plans?.filter(p => p.is_active && p.service_type === 'hotspot').map((plan) => (
                   <SelectItem key={plan.id} value={plan.id}>
                     {plan.name} - ৳{plan.price}
                   </SelectItem>

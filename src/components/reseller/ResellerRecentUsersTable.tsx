@@ -120,12 +120,8 @@ export function ResellerRecentUsersTable({ users, isLoading }: ResellerRecentUse
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      {user.serviceType === 'hotspot' ? (
-                        <Wifi className="w-4 h-4 text-primary" />
-                      ) : (
-                        <Network className="w-4 h-4 text-primary" />
-                      )}
-                      <span className="text-sm capitalize">{user.serviceType}</span>
+                      <Wifi className="w-4 h-4 text-primary" />
+                      <span className="text-sm">Hotspot</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">

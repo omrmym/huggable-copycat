@@ -233,7 +233,7 @@ export function MikrotikRouterFormDialog({
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
               id="description"
-              placeholder="Main office router, handles all PPPoE connections..."
+              placeholder="Main office router, handles all Hotspot connections..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={2}
