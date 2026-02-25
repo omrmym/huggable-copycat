@@ -130,8 +130,8 @@ export default function UserRequestPage() {
 
       if (existingUser) {
         toast({
-          title: "রিকোয়েস্ট বাতিল",
-          description: `এই নম্বর (${formData.phone}) দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট আছে। নতুন রিকোয়েস্ট করা যাবে না।`,
+          title: "Request Rejected",
+          description: `A user with this number (${formData.phone}) already exists in the panel. New request cannot be submitted.`,
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -139,17 +139,17 @@ export default function UserRequestPage() {
       }
 
       // Check if a pending request already exists for this phone
-      const { data: existingRequest } = await supabase
+      const { data: existingRequests } = await supabase
         .from('user_requests')
         .select('id')
         .eq('mikrotik_username', formData.phone)
         .eq('status', 'pending')
-        .maybeSingle();
+        .limit(1);
 
-      if (existingRequest) {
+      if (existingRequests && existingRequests.length > 0) {
         toast({
-          title: "রিকোয়েস্ট বাতিল",
-          description: `এই নম্বর (${formData.phone}) দিয়ে ইতিমধ্যে একটি পেন্ডিং রিকোয়েস্ট আছে।`,
+          title: "Request Rejected",
+          description: `A pending request for this number (${formData.phone}) already exists.`,
           variant: "destructive",
         });
         setIsSubmitting(false);
