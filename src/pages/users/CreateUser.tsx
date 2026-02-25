@@ -77,11 +77,9 @@ export default function CreateUserPage() {
     service_type: "hotspot" as "hotspot", // Hotspot only
   });
 
-  // Calculate expiration date based on plan duration
+  // Expiration date = current date at 9:00 AM (user pays first, then gets extended via recharge)
   const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
-    // Monthly: same day next month at 9:00 AM
-    expireDate.setMonth(expireDate.getMonth() + 1);
     expireDate.setHours(9, 0, 0, 0);
     return expireDate;
   };
