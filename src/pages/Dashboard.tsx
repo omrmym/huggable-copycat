@@ -8,7 +8,7 @@ import { MonthlyPaidUsersChart } from '@/components/dashboard/MonthlyPaidUsersCh
 import { DailyNewUsersChart } from '@/components/dashboard/DailyNewUsersChart';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useRadiusUsers } from '@/hooks/useRadiusUsers';
-import { Users, Wifi, UserX, UserCheck, CreditCard, Receipt, BadgeDollarSign, Clock, Cable, PlusCircle, UserMinus, RefreshCw } from 'lucide-react';
+import { Users, Wifi, UserX, UserCheck, CreditCard, Receipt, BadgeDollarSign, Clock, Cable, PlusCircle, UserMinus, RefreshCw, ClipboardList } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatBDT } from '@/lib/utils';
 
@@ -105,6 +105,13 @@ export default function Dashboard() {
                 icon={RefreshCw}
                 variant="primary"
                 href="/users?billing=auto_renew"
+              />
+              <StatCard
+                title="Pending Requests"
+                value={stats?.pendingRequests || 0}
+                icon={ClipboardList}
+                variant="warning"
+                href="/users/requests"
               />
             </>
           )}
