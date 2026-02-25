@@ -89,6 +89,7 @@ export default function SettingsPage() {
   const queryClient = useQueryClient();
   const [isExporting, setIsExporting] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const restoreFileRef = useRef<HTMLInputElement>(null);
   const [mikrotikConfig, setMikrotikConfig] = useState({
     id: '',
@@ -1296,6 +1297,81 @@ export default function SettingsPage() {
                       <Upload className="w-4 h-4 mr-2" />
                     )}
                     {isRestoring ? 'Restoring...' : 'Restore from Backup'}
+                  </Button>
+                </div>
+
+                {/* Factory Reset Section */}
+                <div className="mt-4 p-4 bg-destructive/10 border border-destructive/30 rounded-lg space-y-3">
+                  <div>
+                    <h4 className="font-medium text-destructive">⚠️ Factory Reset</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Delete ALL data from the system and reset to a clean state. This will remove all users, transactions, plans, employees, and settings. This action is <strong>irreversible</strong>.
+                    </p>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    disabled={isResetting}
+                    onClick={async () => {
+                      const step1 = window.prompt(
+                        'WARNING: This will permanently delete ALL data.\n\nType "RESET" to confirm:'
+                      );
+                      if (step1 !== 'RESET') {
+                        toast.error('Reset cancelled. You must type RESET exactly.');
+                        return;
+                      }
+
+                      const step2 = window.confirm(
+                        'FINAL WARNING: All users, transactions, plans, employees, finances, and settings will be permanently deleted. There is NO undo. Continue?'
+                      );
+                      if (!step2) return;
+
+                      setIsResetting(true);
+                      try {
+                        // Delete in reverse dependency order
+                        const deleteOrder = [
+                          'bandwidth_history', 'mikrotik_sync_log', 'device_change_requests',
+                          'reseller_user_recharges', 'reseller_plan_commissions', 'reseller_credits',
+                          'reseller_users',
+                          'transactions', 'vouchers',
+                          'salary_payments', 'leave_requests',
+                          'login_activity', 'system_activity',
+                          'expenses', 'income',
+                          'radius_users',
+                          'branches', 'resellers',
+                          'employees',
+                          'billing_plans', 'mikrotik_routers',
+                          'areas', 'police_stations', 'districts',
+                          'positions', 'departments',
+                          'connectivity_types', 'payment_methods',
+                          'expense_categories', 'income_categories',
+                          'user_requests',
+                        ];
+
+                        let deleted = 0;
+                        for (const table of deleteOrder) {
+                          const { error } = await supabase
+                            .from(table as any)
+                            .delete()
+                            .neq('id', '00000000-0000-0000-0000-000000000000');
+                          if (!error) deleted++;
+                          else console.error(`Reset ${table}:`, error.message);
+                        }
+
+                        queryClient.invalidateQueries();
+                        toast.success(`Factory reset complete! ${deleted} tables cleared.`);
+                      } catch (err: any) {
+                        toast.error(`Reset failed: ${err.message}`);
+                      } finally {
+                        setIsResetting(false);
+                      }
+                    }}
+                  >
+                    {isResetting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 mr-2" />
+                    )}
+                    {isResetting ? 'Resetting...' : 'Factory Reset'}
                   </Button>
                 </div>
               </div>
