@@ -8,12 +8,13 @@ import { toast } from 'sonner';
 interface PortalLinkCardProps {
   userId: string;
   userName: string;
+  username?: string;
 }
 
-export function PortalLinkCard({ userId, userName }: PortalLinkCardProps) {
+export function PortalLinkCard({ userId, userName, username }: PortalLinkCardProps) {
   const [copied, setCopied] = useState(false);
 
-  const portalLink = `${window.location.origin}/portal/u/${userId}`;
+  const portalLink = `${window.location.origin}/portal/u/${username || userId}`;
 
   const handleCopy = async () => {
     try {

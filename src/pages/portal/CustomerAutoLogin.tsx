@@ -22,8 +22,28 @@ export default function CustomerAutoLogin() {
 
     const performAutoLogin = async () => {
       try {
+        // Support both UUID and username-based links
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+        let resolvedUserId = userId;
+
+        if (!isUuid) {
+          // Look up by username (phone number)
+          const { data: user } = await supabase
+            .from('radius_users')
+            .select('id')
+            .eq('username', userId)
+            .maybeSingle();
+          
+          if (!user) {
+            setError('User not found. This link may be invalid.');
+            setIsLoading(false);
+            return;
+          }
+          resolvedUserId = user.id;
+        }
+
         const { data, error: fnError } = await supabase.functions.invoke('customer-auto-login', {
-          body: { userId },
+          body: { userId: resolvedUserId },
         });
 
         if (fnError || !data?.success) {

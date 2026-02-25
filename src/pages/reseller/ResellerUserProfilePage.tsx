@@ -404,7 +404,7 @@ export default function ResellerUserProfilePage() {
 
       {/* Portal Link */}
       <div className="mb-6">
-        <PortalLinkCard userId={user.id} userName={user.full_name || user.username} />
+        <PortalLinkCard userId={user.id} userName={user.full_name || user.username} username={user.username} />
       </div>
 
       {/* Tabbed Content */}
