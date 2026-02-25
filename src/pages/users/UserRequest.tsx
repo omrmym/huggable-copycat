@@ -104,6 +104,41 @@ export default function UserRequestPage() {
     setIsSubmitting(true);
 
     try {
+      // Check if username (phone) already exists in radius_users
+      const { data: existingUser } = await supabase
+        .from('radius_users')
+        .select('id, username')
+        .eq('username', formData.phone)
+        .maybeSingle();
+
+      if (existingUser) {
+        toast({
+          title: "রিকোয়েস্ট বাতিল",
+          description: `এই নম্বর (${formData.phone}) দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট আছে। নতুন রিকোয়েস্ট করা যাবে না।`,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Check if a pending request already exists for this phone
+      const { data: existingRequest } = await supabase
+        .from('user_requests')
+        .select('id')
+        .eq('mikrotik_username', formData.phone)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (existingRequest) {
+        toast({
+          title: "রিকোয়েস্ট বাতিল",
+          description: `এই নম্বর (${formData.phone}) দিয়ে ইতিমধ্যে একটি পেন্ডিং রিকোয়েস্ট আছে।`,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Insert request into database
       const { error } = await supabase.from('user_requests').insert({
         full_name: formData.full_name,
