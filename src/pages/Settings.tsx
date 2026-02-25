@@ -86,6 +86,7 @@ function extractEdgeFunctionErrorMessage(err: unknown): string {
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
+  const [isExporting, setIsExporting] = useState(false);
   const [mikrotikConfig, setMikrotikConfig] = useState({
     id: '',
     name: 'Default Router',
@@ -1153,11 +1154,52 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <h4 className="font-medium">Maintenance</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button variant="outline" className="border-border justify-start">
-                    <Database className="w-4 h-4 mr-2" />
-                    Export Database Backup
+                  <Button 
+                    variant="outline" 
+                    className="border-border justify-start"
+                    disabled={isExporting}
+                    onClick={async () => {
+                      setIsExporting(true);
+                      try {
+                        const tables = [
+                          'radius_users', 'billing_plans', 'transactions', 'areas', 
+                          'districts', 'police_stations', 'employees', 'salary_payments',
+                          'leave_requests', 'expenses', 'income', 'mikrotik_routers',
+                          'resellers', 'branches', 'vouchers', 'departments', 'positions',
+                          'connectivity_types', 'payment_methods', 'expense_categories', 
+                          'income_categories', 'app_settings', 'role_definitions', 'software_users'
+                        ];
+                        const backup: Record<string, unknown[]> = {};
+                        for (const table of tables) {
+                          const { data } = await supabase.from(table as any).select('*');
+                          backup[table] = data || [];
+                        }
+                        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `mikrobill-backup-${new Date().toISOString().split('T')[0]}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        toast.success('Database backup exported successfully!');
+                      } catch (err: any) {
+                        toast.error(`Export failed: ${err.message}`);
+                      } finally {
+                        setIsExporting(false);
+                      }
+                    }}
+                  >
+                    {isExporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
+                    {isExporting ? 'Exporting...' : 'Export Database Backup'}
                   </Button>
-                  <Button variant="outline" className="border-border justify-start">
+                  <Button 
+                    variant="outline" 
+                    className="border-border justify-start"
+                    onClick={() => {
+                      queryClient.clear();
+                      toast.success('Session cache cleared successfully!');
+                    }}
+                  >
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Clear Session Cache
                   </Button>
