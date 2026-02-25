@@ -127,6 +127,7 @@ export default function UserRequestPage() {
       if (error) throw error;
 
       // Create disabled user in MikroTik via edge function (public call with anon key)
+      const selectedPlan = plans.find((p: any) => p.id === formData.plan_id);
       try {
         await supabase.functions.invoke('request-mikrotik', {
           body: {
@@ -134,6 +135,7 @@ export default function UserRequestPage() {
             username: formData.phone,
             password: formData.phone,
             mikrotik_router_id: formData.mikrotik_router_id,
+            profile: selectedPlan?.name || undefined,
           },
         });
       } catch (syncError) {

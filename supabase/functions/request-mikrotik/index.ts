@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
-    const { action, username, password, mikrotik_router_id } = body;
+    const { action, username, password, mikrotik_router_id, profile } = body;
 
     // Get router config
     let routerQuery = supabase.from("mikrotik_routers").select("*").eq("is_active", true);
@@ -78,14 +78,18 @@ Deno.serve(async (req) => {
         if (existing.success && Array.isArray(existing.data) && existing.data.length > 0) {
           // Already exists, disable it
           const userId = (existing.data[0] as Record<string, string>)[".id"];
-          result = await mikrotikRequest(router.host, router.port, router.use_ssl, router.username, router.password, `/ip/hotspot/user/${userId}`, "PATCH", { disabled: "yes" });
+          const patchBody: Record<string, unknown> = { disabled: "yes" };
+          if (profile) patchBody.profile = profile;
+          result = await mikrotikRequest(router.host, router.port, router.use_ssl, router.username, router.password, `/ip/hotspot/user/${userId}`, "PATCH", patchBody);
         } else {
           // Create new disabled user
-          result = await mikrotikRequest(router.host, router.port, router.use_ssl, router.username, router.password, "/ip/hotspot/user/add", "POST", {
+          const createBody: Record<string, unknown> = {
             name: username,
             password: password,
             disabled: "yes",
-          });
+          };
+          if (profile) createBody.profile = profile;
+          result = await mikrotikRequest(router.host, router.port, router.use_ssl, router.username, router.password, "/ip/hotspot/user/add", "POST", createBody);
         }
         break;
       }
