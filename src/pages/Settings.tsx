@@ -51,6 +51,7 @@ import { DepartmentManagement } from '@/components/settings/DepartmentManagement
 import { PositionManagement } from '@/components/settings/PositionManagement';
 import { PaymentGatewaySettings } from '@/components/settings/PaymentGatewaySettings';
 import { SuperAdminAccountSettings } from '@/components/settings/SuperAdminAccountSettings';
+import { RequestNoteSettings } from '@/components/settings/RequestNoteSettings';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -1104,6 +1105,9 @@ export default function SettingsPage() {
 
           {/* Timezone Settings */}
           <TimezoneSettings />
+
+          {/* Request Success Note Settings */}
+          <RequestNoteSettings />
 
           {/* System Information Card */}
           <Card className="bg-card border-border">

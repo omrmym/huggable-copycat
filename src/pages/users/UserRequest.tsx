@@ -16,6 +16,23 @@ export default function UserRequestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // Fetch request success note from app_settings
+  const { data: successNoteSettings } = useQuery({
+    queryKey: ['app-settings', 'request_success_note'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'request_success_note')
+        .maybeSingle();
+      return data?.value as { title?: string; message?: string; note?: string } | null;
+    },
+  });
+
+  const successTitle = successNoteSettings?.title || "Request Submitted!";
+  const successMessage = successNoteSettings?.message || "Your connection request has been submitted successfully. An admin will review and approve your request soon.";
+  const successNote = successNoteSettings?.note || "Note: Requests not approved within 48 hours will be automatically removed.";
+
   // Fetch reference data (public access via RLS)
   const { data: plans = [] } = useQuery({
     queryKey: ['public-plans'],
@@ -201,12 +218,12 @@ export default function UserRequestPage() {
             <div className="mx-auto w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
-            <h2 className="text-2xl font-bold">Request Submitted!</h2>
+            <h2 className="text-2xl font-bold">{successTitle}</h2>
             <p className="text-muted-foreground">
-              Your connection request has been submitted successfully. An admin will review and approve your request soon.
+              {successMessage}
             </p>
             <p className="text-sm text-muted-foreground">
-              Note: Requests not approved within 48 hours will be automatically removed.
+              {successNote}
             </p>
             <Button onClick={() => { setIsSubmitted(false); setFormData({ full_name: "", father_name: "", nid_number: "", phone: "", gender: "male", district_id: DEFAULT_DISTRICT_ID, police_station_id: DEFAULT_POLICE_STATION_ID, area_id: "", customer_type: "student", address_details: "", mikrotik_router_id: "", monthly_bill: "", connection_fee: "0", plan_id: "" }); }} variant="outline">
               Submit Another Request
