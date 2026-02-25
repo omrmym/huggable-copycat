@@ -171,10 +171,10 @@ export function useDeleteTransaction() {
 
       // Only update user if userId exists
       if (userId) {
-        // Get current user data
+        // Get current user data including plan info
         const { data: user, error: fetchError } = await supabase
           .from('radius_users')
-          .select('balance, expires_at')
+          .select('balance, expires_at, billing_cycle, plan_id, status, billing_plans:plan_id(duration_days)')
           .eq('id', userId)
           .maybeSingle();
 
@@ -184,32 +184,73 @@ export function useDeleteTransaction() {
           // Calculate new balance (subtract the transaction amount)
           const newBalance = Math.max((user.balance || 0) - amount, 0);
 
-          // Calculate new expiration date based on billing cycle
+          // Calculate previous expiration date using plan duration or billing cycle
           let newExpiresAt = user.expires_at;
           if (user.expires_at) {
             const currentExpiry = new Date(user.expires_at);
+            const planData = (user as any).billing_plans;
+            const planDurationDays = planData?.duration_days || null;
+            const cycle = user.billing_cycle || billingCycle || 'monthly';
             
-            if (billingCycle === 'monthly') {
-              // Reduce by 1 month
-              currentExpiry.setMonth(currentExpiry.getMonth() - 1);
-            } else {
-              // Reduce by 30 days for "30 Days" billing cycle
+            if (planDurationDays && planDurationDays > 0) {
+              // Use plan's duration_days to go back
+              currentExpiry.setDate(currentExpiry.getDate() - planDurationDays);
+            } else if (cycle === '30 Days' || cycle === '30days') {
               currentExpiry.setDate(currentExpiry.getDate() - 30);
+            } else {
+              // Monthly - subtract 1 month
+              currentExpiry.setMonth(currentExpiry.getMonth() - 1);
             }
             
             newExpiresAt = currentExpiry.toISOString();
           }
 
-          // Update user balance and expiration date
+          // Determine new status based on the reverted expiration date
+          let newStatus = 'active';
+          if (newExpiresAt) {
+            const expiryDate = new Date(newExpiresAt);
+            const now = new Date();
+            if (expiryDate <= now) {
+              newStatus = 'expired';
+            }
+          }
+
+          // Update user balance, expiration date, and status
+          const updateData: Record<string, unknown> = { 
+            balance: newBalance,
+            expires_at: newExpiresAt,
+            status: newStatus,
+          };
+
           const { error: updateError } = await supabase
             .from('radius_users')
-            .update({ 
-              balance: newBalance,
-              expires_at: newExpiresAt
-            })
+            .update(updateData)
             .eq('id', userId);
 
           if (updateError) throw updateError;
+
+          // Sync MikroTik status (enable/disable based on new status)
+          try {
+            const { data: userData } = await supabase
+              .from('radius_users')
+              .select('username, password_hash, service_type, status')
+              .eq('id', userId)
+              .single();
+
+            if (userData) {
+              await supabase.functions.invoke('mikrotik-sync', {
+                body: {
+                  action: 'sync-user',
+                  username: userData.username,
+                  password: userData.password_hash,
+                  service_type: userData.service_type,
+                  disabled: userData.status !== 'active',
+                },
+              });
+            }
+          } catch (syncError) {
+            console.warn('MikroTik sync after bill delete failed:', syncError);
+          }
 
           return { newBalance, newExpiresAt };
         }
