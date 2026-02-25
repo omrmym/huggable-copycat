@@ -17,6 +17,8 @@ import UserProfile from "./pages/users/UserProfile";
 import Area from "./pages/users/Area";
 import PoliceStation from "./pages/users/PoliceStation";
 import District from "./pages/users/District";
+import UserRequest from "./pages/users/UserRequest";
+import RequestManagement from "./pages/users/RequestManagement";
 import OnlineOfflineUsers from "./pages/OnlineOfflineUsers";
 import CustomerRecharge from "./pages/recharge/CustomerRecharge";
 import ManageRecharge from "./pages/recharge/ManageRecharge";
@@ -68,6 +70,7 @@ const App = () => (
             <CustomerAuthProvider>
                 <Routes>
                   <Route path="/login" element={<Login />} />
+                  <Route path="/request" element={<UserRequest />} />
                   <Route path="/portal" element={<CustomerDashboard />} />
                   <Route path="/portal/login" element={<CustomerLogin />} />
                   <Route path="/portal/u/:userId" element={<CustomerAutoLogin />} />
@@ -132,6 +135,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <District />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users/requests"
+              element={
+                <ProtectedRoute>
+                  <RequestManagement />
                 </ProtectedRoute>
               }
             />

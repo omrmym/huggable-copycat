@@ -14,6 +14,10 @@ const userSubItems = [{
   label: 'All Users',
   path: '/users'
 }, {
+  icon: ClipboardCheck,
+  label: 'Requests',
+  path: '/users/requests'
+}, {
   icon: MapPin,
   label: 'Area',
   path: '/users/area'

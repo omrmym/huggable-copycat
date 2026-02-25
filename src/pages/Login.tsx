@@ -152,6 +152,11 @@ export default function Login() {
             </Button>
           </form>
 
+          <div className="mt-4 text-center">
+            <a href="/request" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium">
+              New Connection Request →
+            </a>
+          </div>
         </CardContent>
       </Card>
     </div>
