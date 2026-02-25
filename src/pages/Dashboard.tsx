@@ -1,7 +1,6 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentUsersTable } from '@/components/dashboard/RecentUsersTable';
-import { PendingBillsWidget } from '@/components/dashboard/PendingBillsWidget';
 import { UserStatusChart } from '@/components/dashboard/UserStatusChart';
 import { MonthlyBillCollectionChart } from '@/components/dashboard/MonthlyBillCollectionChart';
 import { DailyBillCollectionChart } from '@/components/dashboard/DailyBillCollectionChart';
@@ -198,10 +197,9 @@ export default function Dashboard() {
         <DailyNewUsersChart />
       </div>
 
-      {/* User Status Chart + Pending Requests */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      {/* User Status Chart */}
+      <div className="mb-6">
         <UserStatusChart />
-        <PendingBillsWidget />
       </div>
 
       {/* Recent Users Table */}
