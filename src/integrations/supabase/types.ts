@@ -1559,6 +1559,108 @@ export type Database = {
           },
         ]
       }
+      user_requests: {
+        Row: {
+          address_details: string | null
+          area_id: string | null
+          connection_fee: number | null
+          created_at: string
+          customer_type: string | null
+          district_id: string | null
+          father_name: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          mikrotik_router_id: string | null
+          mikrotik_username: string
+          monthly_bill: number | null
+          nid_number: string | null
+          phone: string
+          plan_id: string | null
+          police_station_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address_details?: string | null
+          area_id?: string | null
+          connection_fee?: number | null
+          created_at?: string
+          customer_type?: string | null
+          district_id?: string | null
+          father_name?: string | null
+          full_name: string
+          gender?: string | null
+          id?: string
+          mikrotik_router_id?: string | null
+          mikrotik_username: string
+          monthly_bill?: number | null
+          nid_number?: string | null
+          phone: string
+          plan_id?: string | null
+          police_station_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address_details?: string | null
+          area_id?: string | null
+          connection_fee?: number | null
+          created_at?: string
+          customer_type?: string | null
+          district_id?: string | null
+          father_name?: string | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          mikrotik_router_id?: string | null
+          mikrotik_username?: string
+          monthly_bill?: number | null
+          nid_number?: string | null
+          phone?: string
+          plan_id?: string | null
+          police_station_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_requests_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_requests_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_requests_mikrotik_router_id_fkey"
+            columns: ["mikrotik_router_id"]
+            isOneToOne: false
+            referencedRelation: "mikrotik_routers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_requests_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "billing_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_requests_police_station_id_fkey"
+            columns: ["police_station_id"]
+            isOneToOne: false
+            referencedRelation: "police_stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vouchers: {
         Row: {
           activated_at: string | null
