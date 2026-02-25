@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 const userSubItems = [{
   icon: UserPlus,
   label: 'Create User',
@@ -147,6 +148,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const {
     toast
   } = useToast();
+  const { data: branding } = useBrandingSettings();
 
   // Auto-expand menus if on their routes
   const isOnUsersRoute = location.pathname.startsWith('/users');
@@ -178,12 +180,16 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-            <Network className="w-6 h-6 text-primary-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center overflow-hidden">
+            {branding?.logo_url ? (
+              <img src={branding.logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
+            ) : (
+              <Network className="w-6 h-6 text-primary-foreground" />
+            )}
           </div>
           <div>
-            <h1 className="font-bold text-foreground">MikroBill</h1>
-            <p className="text-xs text-muted-foreground">RADIUS Manager</p>
+            <h1 className="font-bold text-foreground">{branding?.company_name || 'MikroBill'}</h1>
+            <p className="text-xs text-muted-foreground">{branding?.company_subtitle || 'RADIUS Manager'}</p>
           </div>
         </div>
       </div>
