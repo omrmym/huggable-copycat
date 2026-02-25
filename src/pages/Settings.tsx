@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,7 @@ import {
   MessageSquare,
   Package,
   Download,
+  Upload,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -87,6 +88,8 @@ function extractEdgeFunctionErrorMessage(err: unknown): string {
 export default function SettingsPage() {
   const queryClient = useQueryClient();
   const [isExporting, setIsExporting] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const restoreFileRef = useRef<HTMLInputElement>(null);
   const [mikrotikConfig, setMikrotikConfig] = useState({
     id: '',
     name: 'Default Router',
@@ -1202,6 +1205,97 @@ export default function SettingsPage() {
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Clear Session Cache
+                  </Button>
+                </div>
+
+                {/* Restore Section */}
+                <div className="mt-4 p-4 bg-destructive/5 border border-destructive/20 rounded-lg space-y-3">
+                  <div>
+                    <h4 className="font-medium text-destructive">Restore Database</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Upload a previously exported backup JSON file. This will overwrite existing data in matching tables.
+                    </p>
+                  </div>
+                  <input
+                    ref={restoreFileRef}
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      
+                      const confirmed = window.confirm(
+                        'WARNING: This will delete existing data and replace it with the backup. This action cannot be undone. Are you sure you want to continue?'
+                      );
+                      if (!confirmed) {
+                        if (restoreFileRef.current) restoreFileRef.current.value = '';
+                        return;
+                      }
+
+                      setIsRestoring(true);
+                      try {
+                        const text = await file.text();
+                        const backup = JSON.parse(text) as Record<string, unknown[]>;
+                        
+                        const tableOrder = [
+                          'app_settings', 'connectivity_types', 'payment_methods', 
+                          'expense_categories', 'income_categories', 'departments', 'positions',
+                          'role_definitions', 'districts', 'police_stations', 'areas',
+                          'billing_plans', 'mikrotik_routers', 'resellers', 'branches',
+                          'employees', 'software_users',
+                          'radius_users', 'transactions', 'vouchers',
+                          'salary_payments', 'leave_requests', 'expenses', 'income',
+                          'reseller_credits', 'reseller_plan_commissions', 'reseller_user_recharges',
+                          'reseller_users'
+                        ];
+
+                        let restored = 0;
+                        let skipped = 0;
+
+                        for (const table of tableOrder) {
+                          const rows = backup[table];
+                          if (!rows || !Array.isArray(rows) || rows.length === 0) {
+                            skipped++;
+                            continue;
+                          }
+
+                          // Delete existing data
+                          await supabase.from(table as any).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                          
+                          // Insert in batches of 100
+                          for (let i = 0; i < rows.length; i += 100) {
+                            const batch = rows.slice(i, i + 100);
+                            const { error } = await supabase.from(table as any).insert(batch as any);
+                            if (error) {
+                              console.error(`Error restoring ${table}:`, error.message);
+                            }
+                          }
+                          restored++;
+                        }
+
+                        queryClient.invalidateQueries();
+                        toast.success(`Database restored! ${restored} tables restored, ${skipped} skipped.`);
+                      } catch (err: any) {
+                        toast.error(`Restore failed: ${err.message}`);
+                      } finally {
+                        setIsRestoring(false);
+                        if (restoreFileRef.current) restoreFileRef.current.value = '';
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                    disabled={isRestoring}
+                    onClick={() => restoreFileRef.current?.click()}
+                  >
+                    {isRestoring ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4 mr-2" />
+                    )}
+                    {isRestoring ? 'Restoring...' : 'Restore from Backup'}
                   </Button>
                 </div>
               </div>
