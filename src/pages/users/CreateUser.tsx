@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useCreateRadiusUser } from "@/hooks/useRadiusUsers";
@@ -131,6 +132,39 @@ export default function CreateUserPage() {
     }
 
     try {
+      // Check if username (phone) already exists in radius_users
+      const { data: existingUser } = await supabase
+        .from('radius_users')
+        .select('id, username')
+        .eq('username', effectiveUsername)
+        .maybeSingle();
+
+      if (existingUser) {
+        toast({
+          title: "User Already Exists",
+          description: `A user with this number (${effectiveUsername}) already exists in the panel. Cannot create duplicate.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check if a pending request exists for this phone
+      const { data: pendingRequests } = await supabase
+        .from('user_requests')
+        .select('id')
+        .eq('mikrotik_username', effectiveUsername)
+        .eq('status', 'pending')
+        .limit(1);
+
+      if (pendingRequests && pendingRequests.length > 0) {
+        toast({
+          title: "Pending Request Exists",
+          description: `A pending request for this number (${effectiveUsername}) already exists. Please approve or reject it first.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       await createUser.mutateAsync({
         full_name: formData.full_name || null,
         father_name: formData.father_name || null,
