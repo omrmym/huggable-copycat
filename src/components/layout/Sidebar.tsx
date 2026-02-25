@@ -180,11 +180,13 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center overflow-hidden">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden">
             {branding?.logo_url ? (
-              <img src={branding.logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
+              <img src={branding.logo_url} alt="Logo" className="w-full h-full object-contain" />
             ) : (
-              <Network className="w-6 h-6 text-primary-foreground" />
+              <div className="w-full h-full bg-gradient-primary flex items-center justify-center rounded-xl">
+                <Network className="w-6 h-6 text-primary-foreground" />
+              </div>
             )}
           </div>
           <div>
