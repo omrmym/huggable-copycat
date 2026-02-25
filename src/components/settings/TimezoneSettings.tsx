@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -54,7 +54,7 @@ const TIMEZONES = [
   { value: '14', label: 'UTC+14:00 (Line Islands)' },
 ];
 
-export function TimezoneSettings() {
+export const TimezoneSettings = forwardRef<HTMLDivElement>(function TimezoneSettings(_props, _ref) {
   const { data: settings, isLoading } = useTimezoneSettings();
   const updateSettings = useUpdateTimezoneSettings();
 
@@ -216,4 +216,4 @@ export function TimezoneSettings() {
       </CardContent>
     </Card>
   );
-}
+});

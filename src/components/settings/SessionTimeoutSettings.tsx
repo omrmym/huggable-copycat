@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,7 @@ import {
   SessionTimeoutSettings as SessionTimeoutSettingsType,
 } from '@/hooks/useAppSettings';
 
-export function SessionTimeoutSettings() {
+export const SessionTimeoutSettings = forwardRef<HTMLDivElement>(function SessionTimeoutSettings(_props, _ref) {
   const { data: settings, isLoading } = useSessionTimeoutSettings();
   const updateSettings = useUpdateSessionTimeoutSettings();
 
@@ -194,4 +194,4 @@ export function SessionTimeoutSettings() {
       </CardContent>
     </Card>
   );
-}
+});

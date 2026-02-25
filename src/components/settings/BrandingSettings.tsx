@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, forwardRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +39,7 @@ export function useBrandingSettings() {
   });
 }
 
-export function BrandingSettings() {
+export const BrandingSettings = forwardRef<HTMLDivElement>(function BrandingSettings(_props, _ref) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: branding, isLoading } = useBrandingSettings();
@@ -252,4 +252,4 @@ export function BrandingSettings() {
       </CardContent>
     </Card>
   );
-}
+});
