@@ -29,22 +29,27 @@ export default function Login() {
     } else {
       const loginUserId = formData.get('userid') as string;
       
-      // Use edge function for secure login lookup (no public RLS needed)
-      const { data: lookupData, error: lookupError } = await supabase.functions.invoke('login-lookup', {
-        body: { login_user_id: loginUserId },
-      });
-
-      if (lookupError || !lookupData?.success) {
-        toast({
-          title: 'Login Failed',
-          description: 'User ID not found or account is inactive.',
-          variant: 'destructive',
+      // If user entered an email in the User ID field, use it directly
+      if (loginUserId.includes('@')) {
+        email = loginUserId;
+      } else {
+        // Use edge function for secure login lookup (no public RLS needed)
+        const { data: lookupData, error: lookupError } = await supabase.functions.invoke('login-lookup', {
+          body: { login_user_id: loginUserId },
         });
-        setIsLoading(false);
-        return;
-      }
 
-      email = lookupData.email;
+        if (lookupError || !lookupData?.success) {
+          toast({
+            title: 'Login Failed',
+            description: 'User ID not found or account is inactive.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        email = lookupData.email;
+      }
     }
 
     const { error } = await signIn(email, password, loginMethod);
