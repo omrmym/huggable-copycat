@@ -360,7 +360,7 @@ export default function UserRequestPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label>Monthly Bill (৳)</Label>
-                <Input type="number" placeholder="0.00" className="bg-secondary border-border" value={formData.monthly_bill} onChange={(e) => setFormData({ ...formData, monthly_bill: e.target.value })} />
+                <Input type="number" placeholder="0.00" className="bg-secondary border-border" value={formData.monthly_bill} readOnly disabled />
               </div>
               <div className="space-y-2">
                 <Label>Connection Fee (৳)</Label>
