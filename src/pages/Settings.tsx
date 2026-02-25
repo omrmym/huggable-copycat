@@ -53,6 +53,7 @@ import { PaymentGatewaySettings } from '@/components/settings/PaymentGatewaySett
 import { SuperAdminAccountSettings } from '@/components/settings/SuperAdminAccountSettings';
 import { RequestNoteSettings } from '@/components/settings/RequestNoteSettings';
 import { BrandingSettings } from '@/components/settings/BrandingSettings';
+import { ThemeSettings } from '@/components/settings/ThemeSettings';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -1103,6 +1104,9 @@ export default function SettingsPage() {
         <TabsContent value="system" className="space-y-6">
           {/* Branding Settings */}
           <BrandingSettings />
+
+          {/* Theme Settings */}
+          <ThemeSettings />
 
           {/* Super Admin Account Settings */}
           <SuperAdminAccountSettings />

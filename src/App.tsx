@@ -1,5 +1,6 @@
 // Radius Bill Manager v2
 import { Toaster } from "@/components/ui/toaster";
+import { useApplyTheme } from "@/components/settings/ThemeSettings";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -59,8 +60,14 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function ThemeApplier({ children }: { children: React.ReactNode }) {
+  useApplyTheme();
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ThemeApplier>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -360,6 +367,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </ThemeApplier>
   </QueryClientProvider>
 );
 
