@@ -408,7 +408,7 @@ export function useRechargeUser() {
       // Get current user data including status, expires_at, billing_cycle, grace_days_used, and plan
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('balance, username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans(name, data_limit_mb)')
+        .select('balance, username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans:plan_id(name, data_limit_mb, duration_days)')
         .eq('id', userId)
         .single();
 
@@ -417,21 +417,25 @@ export function useRechargeUser() {
       const newBalance = (user.balance || 0) + amount;
       const billingCycle = user.billing_cycle || 'monthly';
       const graceDaysUsed = user.grace_days_used || 0;
+      const planData = (user as any).billing_plans;
+      const planDurationDays = planData?.duration_days || null;
       
-      // Calculate new expiration date based on billing cycle and current status
+      // Calculate new expiration date based on plan duration_days or billing cycle
       let newExpiresAt: Date;
       const now = new Date();
       
-      if (user.status === 'expired' || !user.expires_at) {
-        // If expired or no expiration, calculate from current date
+      if (user.status === 'expired' || user.status === 'disabled' || !user.expires_at) {
+        // If expired/disabled or no expiration, calculate from current date
         newExpiresAt = new Date(now);
       } else {
         // If active, calculate from current expiration date
         newExpiresAt = new Date(user.expires_at);
       }
       
-      // Add duration based on billing cycle
-      if (billingCycle === '30 Days' || billingCycle === '30days') {
+      // Use plan's duration_days if available, otherwise fall back to billing cycle
+      if (planDurationDays && planDurationDays > 0) {
+        newExpiresAt.setDate(newExpiresAt.getDate() + planDurationDays);
+      } else if (billingCycle === '30 Days' || billingCycle === '30days') {
         newExpiresAt.setDate(newExpiresAt.getDate() + 30);
       } else {
         // Monthly - add 1 month
@@ -491,7 +495,6 @@ export function useRechargeUser() {
 
       // Enable user in MikroTik with correct profile (sync-user re-creates/updates as enabled)
       try {
-        const planData = (user as any).billing_plans;
         const profileName = planData?.name || undefined;
 
         await supabase.functions.invoke('mikrotik-sync', {
