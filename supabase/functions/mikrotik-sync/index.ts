@@ -119,6 +119,15 @@ async function handleGetUserBandwidth(router: RouterConfig, username: string) {
   return result;
 }
 
+async function ensureProfileExists(router: RouterConfig, profile: string) {
+  const existing = await mikrotikRestRequest(router, `/ip/hotspot/user/profile?=name=${profile}`);
+  if (existing.success && Array.isArray(existing.data) && existing.data.length > 0) {
+    return; // Profile already exists
+  }
+  // Create the profile on the router
+  await mikrotikRestRequest(router, "/ip/hotspot/user/profile/add", "POST", { name: profile });
+}
+
 async function handleSyncUser(
   router: RouterConfig,
   username: string,
@@ -126,6 +135,11 @@ async function handleSyncUser(
   profile?: string,
   macAddress?: string
 ) {
+  // Ensure profile exists on router before assigning
+  if (profile) {
+    await ensureProfileExists(router, profile);
+  }
+
   // Check if user exists
   const existing = await mikrotikRestRequest(router, `/ip/hotspot/user?=name=${username}`);
 
