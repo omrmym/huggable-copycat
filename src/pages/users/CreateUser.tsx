@@ -165,6 +165,10 @@ export default function CreateUserPage() {
         return;
       }
 
+      // expires_at = connection_date at 9:00 AM, status = expired (user must recharge to activate)
+      const expireDate = new Date(formData.connection_date);
+      expireDate.setHours(9, 0, 0, 0);
+
       await createUser.mutateAsync({
         full_name: formData.full_name || null,
         father_name: formData.father_name || null,
@@ -180,7 +184,7 @@ export default function CreateUserPage() {
         username: effectiveUsername,
         password_hash: effectivePassword,
         connection_date: formData.connection_date?.toISOString() || null,
-        expires_at: formData.expires_at?.toISOString() || null,
+        expires_at: expireDate.toISOString(),
         monthly_bill: parseFloat(formData.monthly_bill) || 0,
         connection_fee: parseFloat(formData.connection_fee) || 0,
         billing_type: formData.billing_type || null,
@@ -189,6 +193,7 @@ export default function CreateUserPage() {
         connectivity_type: formData.connectivity_type || null,
         reseller_office: "Main-User",
         service_type: "hotspot",
+        status: "expired",
       });
 
       toast({
