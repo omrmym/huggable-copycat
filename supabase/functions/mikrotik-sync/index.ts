@@ -236,16 +236,16 @@ async function handleSetMacBinding(
 async function handleSyncAllUsers(supabase: ReturnType<typeof createClient>, router: RouterConfig) {
   const { data: users, error } = await supabase
     .from("radius_users")
-    .select("username, password_hash, service_type, billing_plans(name)")
-    .eq("service_type", "hotspot")
-    .eq("status", "active");
+    .select("username, password_hash, service_type, status, billing_plans(name)")
+    .eq("service_type", "hotspot");
 
   if (error) return { success: false, error: error.message };
 
   const results = [];
   for (const user of users || []) {
     const profile = (user as any).billing_plans?.name;
-    const result = await handleSyncUser(router, user.username, user.password_hash, profile);
+    const isDisabled = user.status !== "active";
+    const result = await handleSyncUser(router, user.username, user.password_hash, profile, undefined, isDisabled);
     results.push({ username: user.username, ...result });
   }
 
@@ -255,17 +255,17 @@ async function handleSyncAllUsers(supabase: ReturnType<typeof createClient>, rou
 async function handleSyncUsers(supabase: ReturnType<typeof createClient>, router: RouterConfig) {
   const { data: users, error } = await supabase
     .from("radius_users")
-    .select("username, password_hash, billing_plans(name)")
-    .eq("service_type", "hotspot")
-    .eq("status", "active");
+    .select("username, password_hash, status, billing_plans(name)")
+    .eq("service_type", "hotspot");
 
   if (error) return { success: false, error: error.message };
-  if (!users || users.length === 0) return { success: true, data: { synced: 0, failed: 0, message: "No active hotspot users to sync" } };
+  if (!users || users.length === 0) return { success: true, data: { synced: 0, failed: 0, message: "No hotspot users to sync" } };
 
   let synced = 0, failed = 0;
   for (const user of users) {
     const profile = (user as any).billing_plans?.name;
-    const result = await handleSyncUser(router, user.username, user.password_hash, profile);
+    const isDisabled = user.status !== "active";
+    const result = await handleSyncUser(router, user.username, user.password_hash, profile, undefined, isDisabled);
     if (result.success) synced++;
     else failed++;
   }

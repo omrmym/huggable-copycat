@@ -91,6 +91,7 @@ export function useCreateRadiusUser() {
             username: user.username,
             password: user.password_hash,
             service_type: user.service_type,
+            disabled: (user.status || 'active') !== 'active',
           },
         });
       } catch (syncError) {
@@ -504,6 +505,7 @@ export function useRechargeUser() {
             password: (user as any).password_hash,
             profile: profileName,
             service_type: (user as any).service_type,
+            disabled: false,
           },
         });
       } catch (syncError) {
