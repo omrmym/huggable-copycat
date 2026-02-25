@@ -39,11 +39,9 @@ export default function RequestManagement() {
 
   const approveMutation = useMutation({
     mutationFn: async (request: any) => {
-      // 1. Create radius_user from request data
+      // 1. Create radius_user from request data with status 'disabled'
+      // User stays disabled in MikroTik until first bill/recharge is generated
       const now = new Date();
-      const expiresAt = new Date(now);
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
-      expiresAt.setHours(9, 0, 0, 0);
 
       const { error: createError } = await supabase.from('radius_users').insert({
         full_name: request.full_name,
@@ -63,31 +61,19 @@ export default function RequestManagement() {
         username: request.mikrotik_username,
         password_hash: request.mikrotik_username,
         connection_date: now.toISOString(),
-        expires_at: expiresAt.toISOString(),
         billing_type: 'prepaid',
         billing_cycle: 'monthly',
         connectivity_type: 'shared',
         reseller_office: 'Main-User',
         service_type: 'hotspot',
-        status: 'active',
+        status: 'disabled',
       });
 
       if (createError) throw createError;
 
-      // 2. Enable user in MikroTik (sync as active)
-      try {
-        await supabase.functions.invoke('mikrotik-sync', {
-          body: {
-            action: 'sync-user',
-            username: request.mikrotik_username,
-            password: request.mikrotik_username,
-          },
-        });
-      } catch (syncError) {
-        console.warn('MikroTik enable failed:', syncError);
-      }
+      // MikroTik user remains disabled - will be enabled when first recharge/bill is generated
 
-      // 3. Update request status to approved
+      // 2. Update request status to approved
       const { error: updateError } = await supabase
         .from('user_requests')
         .update({ status: 'approved' } as any)
@@ -98,7 +84,7 @@ export default function RequestManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-requests'] });
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
-      toast({ title: "Request Approved", description: "User has been created and enabled successfully." });
+      toast({ title: "Request Approved", description: "User created (disabled). Will be enabled after first recharge." });
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
