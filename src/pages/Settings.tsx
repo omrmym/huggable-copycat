@@ -52,6 +52,7 @@ import { PositionManagement } from '@/components/settings/PositionManagement';
 import { PaymentGatewaySettings } from '@/components/settings/PaymentGatewaySettings';
 import { SuperAdminAccountSettings } from '@/components/settings/SuperAdminAccountSettings';
 import { RequestNoteSettings } from '@/components/settings/RequestNoteSettings';
+import { BrandingSettings } from '@/components/settings/BrandingSettings';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -1100,6 +1101,9 @@ export default function SettingsPage() {
 
         {/* System Settings */}
         <TabsContent value="system" className="space-y-6">
+          {/* Branding Settings */}
+          <BrandingSettings />
+
           {/* Super Admin Account Settings */}
           <SuperAdminAccountSettings />
 
