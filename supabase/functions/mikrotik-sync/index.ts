@@ -83,8 +83,16 @@ async function mikrotikRestRequest(
       };
     }
 
-    const data = await response.json();
-    return { success: true, data };
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      return { success: true, data: {} };
+    }
+    try {
+      const data = JSON.parse(text);
+      return { success: true, data };
+    } catch {
+      return { success: true, data: { raw: text } };
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes("abort")) {
