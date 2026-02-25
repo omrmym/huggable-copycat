@@ -405,10 +405,10 @@ export function useRechargeUser() {
       collectedBy?: string;
       planId?: string;
     }) => {
-      // Get current user data including status, expires_at, billing_cycle, and grace_days_used
+      // Get current user data including status, expires_at, billing_cycle, grace_days_used, and plan
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('balance, username, status, expires_at, billing_cycle, plan_id, grace_days_used')
+        .select('balance, username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans(name, data_limit_mb)')
         .eq('id', userId)
         .single();
 
@@ -488,6 +488,24 @@ export function useRechargeUser() {
         });
 
       if (txError) throw txError;
+
+      // Enable user in MikroTik with correct profile (sync-user re-creates/updates as enabled)
+      try {
+        const planData = (user as any).billing_plans;
+        const profileName = planData?.name || undefined;
+
+        await supabase.functions.invoke('mikrotik-sync', {
+          body: {
+            action: 'sync-user',
+            username: user.username,
+            password: (user as any).password_hash,
+            profile: profileName,
+            service_type: (user as any).service_type,
+          },
+        });
+      } catch (syncError) {
+        console.warn('MikroTik enable after recharge failed:', syncError);
+      }
 
       return { newBalance, newExpiresAt, graceDaysDeducted: graceDaysUsed };
     },

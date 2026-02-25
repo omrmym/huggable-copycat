@@ -252,11 +252,20 @@ async function handleSyncPlans(router: RouterConfig, supabase: ReturnType<typeof
       const profileId = (existing.data[0] as Record<string, string>)[".id"];
       const body: Record<string, unknown> = {};
       if (plan.download_speed_kbps) body["rate-limit"] = `${plan.upload_speed_kbps || 0}k/${plan.download_speed_kbps}k`;
+      // Set data limit (transfer-limit) if plan has data_limit_mb
+      if (plan.data_limit_mb && plan.data_limit_mb > 0) {
+        const bytes = Math.round(plan.data_limit_mb * 1024 * 1024);
+        body["transfer-limit"] = `${bytes}`;
+      }
       await mikrotikRestRequest(router, `/ip/hotspot/user/profile/${profileId}`, "PATCH", body);
     } else {
       // Create
       const body: Record<string, unknown> = { name: plan.name };
       if (plan.download_speed_kbps) body["rate-limit"] = `${plan.upload_speed_kbps || 0}k/${plan.download_speed_kbps}k`;
+      if (plan.data_limit_mb && plan.data_limit_mb > 0) {
+        const bytes = Math.round(plan.data_limit_mb * 1024 * 1024);
+        body["transfer-limit"] = `${bytes}`;
+      }
       await mikrotikRestRequest(router, "/ip/hotspot/user/profile/add", "POST", body);
     }
   }
@@ -435,6 +444,38 @@ Deno.serve(async (req) => {
       case "import-plans":
         result = await handleImportPlans(router!, supabase);
         break;
+
+      case "auto-mac-binding": {
+        // Get active session for user to detect MAC from connected device
+        const sessions = await mikrotikRestRequest(router!, `/ip/hotspot/active?=user=${username}`);
+        if (sessions.success && Array.isArray(sessions.data) && sessions.data.length > 0) {
+          const session = sessions.data[0] as Record<string, string>;
+          const detectedMac = session["mac-address"];
+          if (detectedMac) {
+            // Set the detected MAC on the hotspot user
+            const existingUser = await mikrotikRestRequest(router!, `/ip/hotspot/user?=name=${username}`);
+            if (existingUser.success && Array.isArray(existingUser.data) && existingUser.data.length > 0) {
+              const userId = (existingUser.data[0] as Record<string, string>)[".id"];
+              await mikrotikRestRequest(router!, `/ip/hotspot/user/${userId}`, "PATCH", { "mac-address": detectedMac });
+              
+              // Also update in database
+              await supabase
+                .from("radius_users")
+                .update({ mac_address: detectedMac, mac_locked: true })
+                .eq("username", username);
+              
+              result = { success: true, data: { mac: detectedMac, message: "MAC auto-bound from active session" } };
+            } else {
+              result = { success: false, error: "User not found on router" };
+            }
+          } else {
+            result = { success: false, error: "No MAC detected in active session" };
+          }
+        } else {
+          result = { success: false, error: "No active session found for user" };
+        }
+        break;
+      }
 
       default:
         result = { success: false, error: `Unknown action: ${action}` };
