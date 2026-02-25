@@ -39,8 +39,23 @@ export default function RequestManagement() {
 
   const approveMutation = useMutation({
     mutationFn: async (request: any) => {
+      // Check if username already exists in radius_users
+      const { data: existingUser } = await supabase
+        .from('radius_users')
+        .select('id, username')
+        .eq('username', request.mikrotik_username)
+        .maybeSingle();
+
+      if (existingUser) {
+        // User already exists - auto-reject this request
+        await supabase
+          .from('user_requests')
+          .update({ status: 'rejected' } as any)
+          .eq('id', request.id);
+        throw new Error(`ইউজার আইডি "${request.mikrotik_username}" ইতিমধ্যে প্যানেলে আছে। রিকোয়েস্ট বাতিল করা হয়েছে।`);
+      }
+
       // 1. Create radius_user from request data with status 'disabled'
-      // User stays disabled in MikroTik until first bill/recharge is generated
       const now = new Date();
 
       const { error: createError } = await supabase.from('radius_users').insert({
