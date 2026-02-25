@@ -141,7 +141,8 @@ async function handleSyncUser(
   username: string,
   password: string,
   profile?: string,
-  macAddress?: string
+  macAddress?: string,
+  disabled?: boolean
 ) {
   // Ensure profile exists on router before assigning
   if (profile) {
@@ -157,6 +158,7 @@ async function handleSyncUser(
     const updateBody: Record<string, unknown> = { password };
     if (profile) updateBody.profile = profile;
     if (macAddress) updateBody["mac-address"] = macAddress;
+    if (disabled !== undefined) updateBody.disabled = disabled ? "yes" : "no";
 
     const updateResult = await mikrotikRestRequest(router, `/ip/hotspot/user/${userId}`, "PATCH", updateBody);
     return updateResult;
@@ -165,6 +167,7 @@ async function handleSyncUser(
     const createBody: Record<string, unknown> = { name: username, password };
     if (profile) createBody.profile = profile;
     if (macAddress) createBody["mac-address"] = macAddress;
+    if (disabled !== undefined) createBody.disabled = disabled ? "yes" : "no";
 
     const createResult = await mikrotikRestRequest(router, "/ip/hotspot/user/add", "POST", createBody);
     return createResult;
@@ -192,11 +195,19 @@ async function handleDisconnectUser(router: RouterConfig, username: string) {
   return { success: true, data: { disconnected: 0, message: "No active session found" } };
 }
 
-async function handleExpireUser(router: RouterConfig, username: string, expiredProfile: string) {
+async function handleExpireUser(router: RouterConfig, username: string, expiredProfile: string, behavior?: string) {
   const existing = await mikrotikRestRequest(router, `/ip/hotspot/user?=name=${username}`);
   if (existing.success && Array.isArray(existing.data) && existing.data.length > 0) {
     const userId = (existing.data[0] as Record<string, string>)[".id"];
-    return await mikrotikRestRequest(router, `/ip/hotspot/user/${userId}`, "PATCH", { profile: expiredProfile });
+    
+    if (behavior === 'disable_user') {
+      // Disable the user on the router
+      return await mikrotikRestRequest(router, `/ip/hotspot/user/${userId}`, "PATCH", { disabled: "yes" });
+    } else {
+      // Change profile to expired profile
+      await ensureProfileExists(router, expiredProfile);
+      return await mikrotikRestRequest(router, `/ip/hotspot/user/${userId}`, "PATCH", { profile: expiredProfile });
+    }
   }
   return { success: false, error: "User not found on router" };
 }
@@ -393,7 +404,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { action, router: routerConfig, username, password, profile, mac_address, service_type, expired_profile_name, locked } = body;
+    const { action, router: routerConfig, username, password, profile, mac_address, service_type, expired_profile_name, locked, disabled, behavior } = body;
 
     // Resolve router config
     let router: RouterConfig | null = routerConfig || null;
@@ -428,7 +439,7 @@ Deno.serve(async (req) => {
         break;
 
       case "sync-user":
-        result = await handleSyncUser(router!, username, password, profile, mac_address);
+        result = await handleSyncUser(router!, username, password, profile, mac_address, disabled);
         break;
 
       case "delete-user":
@@ -440,7 +451,7 @@ Deno.serve(async (req) => {
         break;
 
       case "expire-user":
-        result = await handleExpireUser(router!, username, expired_profile_name || "expired");
+        result = await handleExpireUser(router!, username, expired_profile_name || "expired", behavior);
         break;
 
       case "set-mac-binding":
