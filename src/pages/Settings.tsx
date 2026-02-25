@@ -1093,6 +1093,9 @@ export default function SettingsPage() {
 
           {/* Payment Method Management */}
           <PaymentMethodManagement />
+
+          {/* Request Success Note Settings */}
+          <RequestNoteSettings />
         </TabsContent>
 
         {/* System Settings */}
@@ -1105,9 +1108,6 @@ export default function SettingsPage() {
 
           {/* Timezone Settings */}
           <TimezoneSettings />
-
-          {/* Request Success Note Settings */}
-          <RequestNoteSettings />
 
           {/* System Information Card */}
           <Card className="bg-card border-border">
