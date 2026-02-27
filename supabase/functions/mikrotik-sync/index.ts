@@ -158,12 +158,80 @@ async function handleGetSessions(router: RouterConfig) {
   return result;
 }
 
-async function handleGetUserBandwidth(router: RouterConfig, username: string) {
-  const result = await mikrotikRestRequest(router, `/ip/hotspot/active?=user=${username}`);
-  if (result.success) {
-    return { success: true, data: result.data };
+async function handleGetUserBandwidth(
+  router: RouterConfig,
+  username: string,
+  supabase: ReturnType<typeof createClient>,
+  radiusUserId?: string,
+  serviceType?: string
+) {
+  const path = serviceType === "pppoe"
+    ? `/ppp/active?=name=${username}`
+    : `/ip/hotspot/active?=user=${username}`;
+
+  const result = await mikrotikRestRequest(router, path);
+  if (!result.success) return result;
+
+  const sessions = Array.isArray(result.data) ? result.data : [];
+
+  // Record bandwidth history and update data_used_mb if we have a radius user ID
+  if (radiusUserId && sessions.length > 0) {
+    const session = sessions[0] as Record<string, string>;
+    const bytesIn = parseInt(session["bytes-in"] || "0", 10);
+    const bytesOut = parseInt(session["bytes-out"] || "0", 10);
+    const uptime = session["uptime"] || null;
+
+    // Calculate approximate rates from session data
+    // MikroTik provides cumulative bytes; we compare with last record
+    const { data: lastRecord } = await supabase
+      .from("bandwidth_history")
+      .select("bytes_in, bytes_out, recorded_at")
+      .eq("radius_user_id", radiusUserId)
+      .order("recorded_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    let downloadRateBps = 0;
+    let uploadRateBps = 0;
+
+    if (lastRecord) {
+      const timeDiffMs = Date.now() - new Date(lastRecord.recorded_at).getTime();
+      const timeDiffSec = timeDiffMs / 1000;
+      if (timeDiffSec > 0 && timeDiffSec < 60) {
+        // Only calculate rate if last record is recent (within 60s)
+        downloadRateBps = Math.max(0, Math.round((bytesIn - (lastRecord.bytes_in || 0)) / timeDiffSec));
+        uploadRateBps = Math.max(0, Math.round((bytesOut - (lastRecord.bytes_out || 0)) / timeDiffSec));
+      }
+    }
+
+    // Insert bandwidth history record (throttle: only if last record is >4s old)
+    const shouldRecord = !lastRecord ||
+      (Date.now() - new Date(lastRecord.recorded_at).getTime()) > 4000;
+
+    if (shouldRecord) {
+      await supabase.from("bandwidth_history").insert({
+        radius_user_id: radiusUserId,
+        bytes_in: bytesIn,
+        bytes_out: bytesOut,
+        download_rate_bps: downloadRateBps,
+        upload_rate_bps: uploadRateBps,
+        download_bytes: bytesIn,
+        upload_bytes: bytesOut,
+        session_uptime: uptime,
+        recorded_at: new Date().toISOString(),
+      });
+
+      // Update data_used_mb on radius_users (total bytes / 1024 / 1024)
+      const totalBytes = bytesIn + bytesOut;
+      const dataUsedMb = totalBytes / (1024 * 1024);
+      await supabase
+        .from("radius_users")
+        .update({ data_used_mb: Math.round(dataUsedMb * 100) / 100 })
+        .eq("id", radiusUserId);
+    }
   }
-  return result;
+
+  return { success: true, data: result.data };
 }
 
 async function ensureProfileExists(router: RouterConfig, profile: string) {
@@ -475,7 +543,7 @@ Deno.serve(async (req) => {
         break;
 
       case "get-user-bandwidth":
-        result = await handleGetUserBandwidth(router!, username);
+        result = await handleGetUserBandwidth(router!, username, supabase, body.radius_user_id, body.service_type);
         break;
 
       case "sync-user":
