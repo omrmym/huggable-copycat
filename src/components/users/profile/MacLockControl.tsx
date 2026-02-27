@@ -37,7 +37,6 @@ export function MacLockControl({
   serviceType,
   routerId,
   detectedMac,
-  isOnline,
 }: MacLockControlProps) {
   const queryClient = useQueryClient();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -223,39 +222,31 @@ export function MacLockControl({
                 <div>
                   <p className="font-medium text-foreground">Auto MAC Lock</p>
                   <p className="text-sm text-muted-foreground">
-                    {macLocked
-                      ? 'MAC is locked. Click Unlock to remove MAC from router.'
-                      : isOnline
-                        ? 'User is online. Click to detect & lock MAC from active session.'
-                        : 'User is offline. User must be online to auto-lock.'}
-                  </p>
-                </div>
-              </div>
-              {macLocked ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleToggleLock('unlock')}
-                  disabled={toggleMacLockMutation.isPending}
-                  className="border-destructive text-destructive hover:bg-destructive/10"
-                >
-                  {toggleMacLockMutation.isPending && pendingAction === 'unlock' ? (
-                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  ) : (
-                    <Unlock className="w-4 h-4 mr-1" />
-                  )}
-                  Unlock
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    if (!isOnline) {
-                      toast.error('User must be online to auto-detect MAC address');
-                      return;
-                    }
-                    autoMacLockMutation.mutate();
-                  }}
+                      {macLocked
+                        ? 'MAC is locked. Click Unlock to remove MAC from router.'
+                        : 'Click Auto Lock to detect MAC from active MikroTik session and bind it.'}
+                   </p>
+                 </div>
+               </div>
+               {macLocked ? (
+                 <Button
+                   size="sm"
+                   variant="outline"
+                   onClick={() => handleToggleLock('unlock')}
+                   disabled={toggleMacLockMutation.isPending}
+                   className="border-destructive text-destructive hover:bg-destructive/10"
+                 >
+                   {toggleMacLockMutation.isPending && pendingAction === 'unlock' ? (
+                     <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                   ) : (
+                     <Unlock className="w-4 h-4 mr-1" />
+                   )}
+                   Unlock
+                 </Button>
+               ) : (
+                 <Button
+                   size="sm"
+                   onClick={() => autoMacLockMutation.mutate()}
                   disabled={autoMacLockMutation.isPending}
                   className="bg-primary text-primary-foreground"
                 >
