@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +16,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Shield, ShieldOff, Lock, Unlock, Loader2, Wifi, Edit2, Check, X, Scan } from 'lucide-react';
+import { Shield, Lock, Unlock, Loader2, Wifi, Scan } from 'lucide-react';
 
 interface MacLockControlProps {
   userId: string;
@@ -44,36 +42,8 @@ export function MacLockControl({
   const queryClient = useQueryClient();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<'lock' | 'unlock' | null>(null);
-  const [isEditingMac, setIsEditingMac] = useState(false);
-  const [editedMac, setEditedMac] = useState(macAddress || '');
-
-  // Update editedMac when macAddress prop changes
-  useEffect(() => {
-    if (!isEditingMac) {
-      setEditedMac(macAddress || '');
-    }
-  }, [macAddress, isEditingMac]);
 
   // Update MAC address mutation
-  const updateMacMutation = useMutation({
-    mutationFn: async (newMac: string) => {
-      const { error } = await supabase
-        .from('radius_users')
-        .update({ mac_address: newMac || null })
-        .eq('id', userId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['radius-users'] });
-      toast.success('MAC address updated');
-      setIsEditingMac(false);
-    },
-    onError: (error) => {
-      toast.error(`Failed to update MAC: ${error.message}`);
-    },
-  });
-
   // Toggle MAC lock mutation
   const toggleMacLockMutation = useMutation({
     mutationFn: async ({ lock, syncToRouter }: { lock: boolean; syncToRouter: boolean }) => {
@@ -213,22 +183,6 @@ export function MacLockControl({
     });
   };
 
-  const handleSaveMac = () => {
-    const cleanedMac = editedMac.trim().toUpperCase();
-    // Basic MAC validation
-    const macRegex = /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/i;
-    if (cleanedMac && !macRegex.test(cleanedMac)) {
-      toast.error('Invalid MAC address format. Use XX:XX:XX:XX:XX:XX');
-      return;
-    }
-    updateMacMutation.mutate(cleanedMac);
-  };
-
-  const handleCancelEdit = () => {
-    setEditedMac(macAddress || '');
-    setIsEditingMac(false);
-  };
-
   return (
     <>
       <Card>
@@ -257,161 +211,16 @@ export function MacLockControl({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* MAC Address Display/Edit */}
+          {/* MAC Address Display */}
           <div className="space-y-2">
             <Label className="text-sm text-muted-foreground">MAC Address</Label>
-            {isEditingMac ? (
-              <div className="flex items-center gap-2">
-                <Input
-                  value={editedMac}
-                  onChange={(e) => setEditedMac(e.target.value)}
-                  placeholder="XX:XX:XX:XX:XX:XX"
-                  className="font-mono uppercase"
-                  disabled={updateMacMutation.isPending}
-                />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={handleSaveMac}
-                  disabled={updateMacMutation.isPending}
-                  className="text-green-500 hover:text-green-600 hover:bg-green-500/10"
-                >
-                  {updateMacMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Check className="w-4 h-4" />
-                  )}
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={handleCancelEdit}
-                  disabled={updateMacMutation.isPending}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="flex-1 flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                  <Wifi className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-mono text-foreground">
-                    {macAddress || 'Not set'}
-                  </span>
-                </div>
-                {/* Auto-detect button */}
-                {detectedMac && isOnline && detectedMac !== macAddress && !macLocked && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditedMac(detectedMac);
-                      setIsEditingMac(true);
-                    }}
-                    className="border-primary text-primary hover:bg-primary/10"
-                    title="Use detected MAC from active session"
-                  >
-                    <Scan className="w-4 h-4 mr-1" />
-                    Auto-detect
-                  </Button>
-                )}
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => {
-                    setEditedMac(macAddress || '');
-                    setIsEditingMac(true);
-                  }}
-                  disabled={macLocked}
-                  title={macLocked ? 'Unlock MAC to edit' : 'Edit MAC address'}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Lock Status Info */}
-          <div className="p-3 rounded-lg bg-muted/30 border border-border">
-            <p className="text-sm text-muted-foreground">
-              {macLocked ? (
-                <>
-                  <Shield className="w-4 h-4 inline mr-1 text-green-500" />
-                  This user can only connect from the registered MAC address. 
-                  Unauthorized devices will be blocked.
-                </>
-              ) : (
-                <>
-                  <ShieldOff className="w-4 h-4 inline mr-1 text-muted-foreground" />
-                  MAC binding is disabled. The user can connect from any device.
-                </>
-              )}
-            </p>
-          </div>
-
-          {/* Lock/Unlock Toggle */}
-          <div className="flex items-center justify-between p-4 rounded-lg border border-border">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${macLocked ? 'bg-green-500/20' : 'bg-muted'}`}>
-                {macLocked ? (
-                  <Lock className="w-5 h-5 text-green-500" />
-                ) : (
-                  <Unlock className="w-5 h-5 text-muted-foreground" />
-                )}
-              </div>
-              <div>
-                <p className="font-medium text-foreground">MAC Lock</p>
-                <p className="text-sm text-muted-foreground">
-                  {macLocked ? 'Connection restricted to registered MAC' : 'Allow any device'}
-                </p>
-              </div>
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+              <Wifi className="w-4 h-4 text-muted-foreground" />
+              <span className="font-mono text-foreground">
+                {macAddress || 'Not set'}
+              </span>
             </div>
-            <Switch
-              checked={macLocked}
-              onCheckedChange={(checked) => handleToggleLock(checked ? 'lock' : 'unlock')}
-              disabled={toggleMacLockMutation.isPending || (!macAddress && !macLocked)}
-            />
           </div>
-
-          {/* Quick Action Buttons */}
-          <div className="flex gap-2">
-            {macLocked ? (
-              <Button
-                variant="outline"
-                className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
-                onClick={() => handleToggleLock('unlock')}
-                disabled={toggleMacLockMutation.isPending}
-              >
-                {toggleMacLockMutation.isPending && pendingAction === 'unlock' ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Unlock className="w-4 h-4 mr-2" />
-                )}
-                Unlock MAC
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="flex-1 border-green-500 text-green-500 hover:bg-green-500/10"
-                onClick={() => handleToggleLock('lock')}
-                disabled={toggleMacLockMutation.isPending || !macAddress}
-              >
-                {toggleMacLockMutation.isPending && pendingAction === 'lock' ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Lock className="w-4 h-4 mr-2" />
-                )}
-                Lock MAC
-              </Button>
-            )}
-          </div>
-
-          {!macAddress && !macLocked && (
-            <p className="text-xs text-muted-foreground text-center">
-              Set a MAC address to enable MAC locking
-            </p>
-          )}
 
           {/* Auto MAC Lock - always available for admin */}
           <div className={`p-4 rounded-lg border ${macLocked ? 'border-green-500/30 bg-green-500/5' : 'border-primary/30 bg-primary/5'}`}>
@@ -427,7 +236,7 @@ export function MacLockControl({
                       ? 'MAC is locked. Click Unlock to remove MAC from router.'
                       : isOnline
                         ? 'User is online. Click to detect & lock MAC from active session.'
-                        : 'User is offline. Will auto-lock when user comes online.'}
+                        : 'User is offline. User must be online to auto-lock.'}
                   </p>
                 </div>
               </div>
