@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HardDrive, TrendingUp, Calendar, Activity } from 'lucide-react';
+import { HardDrive, TrendingUp, Calendar, Activity, Loader2 } from 'lucide-react';
+import { useUserDataUsageChart } from '@/hooks/useUserDataUsageChart';
 
 interface DataUsageTabProps {
   user: {
+    id: string;
     data_used_mb: number;
     plan?: {
       data_limit_mb: number | null;
@@ -15,16 +17,12 @@ interface DataUsageTabProps {
 }
 
 export function DataUsageTab({ user }: DataUsageTabProps) {
-  const formatDataUsage = (used: number, limit: number | null) => {
-    const usedGB = (used / 1024).toFixed(2);
-    if (limit === null) return `${usedGB} GB (Unlimited)`;
-    const limitGB = (limit / 1024).toFixed(2);
-    const percentage = Math.round((used / limit) * 100);
-    return `${usedGB} / ${limitGB} GB (${percentage}%)`;
-  };
+  const { data: liveData, isLoading: liveLoading } = useUserDataUsageChart(user.id);
 
-  const dataLimit = user.plan?.data_limit_mb ?? null;
-  const usagePercentage = dataLimit ? Math.min((user.data_used_mb / dataLimit) * 100, 100) : 0;
+  // Use live data if available, otherwise fall back to static user data
+  const dataUsedMb = liveData?.dataUsedMb ?? user.data_used_mb;
+  const dataLimit = liveData?.dataLimitMb ?? (user.plan?.data_limit_mb ?? null);
+  const usagePercentage = dataLimit ? Math.min((dataUsedMb / dataLimit) * 100, 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -34,13 +32,24 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="w-5 h-5" />
             Data Usage Overview
+            <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground ml-auto">
+              {liveLoading ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+              )}
+              Live
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div className="text-center p-6 bg-muted/30 rounded-lg">
-              <p className="text-4xl font-bold font-mono text-primary">
-                {(user.data_used_mb / 1024).toFixed(2)} GB
+              <p className="text-4xl font-bold font-mono text-primary transition-all">
+                {(dataUsedMb / 1024).toFixed(2)} GB
               </p>
               <p className="text-muted-foreground mt-2">
                 {dataLimit 
@@ -48,6 +57,9 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                   : 'Unlimited data plan'
                 }
               </p>
+              {liveData?.planName && (
+                <p className="text-xs text-muted-foreground mt-1">Plan: {liveData.planName}</p>
+              )}
             </div>
 
             {dataLimit && (
@@ -58,7 +70,7 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                 </div>
                 <div className="w-full h-4 bg-secondary rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${
+                    className={`h-full rounded-full transition-all duration-1000 ${
                       usagePercentage > 90 
                         ? 'bg-destructive' 
                         : usagePercentage > 70 
@@ -69,8 +81,8 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  {dataLimit - user.data_used_mb > 0 
-                    ? `${((dataLimit - user.data_used_mb) / 1024).toFixed(2)} GB remaining`
+                  {dataLimit - dataUsedMb > 0 
+                    ? `${((dataLimit - dataUsedMb) / 1024).toFixed(2)} GB remaining`
                     : 'Data limit exceeded'
                   }
                 </p>
@@ -141,7 +153,7 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
             <div className="flex justify-between items-center py-3 border-b border-border">
               <span className="text-muted-foreground">Total Data Used</span>
               <span className="font-mono font-medium">
-                {(user.data_used_mb / 1024).toFixed(2)} GB ({user.data_used_mb.toLocaleString()} MB)
+                {(dataUsedMb / 1024).toFixed(2)} GB ({dataUsedMb.toLocaleString()} MB)
               </span>
             </div>
             <div className="flex justify-between items-center py-3 border-b border-border">
@@ -156,15 +168,15 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
             <div className="flex justify-between items-center py-3">
               <span className="text-muted-foreground">Status</span>
               <span className={`font-medium ${
-                !dataLimit || user.data_used_mb < dataLimit * 0.9 
+                !dataLimit || dataUsedMb < dataLimit * 0.9 
                   ? 'text-green-500' 
                   : 'text-destructive'
               }`}>
                 {!dataLimit 
                   ? 'Unlimited Plan'
-                  : user.data_used_mb >= dataLimit 
+                  : dataUsedMb >= dataLimit 
                     ? 'Limit Exceeded'
-                    : user.data_used_mb >= dataLimit * 0.9 
+                    : dataUsedMb >= dataLimit * 0.9 
                       ? 'Near Limit'
                       : 'Normal'
                 }
