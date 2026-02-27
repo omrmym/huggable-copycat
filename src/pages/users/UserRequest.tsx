@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useCachedQuery } from "@/hooks/useCachedQuery";
 
 export default function UserRequestPage() {
   const { toast } = useToast();
@@ -34,45 +35,45 @@ export default function UserRequestPage() {
   const successNote = successNoteSettings?.note || "Note: Requests not approved within 48 hours will be automatically removed.";
 
   // Fetch reference data (public access via RLS)
-  const { data: plans = [] } = useQuery({
-    queryKey: ['public-plans'],
-    queryFn: async () => {
+  const { data: plans = [] } = useCachedQuery(
+    ['public-plans'],
+    async () => {
       const { data } = await supabase.from('billing_plans').select('*').eq('is_active', true).eq('service_type', 'hotspot');
       return data || [];
     },
-  });
+  );
 
-  const { data: districts = [] } = useQuery({
-    queryKey: ['public-districts'],
-    queryFn: async () => {
+  const { data: districts = [] } = useCachedQuery(
+    ['public-districts'],
+    async () => {
       const { data } = await supabase.from('districts').select('*').eq('is_active', true);
       return data || [];
     },
-  });
+  );
 
-  const { data: policeStations = [] } = useQuery({
-    queryKey: ['public-police-stations'],
-    queryFn: async () => {
+  const { data: policeStations = [] } = useCachedQuery(
+    ['public-police-stations'],
+    async () => {
       const { data } = await supabase.from('police_stations').select('*').eq('is_active', true);
       return data || [];
     },
-  });
+  );
 
-  const { data: areas = [] } = useQuery({
-    queryKey: ['public-areas'],
-    queryFn: async () => {
+  const { data: areas = [] } = useCachedQuery(
+    ['public-areas'],
+    async () => {
       const { data } = await supabase.from('areas').select('*').eq('is_active', true);
       return data || [];
     },
-  });
+  );
 
-  const { data: routers = [] } = useQuery({
-    queryKey: ['public-routers'],
-    queryFn: async () => {
+  const { data: routers = [] } = useCachedQuery(
+    ['public-routers'],
+    async () => {
       const { data } = await supabase.from('mikrotik_routers').select('id, name').eq('is_active', true);
       return data || [];
     },
-  });
+  );
 
   const DEFAULT_DISTRICT_ID = "7e03f7da-5d0f-428d-82a6-cfd065a7de4e";
   const DEFAULT_POLICE_STATION_ID = "0d648b93-11bb-4a88-ab14-dc2aee539968";
