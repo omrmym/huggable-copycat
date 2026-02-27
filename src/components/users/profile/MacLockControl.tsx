@@ -237,22 +237,21 @@ export function MacLockControl({
 
           {/* Auto MAC Lock - always available for admin */}
           <div className={`p-4 rounded-lg border ${macLocked ? 'border-green-500/30 bg-green-500/5' : 'border-primary/30 bg-primary/5'}`}>
-            {/* Auto Lock Toggle Row */}
-            {!macLocked && (
-              <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <Scan className="w-4 h-4 text-muted-foreground" />
-                  <Label htmlFor="auto-lock-toggle" className="text-sm font-medium cursor-pointer">
-                    Auto Lock when online
-                  </Label>
-                </div>
-                <Switch
-                  id="auto-lock-toggle"
-                  checked={autoLockEnabled}
-                  onCheckedChange={setAutoLockEnabled}
-                />
+          {/* Auto Lock Toggle Row */}
+            <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Scan className="w-4 h-4 text-muted-foreground" />
+                <Label htmlFor="auto-lock-toggle" className="text-sm font-medium cursor-pointer">
+                  Auto Lock when online
+                </Label>
               </div>
-            )}
+              <Switch
+                id="auto-lock-toggle"
+                checked={autoLockEnabled}
+                onCheckedChange={setAutoLockEnabled}
+                disabled={macLocked}
+              />
+            </div>
 
             {/* Status & Actions Row */}
             <div className="flex items-center justify-between">
