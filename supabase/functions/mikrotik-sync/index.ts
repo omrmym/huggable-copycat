@@ -140,7 +140,7 @@ async function mikrotikRestRequest(
 
   return {
     success: false,
-    error: `MikroTik API endpoint not found (404) or unreachable. Tried: ${attemptErrors.join(" | ")}`,
+    error: `MikroTik REST API is unavailable on this router. This usually means RouterOS is below v7.1 or /rest is not enabled. Tried: ${attemptErrors.join(" | ")}`,
   };
 }
 
@@ -553,7 +553,8 @@ Deno.serve(async (req) => {
         result = { success: false, error: `Unknown action: ${action}` };
     }
 
-    const status = result.success ? 200 : 400;
+    const nonFatalActions = new Set(["test-connection", "get-sessions", "get-user-bandwidth"]);
+    const status = result.success ? 200 : (nonFatalActions.has(action) ? 200 : 400);
     return new Response(JSON.stringify(result), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
