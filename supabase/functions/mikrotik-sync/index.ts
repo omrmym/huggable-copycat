@@ -224,10 +224,69 @@ async function handleGetUserBandwidth(
       // Update data_used_mb on radius_users (total bytes / 1024 / 1024)
       const totalBytes = bytesIn + bytesOut;
       const dataUsedMb = totalBytes / (1024 * 1024);
+      const roundedMb = Math.round(dataUsedMb * 100) / 100;
       await supabase
         .from("radius_users")
-        .update({ data_used_mb: Math.round(dataUsedMb * 100) / 100 })
+        .update({ data_used_mb: roundedMb })
         .eq("id", radiusUserId);
+
+      // Immediate data limit check: expire & disconnect if exceeded
+      const { data: userData } = await supabase
+        .from("radius_users")
+        .select("plan_id, status")
+        .eq("id", radiusUserId)
+        .maybeSingle();
+
+      if (userData?.plan_id && userData.status === "active") {
+        const { data: planData } = await supabase
+          .from("billing_plans")
+          .select("data_limit_mb")
+          .eq("id", userData.plan_id)
+          .maybeSingle();
+
+        const dataLimitMb = Number(planData?.data_limit_mb) || 0;
+        if (dataLimitMb > 0 && roundedMb >= dataLimitMb) {
+          // Expire the user immediately
+          await supabase
+            .from("radius_users")
+            .update({ status: "expired" })
+            .eq("id", radiusUserId);
+
+          // Disconnect from MikroTik immediately
+          const activePath = serviceType === "pppoe"
+            ? `/ppp/active?=name=${username}`
+            : `/ip/hotspot/active?=user=${username}`;
+          const activeResult = await mikrotikRestRequest(router, activePath);
+          if (activeResult.success && Array.isArray(activeResult.data)) {
+            for (const s of activeResult.data as Record<string, string>[]) {
+              const sid = s[".id"];
+              if (sid) {
+                const removePath = serviceType === "pppoe"
+                  ? `/ppp/active/${sid}`
+                  : `/ip/hotspot/active/${sid}`;
+                await mikrotikRestRequest(router, removePath, "DELETE");
+              }
+            }
+          }
+
+          // Disable on hotspot user list
+          const userListPath = serviceType === "pppoe"
+            ? `/ppp/secret?=name=${username}`
+            : `/ip/hotspot/user?=name=${username}`;
+          const userListResult = await mikrotikRestRequest(router, userListPath);
+          if (userListResult.success && Array.isArray(userListResult.data) && userListResult.data.length > 0) {
+            const mkId = (userListResult.data[0] as Record<string, string>)[".id"];
+            if (mkId) {
+              const disablePath = serviceType === "pppoe"
+                ? `/ppp/secret/${mkId}`
+                : `/ip/hotspot/user/${mkId}`;
+              await mikrotikRestRequest(router, disablePath, "PATCH", { disabled: "yes" });
+            }
+          }
+
+          console.log(`User ${username} exceeded data limit (${roundedMb}MB / ${dataLimitMb}MB) - expired & disconnected immediately`);
+        }
+      }
     }
   }
 
