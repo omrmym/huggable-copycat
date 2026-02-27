@@ -42,6 +42,10 @@ export function useOnlineUsers() {
       // Get router configuration
       const router = await getFirstActiveRouter();
 
+      if (!router) {
+        return { onlineCount: 0, onlineUsernames: [] };
+      }
+
       // Call the edge function to get active sessions
       const { data, error } = await supabase.functions.invoke('mikrotik-sync', {
         body: {
