@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -37,10 +37,12 @@ export function MacLockControl({
   serviceType,
   routerId,
   detectedMac,
+  isOnline,
 }: MacLockControlProps) {
   const queryClient = useQueryClient();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<'lock' | 'unlock' | null>(null);
+  const autoLockTriggeredRef = useRef(false);
 
   // Update MAC address mutation
   // Toggle MAC lock mutation
@@ -156,6 +158,25 @@ export function MacLockControl({
     },
   });
 
+  // Auto-trigger MAC lock when user comes online and is not yet locked
+  useEffect(() => {
+    if (
+      isOnline &&
+      !macLocked &&
+      !macAddress &&
+      routerId &&
+      !autoLockTriggeredRef.current &&
+      !autoMacLockMutation.isPending
+    ) {
+      autoLockTriggeredRef.current = true;
+      autoMacLockMutation.mutate();
+    }
+    // Reset trigger flag when user goes offline or gets locked
+    if (!isOnline || macLocked) {
+      autoLockTriggeredRef.current = false;
+    }
+  }, [isOnline, macLocked, macAddress, routerId]);
+
   const handleToggleLock = (action: 'lock' | 'unlock') => {
     if (action === 'lock' && !macAddress) {
       toast.error('Please set a MAC address first before locking');
@@ -224,7 +245,9 @@ export function MacLockControl({
                   <p className="text-sm text-muted-foreground">
                       {macLocked
                         ? 'MAC is locked. Click Unlock to remove MAC from router.'
-                        : 'Click Auto Lock to detect MAC from active MikroTik session and bind it.'}
+                        : autoMacLockMutation.isPending
+                        ? 'Detecting MAC from active session...'
+                        : 'MAC will be auto-locked when the user comes online.'}
                    </p>
                  </div>
                </div>
@@ -244,22 +267,25 @@ export function MacLockControl({
                    Unlock
                  </Button>
                ) : (
-                 <Button
-                   size="sm"
-                   onClick={() => autoMacLockMutation.mutate()}
-                  disabled={autoMacLockMutation.isPending}
-                  className="bg-primary text-primary-foreground"
-                >
-                  {autoMacLockMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  ) : (
-                    <Lock className="w-4 h-4 mr-1" />
-                  )}
-                  Auto Lock
-                </Button>
-              )}
-            </div>
-          </div>
+                 autoMacLockMutation.isPending ? (
+                   <Badge variant="secondary" className="gap-1">
+                     <Loader2 className="w-3 h-3 animate-spin" />
+                     Detecting...
+                   </Badge>
+                 ) : isOnline ? (
+                   <Badge variant="secondary" className="gap-1 bg-yellow-500/20 text-yellow-600 border-yellow-500/30">
+                     <Wifi className="w-3 h-3" />
+                     Waiting...
+                   </Badge>
+                 ) : (
+                   <Badge variant="secondary" className="gap-1">
+                     <Wifi className="w-3 h-3" />
+                     Offline
+                   </Badge>
+                 )
+               )}
+             </div>
+           </div>
         </CardContent>
       </Card>
 
