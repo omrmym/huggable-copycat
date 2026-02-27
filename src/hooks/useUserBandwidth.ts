@@ -94,13 +94,26 @@ export function useUserBandwidth(
         };
       }
 
+      // Parse raw MikroTik active session data
+      const sessions = Array.isArray(data.data) ? data.data : [];
+      const session = sessions.length > 0 ? sessions[0] : null;
+
+      if (!session) {
+        return {
+          isOnline: false,
+          bytesIn: 0,
+          bytesOut: 0,
+          lastUpdated: new Date(),
+        };
+      }
+
       return {
-        isOnline: data.data?.isOnline || false,
-        uptime: data.data?.uptime,
-        bytesIn: data.data?.bytesIn || 0,
-        bytesOut: data.data?.bytesOut || 0,
-        address: data.data?.address,
-        callerId: data.data?.callerId,
+        isOnline: true,
+        uptime: session.uptime || undefined,
+        bytesIn: parseInt(session['bytes-in'] || '0', 10),
+        bytesOut: parseInt(session['bytes-out'] || '0', 10),
+        address: session.address || undefined,
+        callerId: session['mac-address'] || undefined,
         lastUpdated: new Date(),
       };
     },

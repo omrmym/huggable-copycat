@@ -163,7 +163,6 @@ export function MacLockControl({
     if (
       isOnline &&
       !macLocked &&
-      !macAddress &&
       routerId &&
       !autoLockTriggeredRef.current &&
       !autoMacLockMutation.isPending
@@ -175,7 +174,7 @@ export function MacLockControl({
     if (!isOnline || macLocked) {
       autoLockTriggeredRef.current = false;
     }
-  }, [isOnline, macLocked, macAddress, routerId]);
+  }, [isOnline, macLocked, routerId]);
 
   const handleToggleLock = (action: 'lock' | 'unlock') => {
     if (action === 'lock' && !macAddress) {
