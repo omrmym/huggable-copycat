@@ -202,8 +202,13 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-4 text-center">
-            <a href="/request" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium">
+          <div className="mt-4 text-center space-y-2">
+            <a href="/portal/login" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium">
+              <Wifi className="w-4 h-4" />
+              Client Portal Login
+            </a>
+            <br />
+            <a href="/request" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary hover:underline text-xs">
               New Connection Request →
             </a>
           </div>
