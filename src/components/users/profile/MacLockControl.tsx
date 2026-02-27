@@ -152,6 +152,50 @@ export function MacLockControl({
     },
   });
 
+  // Auto MAC Lock mutation - detects MAC from active session and locks
+  const autoMacLockMutation = useMutation({
+    mutationFn: async () => {
+      if (!routerId) throw new Error('No router assigned to this user');
+
+      const routerData = await supabase
+        .from('mikrotik_routers')
+        .select('host, port, username, password, use_ssl, connection_mode')
+        .eq('id', routerId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (!routerData.data) throw new Error('Router not found or inactive');
+
+      const { data: syncResult } = await supabase.functions.invoke('mikrotik-sync', {
+        body: {
+          action: 'auto-mac-binding',
+          username,
+          router: {
+            host: routerData.data.host,
+            port: routerData.data.port,
+            username: routerData.data.username,
+            password: routerData.data.password,
+            useSsl: routerData.data.use_ssl,
+            connectionMode: routerData.data.connection_mode,
+          },
+        },
+      });
+
+      if (!syncResult?.success) {
+        throw new Error(syncResult?.error || 'Failed to auto-detect MAC');
+      }
+
+      return syncResult.data;
+    },
+    onSuccess: (data: { mac: string; message: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['radius-users'] });
+      toast.success(`MAC auto-locked: ${data.mac}`);
+    },
+    onError: (error) => {
+      toast.error(`Auto MAC lock failed: ${error.message}`);
+    },
+  });
+
   const handleToggleLock = (action: 'lock' | 'unlock') => {
     if (action === 'lock' && !macAddress) {
       toast.error('Please set a MAC address first before locking');
@@ -367,6 +411,38 @@ export function MacLockControl({
             <p className="text-xs text-muted-foreground text-center">
               Set a MAC address to enable MAC locking
             </p>
+          )}
+
+          {/* Auto MAC Lock - detects MAC from online session */}
+          {isOnline && !macLocked && (
+            <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-primary/20">
+                    <Scan className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Auto MAC Lock</p>
+                    <p className="text-sm text-muted-foreground">
+                      Detect MAC from active session & lock automatically
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => autoMacLockMutation.mutate()}
+                  disabled={autoMacLockMutation.isPending}
+                  className="bg-primary text-primary-foreground"
+                >
+                  {autoMacLockMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <Lock className="w-4 h-4 mr-1" />
+                  )}
+                  Auto Lock
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
