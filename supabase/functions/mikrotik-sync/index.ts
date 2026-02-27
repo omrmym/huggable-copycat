@@ -174,6 +174,42 @@ async function handleGetUserBandwidth(
 
   const sessions = Array.isArray(result.data) ? result.data : [];
 
+  // Log connect/disconnect events based on session presence
+  if (radiusUserId) {
+    // Check if the last logged event was connect or disconnect
+    const { data: lastEvent } = await supabase
+      .from("mikrotik_sync_log")
+      .select("action")
+      .eq("radius_user_id", radiusUserId)
+      .in("action", ["connect", "disconnect"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const lastAction = lastEvent?.action || null;
+    const isOnline = sessions.length > 0;
+
+    if (isOnline && lastAction !== "connect") {
+      // User just came online — log connect
+      await supabase.from("mikrotik_sync_log").insert({
+        radius_user_id: radiusUserId,
+        action: "connect",
+        status: "success",
+        success: true,
+        details: { username, service_type: serviceType || "hotspot" },
+      });
+    } else if (!isOnline && lastAction === "connect") {
+      // User went offline — log disconnect
+      await supabase.from("mikrotik_sync_log").insert({
+        radius_user_id: radiusUserId,
+        action: "disconnect",
+        status: "success",
+        success: true,
+        details: { username, service_type: serviceType || "hotspot" },
+      });
+    }
+  }
+
   // Record bandwidth history and update data_used_mb if we have a radius user ID
   if (radiusUserId && sessions.length > 0) {
     const session = sessions[0] as Record<string, string>;
