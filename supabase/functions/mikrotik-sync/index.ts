@@ -264,11 +264,11 @@ async function handleSetMacBinding(
     const update: Record<string, unknown> = {};
     if (locked && macAddress) {
       update["mac-address"] = macAddress;
-      return await mikrotikRestRequest(router, `/ip/hotspot/user/${userId}`, "PATCH", update);
     } else {
-      // Use unset to clear mac-address since MikroTik rejects empty string
-      return await mikrotikRestRequest(router, `/ip/hotspot/user/unset`, "POST", { ".id": userId, "value-name": "mac-address" });
+      // MikroTik rejects empty string; use a zeroed MAC to effectively clear it
+      update["mac-address"] = "00:00:00:00:00:00";
     }
+    return await mikrotikRestRequest(router, `/ip/hotspot/user/${userId}`, "PATCH", update);
   }
   return { success: false, error: "User not found on router" };
 }
