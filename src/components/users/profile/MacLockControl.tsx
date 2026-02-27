@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -42,6 +43,7 @@ export function MacLockControl({
   const queryClient = useQueryClient();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<'lock' | 'unlock' | null>(null);
+  const [autoLockEnabled, setAutoLockEnabled] = useState(true);
   const autoLockTriggeredRef = useRef(false);
 
   // Update MAC address mutation
@@ -158,9 +160,10 @@ export function MacLockControl({
     },
   });
 
-  // Auto-trigger MAC lock when user comes online and is not yet locked
+  // Auto-trigger MAC lock when user comes online and auto-lock is enabled
   useEffect(() => {
     if (
+      autoLockEnabled &&
       isOnline &&
       !macLocked &&
       routerId &&
@@ -174,7 +177,7 @@ export function MacLockControl({
     if (!isOnline || macLocked) {
       autoLockTriggeredRef.current = false;
     }
-  }, [isOnline, macLocked, routerId]);
+  }, [isOnline, macLocked, routerId, autoLockEnabled]);
 
   const handleToggleLock = (action: 'lock' | 'unlock') => {
     if (action === 'lock' && !macAddress) {
@@ -234,57 +237,93 @@ export function MacLockControl({
 
           {/* Auto MAC Lock - always available for admin */}
           <div className={`p-4 rounded-lg border ${macLocked ? 'border-green-500/30 bg-green-500/5' : 'border-primary/30 bg-primary/5'}`}>
+            {/* Auto Lock Toggle Row */}
+            {!macLocked && (
+              <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <Scan className="w-4 h-4 text-muted-foreground" />
+                  <Label htmlFor="auto-lock-toggle" className="text-sm font-medium cursor-pointer">
+                    Auto Lock when online
+                  </Label>
+                </div>
+                <Switch
+                  id="auto-lock-toggle"
+                  checked={autoLockEnabled}
+                  onCheckedChange={setAutoLockEnabled}
+                />
+              </div>
+            )}
+
+            {/* Status & Actions Row */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-full ${macLocked ? 'bg-green-500/20' : 'bg-primary/20'}`}>
                   <Scan className={`w-5 h-5 ${macLocked ? 'text-green-500' : 'text-primary'}`} />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Auto MAC Lock</p>
+                  <p className="font-medium text-foreground">
+                    {macLocked ? 'MAC Locked' : 'Auto MAC Lock'}
+                  </p>
                   <p className="text-sm text-muted-foreground">
-                      {macLocked
-                        ? 'MAC is locked. Click Unlock to remove MAC from router.'
-                        : autoMacLockMutation.isPending
-                        ? 'Detecting MAC from active session...'
-                        : 'MAC will be auto-locked when the user comes online.'}
-                   </p>
-                 </div>
-               </div>
-               {macLocked ? (
-                 <Button
-                   size="sm"
-                   variant="outline"
-                   onClick={() => handleToggleLock('unlock')}
-                   disabled={toggleMacLockMutation.isPending}
-                   className="border-destructive text-destructive hover:bg-destructive/10"
-                 >
-                   {toggleMacLockMutation.isPending && pendingAction === 'unlock' ? (
-                     <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                   ) : (
-                     <Unlock className="w-4 h-4 mr-1" />
-                   )}
-                   Unlock
-                 </Button>
-               ) : (
-                 autoMacLockMutation.isPending ? (
-                   <Badge variant="secondary" className="gap-1">
-                     <Loader2 className="w-3 h-3 animate-spin" />
-                     Detecting...
-                   </Badge>
-                 ) : isOnline ? (
-                   <Badge variant="secondary" className="gap-1 bg-yellow-500/20 text-yellow-600 border-yellow-500/30">
-                     <Wifi className="w-3 h-3" />
-                     Waiting...
-                   </Badge>
-                 ) : (
-                   <Badge variant="secondary" className="gap-1">
-                     <Wifi className="w-3 h-3" />
-                     Offline
-                   </Badge>
-                 )
-               )}
-             </div>
-           </div>
+                    {macLocked
+                      ? 'MAC is locked. Click Unlock to remove MAC from router.'
+                      : autoMacLockMutation.isPending
+                      ? 'Detecting MAC from active session...'
+                      : autoLockEnabled
+                      ? 'MAC will be auto-locked when the user comes online.'
+                      : 'Auto-lock is off. Use the button to lock manually.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {macLocked ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleToggleLock('unlock')}
+                    disabled={toggleMacLockMutation.isPending}
+                    className="border-destructive text-destructive hover:bg-destructive/10"
+                  >
+                    {toggleMacLockMutation.isPending && pendingAction === 'unlock' ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <Unlock className="w-4 h-4 mr-1" />
+                    )}
+                    Unlock
+                  </Button>
+                ) : (
+                  <>
+                    {autoMacLockMutation.isPending ? (
+                      <Badge variant="secondary" className="gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Detecting...
+                      </Badge>
+                    ) : !autoLockEnabled ? (
+                      <Button
+                        size="sm"
+                        onClick={() => autoMacLockMutation.mutate()}
+                        disabled={autoMacLockMutation.isPending}
+                        className="bg-primary text-primary-foreground"
+                      >
+                        <Lock className="w-4 h-4 mr-1" />
+                        Lock Now
+                      </Button>
+                    ) : isOnline ? (
+                      <Badge variant="secondary" className="gap-1 bg-accent text-accent-foreground">
+                        <Wifi className="w-3 h-3" />
+                        Waiting...
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="gap-1">
+                        <Wifi className="w-3 h-3" />
+                        Offline
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
