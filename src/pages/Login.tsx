@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Wifi, Mail, User, Download } from 'lucide-react';
+import { Loader2, Wifi, Mail, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 import { Network } from 'lucide-react';
@@ -208,16 +208,9 @@ export default function Login() {
               Client Portal Login
             </a>
             <br />
-            <div className="flex items-center justify-center gap-3">
-              <a href="/request" className="text-sm text-muted-foreground hover:text-primary hover:underline text-xs">
-                New Connection Request →
-              </a>
-              <span className="text-muted-foreground/30">|</span>
-              <a href="/install" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary hover:underline text-xs">
-                <Download className="w-3 h-3" />
-                Install App
-              </a>
-            </div>
+            <a href="/request" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary hover:underline text-xs">
+              New Connection Request →
+            </a>
           </div>
         </CardContent>
       </Card>

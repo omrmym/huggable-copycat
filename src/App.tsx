@@ -32,7 +32,6 @@ import Settings from "./pages/Settings";
 import CustomerLogin from "./pages/portal/CustomerLogin";
 import CustomerAutoLogin from "./pages/portal/CustomerAutoLogin";
 import CustomerDashboard from "./pages/portal/CustomerDashboard";
-import InstallApp from "./pages/InstallApp";
 
 
 
@@ -79,7 +78,6 @@ const App = () => (
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/request" element={<UserRequest />} />
-                  <Route path="/install" element={<InstallApp />} />
                   <Route path="/portal" element={<CustomerDashboard />} />
                   <Route path="/portal/login" element={<CustomerLogin />} />
                   <Route path="/portal/u/:userId" element={<CustomerAutoLogin />} />
