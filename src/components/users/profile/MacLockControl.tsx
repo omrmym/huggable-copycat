@@ -47,19 +47,15 @@ export function MacLockControl({
   // Toggle MAC lock mutation
   const toggleMacLockMutation = useMutation({
     mutationFn: async ({ lock, syncToRouter }: { lock: boolean; syncToRouter: boolean }) => {
-      // First get the user's password and plan profile from the database
-      const { data: userData, error: userError } = await supabase
-        .from('radius_users')
-        .select('password_hash, plan_id, billing_plans(name)')
-        .eq('id', userId)
-        .single();
+      // Update database - when unlocking, also clear mac_address
+      const updateData: Record<string, unknown> = { mac_locked: lock };
+      if (!lock) {
+        updateData.mac_address = null;
+      }
 
-      if (userError) throw userError;
-
-      // Update database
       const { error } = await supabase
         .from('radius_users')
-        .update({ mac_locked: lock })
+        .update(updateData)
         .eq('id', userId);
 
       if (error) throw error;
@@ -74,18 +70,13 @@ export function MacLockControl({
           .maybeSingle();
 
         if (routerData.data) {
-          // Get profile name from billing plan
-          const planData = userData?.billing_plans as { name: string } | null;
-          const profileName = planData?.name || 'default';
-
           const { data: syncResult } = await supabase.functions.invoke('mikrotik-sync', {
             body: {
               action: 'set-mac-binding',
               username,
               service_type: serviceType,
-              mac_address: lock ? macAddress : null,
-              password: userData?.password_hash, // Pass password to create secret if needed
-              profile: profileName, // Pass profile name
+              mac_address: lock ? macAddress : '',
+              locked: lock,
               router: {
                 host: routerData.data.host,
                 port: routerData.data.port,
