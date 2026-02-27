@@ -37,12 +37,28 @@ async function getDefaultRouter(supabase: ReturnType<typeof createClient>): Prom
   return null;
 }
 
+function getConfiguredPort(router: RouterConfig): number {
+  const parsed = typeof router.port === "string" ? parseInt(router.port, 10) : router.port;
+  return Number.isFinite(parsed) ? parsed : 8728;
+}
+
 function getRestPort(router: RouterConfig): number {
-  const port = typeof router.port === "string" ? parseInt(router.port) : router.port;
+  const port = getConfiguredPort(router);
   // MikroTik binary API ports - auto-map to REST API ports
   if (port === 8728) return 80;   // API -> HTTP REST
   if (port === 8729) return 443;  // API-SSL -> HTTPS REST
   return port; // User specified a custom port, use as-is
+}
+
+function getProtocol(router: RouterConfig, port: number): "http" | "https" {
+  return router.useSsl || port === 443 ? "https" : "http";
+}
+
+function buildMikrotikUrl(router: RouterConfig, path: string, port: number, useRestPrefix: boolean): string {
+  const protocol = getProtocol(router, port);
+  const portSuffix = (protocol === "http" && port === 80) || (protocol === "https" && port === 443) ? "" : `:${port}`;
+  const prefix = useRestPrefix ? "/rest" : "";
+  return `${protocol}://${router.host}${portSuffix}${prefix}${path}`;
 }
 
 async function mikrotikRestRequest(
@@ -51,58 +67,81 @@ async function mikrotikRestRequest(
   method: string = "GET",
   body?: Record<string, unknown>
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
-  const restPort = getRestPort(router);
-  const protocol = router.useSsl || restPort === 443 ? "https" : "http";
-  // Don't include port in URL if it's the default for the protocol
-  const portSuffix = (protocol === "http" && restPort === 80) || (protocol === "https" && restPort === 443) ? "" : `:${restPort}`;
-  const url = `${protocol}://${router.host}${portSuffix}/rest${path}`;
+  const configuredPort = getConfiguredPort(router);
+  const mappedRestPort = getRestPort(router);
+
+  const variants = [
+    { port: mappedRestPort, useRestPrefix: true, label: "mapped-port + /rest" },
+    { port: configuredPort, useRestPrefix: true, label: "configured-port + /rest" },
+    { port: mappedRestPort, useRestPrefix: false, label: "mapped-port (no /rest)" },
+    { port: configuredPort, useRestPrefix: false, label: "configured-port (no /rest)" },
+  ];
+
+  const deduped = variants.filter((v, idx, arr) => {
+    return arr.findIndex((x) => x.port === v.port && x.useRestPrefix === v.useRestPrefix) === idx;
+  });
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: "Basic " + btoa(`${router.username}:${router.password}`),
   };
 
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+  const attemptErrors: string[] = [];
 
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-      signal: controller.signal,
-    });
+  for (const variant of deduped) {
+    const url = buildMikrotikUrl(router, path, variant.port, variant.useRestPrefix);
 
-    clearTimeout(timeout);
-
-    if (!response.ok) {
-      const text = await response.text();
-      return {
-        success: false,
-        error: `MikroTik API error: ${response.status} - ${text}`,
-      };
-    }
-
-    const text = await response.text();
-    if (!text || text.trim() === "") {
-      return { success: true, data: {} };
-    }
     try {
-      const data = JSON.parse(text);
-      return { success: true, data };
-    } catch {
-      return { success: true, data: { raw: text } };
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      const text = await response.text();
+
+      if (response.ok) {
+        if (!text || text.trim() === "") {
+          return { success: true, data: {} };
+        }
+
+        try {
+          const data = JSON.parse(text);
+          return { success: true, data };
+        } catch {
+          return { success: true, data: { raw: text } };
+        }
+      }
+
+      attemptErrors.push(`[${variant.label}] ${response.status} - ${text}`);
+
+      // Keep trying fallback URL variants only for 404 (endpoint not found).
+      if (response.status !== 404) {
+        return {
+          success: false,
+          error: `MikroTik API error: ${response.status} - ${text}`,
+        };
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes("abort")) {
+        attemptErrors.push(`[${variant.label}] Connection timed out: ${url}`);
+      } else {
+        attemptErrors.push(`[${variant.label}] Connection failed: ${url} (${message})`);
+      }
     }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message.includes("abort")) {
-      return { 
-        success: false, 
-        error: `Connection timed out. Make sure the MikroTik REST API (www or www-ssl) service is enabled on your router and the router is reachable from the internet. Tried: ${url}` 
-      };
-    }
-    return { success: false, error: `Connection failed to ${url}: ${message}. Ensure MikroTik REST API service is enabled (IP > Services > www).` };
   }
+
+  return {
+    success: false,
+    error: `MikroTik API endpoint not found (404) or unreachable. Tried: ${attemptErrors.join(" | ")}`,
+  };
 }
 
 async function handleTestConnection(router: RouterConfig) {
