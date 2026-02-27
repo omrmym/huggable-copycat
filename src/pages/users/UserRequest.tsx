@@ -74,8 +74,9 @@ export default function UserRequestPage() {
     },
   });
 
-  const DEFAULT_DISTRICT_ID = "fa8c6591-13d1-4369-8f99-2acbb567f247";
-  const DEFAULT_POLICE_STATION_ID = "69ca6f19-d373-420c-a098-e638fca8d844";
+  const DEFAULT_DISTRICT_ID = "7e03f7da-5d0f-428d-82a6-cfd065a7de4e";
+  const DEFAULT_POLICE_STATION_ID = "0d648b93-11bb-4a88-ab14-dc2aee539968";
+  const DEFAULT_MIKROTIK_ROUTER_ID = "48563996-0dcb-4ca7-a3d6-d63da4e88909";
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -88,7 +89,7 @@ export default function UserRequestPage() {
     area_id: "",
     customer_type: "student",
     address_details: "",
-    mikrotik_router_id: "",
+    mikrotik_router_id: DEFAULT_MIKROTIK_ROUTER_ID,
     monthly_bill: "",
     connection_fee: "0",
     plan_id: "",
@@ -102,7 +103,6 @@ export default function UserRequestPage() {
       { field: formData.phone, name: 'Mobile Number' },
       { field: formData.district_id, name: 'District' },
       { field: formData.police_station_id, name: 'Police Station' },
-      { field: formData.area_id, name: 'Area' },
       { field: formData.address_details, name: 'Address Details' },
       { field: formData.mikrotik_router_id, name: 'Select MikroTik' },
       { field: formData.plan_id, name: 'Plan' },
@@ -225,7 +225,7 @@ export default function UserRequestPage() {
             <p className="text-sm text-muted-foreground">
               {successNote}
             </p>
-            <Button onClick={() => { setIsSubmitted(false); setFormData({ full_name: "", father_name: "", nid_number: "", phone: "", gender: "male", district_id: DEFAULT_DISTRICT_ID, police_station_id: DEFAULT_POLICE_STATION_ID, area_id: "", customer_type: "student", address_details: "", mikrotik_router_id: "", monthly_bill: "", connection_fee: "0", plan_id: "" }); }} variant="outline">
+            <Button onClick={() => { setIsSubmitted(false); setFormData({ full_name: "", father_name: "", nid_number: "", phone: "", gender: "male", district_id: DEFAULT_DISTRICT_ID, police_station_id: DEFAULT_POLICE_STATION_ID, area_id: "", customer_type: "student", address_details: "", mikrotik_router_id: DEFAULT_MIKROTIK_ROUTER_ID, monthly_bill: "", connection_fee: "0", plan_id: "" }); }} variant="outline">
               Submit Another Request
             </Button>
             <div className="pt-2">
@@ -327,7 +327,7 @@ export default function UserRequestPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Area *</Label>
+                <Label>Area</Label>
                 <Select value={formData.area_id} onValueChange={(value) => setFormData({ ...formData, area_id: value })}>
                   <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Select area" /></SelectTrigger>
                   <SelectContent>
