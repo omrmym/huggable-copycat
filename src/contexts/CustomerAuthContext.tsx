@@ -39,11 +39,12 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     if (savedSession) {
       try {
         const parsed = JSON.parse(savedSession);
-        // Validate session (check if it's still valid)
+        // Validate session (check if it's still valid and user is active)
         refreshCustomerData(parsed.id).then((data) => {
-          if (data) {
+          if (data && data.status === 'active') {
             setCustomer(data);
           } else {
+            // User is deleted, disabled, expired, or suspended — clear session
             localStorage.removeItem(CUSTOMER_SESSION_KEY);
           }
           setIsLoading(false);
@@ -68,9 +69,13 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   const refreshCustomer = async () => {
     if (!customer) return;
     const data = await refreshCustomerData(customer.id);
-    if (data) {
+    if (data && data.status === 'active') {
       setCustomer(data);
       localStorage.setItem(CUSTOMER_SESSION_KEY, JSON.stringify({ id: data.id }));
+    } else {
+      // User has been disabled/expired/suspended/deleted — force logout
+      setCustomer(null);
+      localStorage.removeItem(CUSTOMER_SESSION_KEY);
     }
   };
 
