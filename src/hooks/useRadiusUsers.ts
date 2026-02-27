@@ -179,6 +179,17 @@ export function useUpdateRadiusUser() {
               },
             });
           }
+
+          // Immediately disconnect active session when user is disabled/expired/suspended
+          if (updates.status && updates.status !== 'active') {
+            await supabase.functions.invoke('mikrotik-sync', {
+              body: {
+                action: 'disconnect-user',
+                username: data.username,
+                service_type: data.service_type,
+              },
+            });
+          }
         } catch (syncError) {
           console.warn('MikroTik sync failed:', syncError);
         }
