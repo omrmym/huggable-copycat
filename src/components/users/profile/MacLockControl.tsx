@@ -102,12 +102,12 @@ export function MacLockControl({
     },
     onSuccess: ({ lock }) => {
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
-      toast.success(lock ? 'MAC address locked and synced to router' : 'MAC address unlocked');
+      toast.success(lock ? 'MAC অ্যাড্রেস লক এবং রাউটারে সিঙ্ক করা হয়েছে' : 'MAC অ্যাড্রেস আনলক করা হয়েছে');
       setShowConfirmDialog(false);
       setPendingAction(null);
     },
     onError: (error) => {
-      toast.error(`Failed to ${pendingAction} MAC: ${error.message}`);
+      toast.error(`MAC ${pendingAction === 'lock' ? 'লক' : 'আনলক'} করতে ব্যর্থ: ${error.message}`);
       setShowConfirmDialog(false);
       setPendingAction(null);
     },
@@ -150,16 +150,16 @@ export function MacLockControl({
     },
     onSuccess: (data: { mac: string; message: string }) => {
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
-      toast.success(`MAC auto-locked: ${data.mac}`);
+      toast.success(`MAC অটো-লক হয়েছে: ${data.mac}`);
     },
     onError: (error) => {
-      toast.error(`Auto MAC lock failed: ${error.message}`);
+      toast.error(`অটো MAC লক ব্যর্থ: ${error.message}`);
     },
   });
 
   const handleToggleLock = (action: 'lock' | 'unlock') => {
     if (action === 'lock' && !macAddress) {
-      toast.error('Please set a MAC address first before locking');
+      toast.error('লক করার আগে একটি MAC অ্যাড্রেস সেট করুন');
       return;
     }
     setPendingAction(action);
@@ -181,7 +181,7 @@ export function MacLockControl({
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" />
-              MAC Address Control
+              MAC অ্যাড্রেস কন্ট্রোল
             </CardTitle>
             <Badge
               variant={macLocked ? 'default' : 'secondary'}
@@ -190,12 +190,12 @@ export function MacLockControl({
               {macLocked ? (
                 <>
                   <Lock className="w-3 h-3 mr-1" />
-                  Locked
+                  লক করা আছে
                 </>
               ) : (
                 <>
                   <Unlock className="w-3 h-3 mr-1" />
-                  Unlocked
+                  আনলক আছে
                 </>
               )}
             </Badge>
@@ -204,11 +204,11 @@ export function MacLockControl({
         <CardContent className="space-y-4">
           {/* MAC Address Display */}
           <div className="space-y-2">
-            <Label className="text-sm text-muted-foreground">MAC Address</Label>
+            <Label className="text-sm text-muted-foreground">MAC অ্যাড্রেস</Label>
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
               <Wifi className="w-4 h-4 text-muted-foreground" />
               <span className="font-mono text-foreground">
-                {macAddress || 'Not set'}
+                {macAddress || 'সেট করা হয়নি'}
               </span>
             </div>
           </div>
@@ -221,13 +221,13 @@ export function MacLockControl({
                   <Scan className={`w-5 h-5 ${macLocked ? 'text-green-500' : 'text-primary'}`} />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Auto MAC Lock</p>
+                  <p className="font-medium text-foreground">অটো MAC লক</p>
                   <p className="text-sm text-muted-foreground">
                     {macLocked
-                      ? 'MAC is locked. Click Unlock to remove MAC from router.'
+                      ? 'MAC লক করা আছে। রাউটার থেকে MAC মুছতে আনলক ক্লিক করুন।'
                       : isOnline
-                        ? 'User is online. Click to detect & lock MAC from active session.'
-                        : 'User is offline. User must be online to auto-lock.'}
+                        ? 'ইউজার অনলাইন আছে। সক্রিয় সেশন থেকে MAC সনাক্ত ও লক করতে ক্লিক করুন।'
+                        : 'ইউজার অফলাইন। অটো-লক করতে ইউজারকে অনলাইন থাকতে হবে।'}
                   </p>
                 </div>
               </div>
@@ -244,14 +244,14 @@ export function MacLockControl({
                   ) : (
                     <Unlock className="w-4 h-4 mr-1" />
                   )}
-                  Unlock
+                  আনলক
                 </Button>
               ) : (
                 <Button
                   size="sm"
                   onClick={() => {
                     if (!isOnline) {
-                      toast.error('User must be online to auto-detect MAC address');
+                      toast.error('MAC অটো-সনাক্ত করতে ইউজারকে অনলাইন থাকতে হবে');
                       return;
                     }
                     autoMacLockMutation.mutate();
@@ -264,7 +264,7 @@ export function MacLockControl({
                   ) : (
                     <Lock className="w-4 h-4 mr-1" />
                   )}
-                  Auto Lock
+                  অটো লক
                 </Button>
               )}
             </div>
@@ -277,26 +277,26 @@ export function MacLockControl({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {pendingAction === 'lock' ? 'Lock MAC Address?' : 'Unlock MAC Address?'}
+              {pendingAction === 'lock' ? 'MAC অ্যাড্রেস লক করবেন?' : 'MAC অ্যাড্রেস আনলক করবেন?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction === 'lock' ? (
                 <>
-                  This will restrict <strong>{username}</strong> to only connect from MAC address{' '}
-                  <code className="bg-muted px-1 rounded">{macAddress}</code>.
-                  {routerId && ' The change will be synced to the MikroTik router.'}
+                  এটি <strong>{username}</strong> কে শুধুমাত্র MAC অ্যাড্রেস{' '}
+                  <code className="bg-muted px-1 rounded">{macAddress}</code> থেকে সংযোগ করতে সীমাবদ্ধ করবে।
+                  {routerId && ' পরিবর্তনটি MikroTik রাউটারে সিঙ্ক হবে।'}
                 </>
               ) : (
                 <>
-                  This will allow <strong>{username}</strong> to connect from any device.
-                  {routerId && ' The MAC binding will be removed from the MikroTik router.'}
+                  এটি <strong>{username}</strong> কে যেকোনো ডিভাইস থেকে সংযোগ করার অনুমতি দেবে।
+                  {routerId && ' MAC বাইন্ডিং MikroTik রাউটার থেকে মুছে ফেলা হবে।'}
                 </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={toggleMacLockMutation.isPending}>
-              Cancel
+              বাতিল
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmAction}
@@ -306,7 +306,7 @@ export function MacLockControl({
               {toggleMacLockMutation.isPending && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
-              {pendingAction === 'lock' ? 'Lock MAC' : 'Unlock MAC'}
+              {pendingAction === 'lock' ? 'MAC লক করুন' : 'MAC আনলক করুন'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
