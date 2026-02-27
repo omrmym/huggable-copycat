@@ -2,3 +2,12 @@ project_id = "aesmsmguyxehseshzxyt"
 
 [functions.request-mikrotik]
 verify_jwt = false
+
+[functions.customer-auth]
+verify_jwt = false
+
+[functions.customer-auto-login]
+verify_jwt = false
+
+[functions.check-data-limit]
+verify_jwt = false
