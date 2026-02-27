@@ -228,9 +228,6 @@ export default function UserRequestPage() {
             <Button onClick={() => { setIsSubmitted(false); setFormData({ full_name: "", father_name: "", nid_number: "", phone: "", gender: "male", district_id: DEFAULT_DISTRICT_ID, police_station_id: DEFAULT_POLICE_STATION_ID, area_id: "", customer_type: "student", address_details: "", mikrotik_router_id: DEFAULT_MIKROTIK_ROUTER_ID, monthly_bill: "", connection_fee: "0", plan_id: "" }); }} variant="outline">
               Submit Another Request
             </Button>
-            <div className="pt-2">
-              <a href="/login" className="text-sm text-primary hover:underline">← Back to Login</a>
-            </div>
           </CardContent>
         </Card>
       </div>
@@ -440,7 +437,7 @@ export default function UserRequestPage() {
 
         {/* Actions */}
         <div className="flex justify-between items-center">
-          <a href="/login" className="text-sm text-muted-foreground hover:text-primary">← Back to Login</a>
+          <div />
           <Button className="bg-gradient-primary text-primary-foreground" onClick={handleSubmit} disabled={isSubmitting || !formData.phone}>
             {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             <UserPlus className="w-4 h-4 mr-2" />
