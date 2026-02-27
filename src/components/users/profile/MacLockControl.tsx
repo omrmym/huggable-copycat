@@ -413,24 +413,49 @@ export function MacLockControl({
             </p>
           )}
 
-          {/* Auto MAC Lock - detects MAC from online session */}
-          {isOnline && !macLocked && (
-            <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-primary/20">
-                    <Scan className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Auto MAC Lock</p>
-                    <p className="text-sm text-muted-foreground">
-                      Detect MAC from active session & lock automatically
-                    </p>
-                  </div>
+          {/* Auto MAC Lock - always available for admin */}
+          <div className={`p-4 rounded-lg border ${macLocked ? 'border-green-500/30 bg-green-500/5' : 'border-primary/30 bg-primary/5'}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full ${macLocked ? 'bg-green-500/20' : 'bg-primary/20'}`}>
+                  <Scan className={`w-5 h-5 ${macLocked ? 'text-green-500' : 'text-primary'}`} />
                 </div>
+                <div>
+                  <p className="font-medium text-foreground">Auto MAC Lock</p>
+                  <p className="text-sm text-muted-foreground">
+                    {macLocked
+                      ? 'MAC is locked. Click Unlock to remove MAC from router.'
+                      : isOnline
+                        ? 'User is online. Click to detect & lock MAC from active session.'
+                        : 'User is offline. Will auto-lock when user comes online.'}
+                  </p>
+                </div>
+              </div>
+              {macLocked ? (
                 <Button
                   size="sm"
-                  onClick={() => autoMacLockMutation.mutate()}
+                  variant="outline"
+                  onClick={() => handleToggleLock('unlock')}
+                  disabled={toggleMacLockMutation.isPending}
+                  className="border-destructive text-destructive hover:bg-destructive/10"
+                >
+                  {toggleMacLockMutation.isPending && pendingAction === 'unlock' ? (
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <Unlock className="w-4 h-4 mr-1" />
+                  )}
+                  Unlock
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (!isOnline) {
+                      toast.error('User must be online to auto-detect MAC address');
+                      return;
+                    }
+                    autoMacLockMutation.mutate();
+                  }}
                   disabled={autoMacLockMutation.isPending}
                   className="bg-primary text-primary-foreground"
                 >
@@ -441,9 +466,9 @@ export function MacLockControl({
                   )}
                   Auto Lock
                 </Button>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 
