@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Ticket, CreditCard, Settings, Wifi, Network, BarChart3, LogOut, Wallet, ChevronDown, UserPlus, UserCheck, MapPin, Building2, Map, CheckCircle, Clock, UserCog, DollarSign, TrendingUp, TrendingDown, Store, GitBranch, PieChart, Calendar, Activity, HardDrive, List, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Users, Ticket, CreditCard, Settings, Wifi, Network, BarChart3, LogOut, Wallet, ChevronDown, UserPlus, UserCheck, MapPin, Building2, Map, CheckCircle, Clock, UserCog, DollarSign, TrendingUp, TrendingDown, Store, GitBranch, PieChart, Calendar, Activity, HardDrive, List, ClipboardCheck, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -124,6 +124,10 @@ const navItems = [{
   icon: CreditCard,
   label: 'Plans',
   path: '/plans'
+}, {
+  icon: MessageSquare,
+  label: 'SMS History',
+  path: '/sms-history'
 }, {
   icon: Activity,
   label: 'Activity',
