@@ -47,8 +47,14 @@ serve(async (req) => {
     }
 
     // Build the BulkSMSBD API URL
-    // Default API URL if not provided
-    const baseUrl = api_url || 'http://bulksmsbd.net/api/smsapi';
+    // Extract only the base URL (strip any existing query params)
+    let baseUrl = api_url || 'http://bulksmsbd.net/api/smsapi';
+    try {
+      const parsed = new URL(baseUrl);
+      baseUrl = `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
+    } catch {
+      // If URL parsing fails, use as-is
+    }
     
     const params = new URLSearchParams({
       api_key: api_key,
@@ -78,8 +84,8 @@ serve(async (req) => {
     }
 
     // Check for BulkSMSBD success code (202 = success)
-    const statusCode = responseData?.status_code || responseData?.error_code;
-    const isSuccess = statusCode === 202 || smsResponse.ok;
+    const statusCode = responseData?.response_code || responseData?.status_code || responseData?.error_code;
+    const isSuccess = statusCode === 202;
 
     return new Response(JSON.stringify({
       success: isSuccess,
