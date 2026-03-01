@@ -8,7 +8,7 @@ import { useAreas } from '@/hooks/useAreas';
 import { useDistricts } from '@/hooks/useDistricts';
 import { usePoliceStations } from '@/hooks/usePoliceStations';
 import { useMikrotikRouters } from '@/hooks/useMikrotikRouters';
-import { useUserTransactions, useCreateTransaction } from '@/hooks/useTransactions';
+import { useUserTransactions } from '@/hooks/useTransactions';
 import { UserStatusBadge } from '@/components/dashboard/UserStatusBadge';
 import { EditUserDialog } from '@/components/users/EditUserDialog';
 import { RechargeDialog } from '@/components/recharge/RechargeDialog';
@@ -19,7 +19,7 @@ import { BandwidthLiveChart } from '@/components/users/profile/BandwidthLiveChar
 import { BandwidthHistoryChart } from '@/components/users/profile/BandwidthHistoryChart';
 import { ActivityLogTab } from '@/components/users/profile/ActivityLogTab';
 import { GraceActivationDialog } from '@/components/users/profile/GraceActivationDialog';
-import { calculateProratedPrice } from '@/lib/proratedPricing';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -78,7 +78,7 @@ export default function UserProfile() {
   const { data: routers = [] } = useMikrotikRouters();
   const { data: transactions = [], isLoading: transactionsLoading } = useUserTransactions(userId);
   const updateUser = useUpdateRadiusUser();
-  const createTransaction = useCreateTransaction();
+  
 
   const user = users.find((u) => u.id === userId);
 
@@ -141,47 +141,13 @@ export default function UserProfile() {
     const plan = filteredPlans.find(p => p.id === selectedPlanId);
     if (!plan) return;
     
-    // If user is not expired, calculate prorated price based on remaining days
-    if (user.status !== 'expired') {
-      const planPrice = Number(plan.price);
-      const currentPlanPrice = Number(user.plan?.price || 0);
-      const proratedResult = calculateProratedPrice(user.expires_at, planPrice, currentPlanPrice, user.billing_cycle || 'monthly');
-      const amountToDeduct = proratedResult.isValid ? proratedResult.proratedAmount : planPrice;
-      
-      if (user.balance < amountToDeduct) {
-        // Insufficient balance - don't allow plan change
-        return;
-      }
-      // Deduct prorated amount from balance
-      await updateUser.mutateAsync({
-        id: user.id,
-        plan_id: selectedPlanId,
-        monthly_bill: plan.price,
-        balance: user.balance - amountToDeduct,
-        mikrotik_synced: false,
-      });
-      
-      // Create a transaction record for the plan change deduction
-      const description = proratedResult.isValid 
-        ? `Plan changed to ${plan.name} - Prorated for ${proratedResult.remainingDays} days`
-        : `Plan changed to ${plan.name} - Balance deducted`;
-      
-      await createTransaction.mutateAsync({
-        radiusUserId: user.id,
-        amount: -amountToDeduct, // Negative amount for deduction
-        type: 'plan_change',
-        description,
-        status: 'completed',
-      });
-    } else {
-      // User is expired - no balance deduction needed
-      await updateUser.mutateAsync({
-        id: user.id,
-        plan_id: selectedPlanId,
-        monthly_bill: plan.price,
-        mikrotik_synced: false,
-      });
-    }
+    await updateUser.mutateAsync({
+      id: user.id,
+      plan_id: selectedPlanId,
+      monthly_bill: plan.price,
+      mikrotik_synced: false,
+    });
+    
     setPlanDialogOpen(false);
     setSelectedPlanId('');
   };
@@ -454,7 +420,7 @@ export default function UserProfile() {
 
       {/* Change Plan Dialog */}
       <Dialog open={planDialogOpen} onOpenChange={setPlanDialogOpen}>
-        <DialogContent className="bg-card border-border">
+        <DialogContent className="bg-card border-border max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="w-5 h-5 text-primary" />
@@ -490,81 +456,12 @@ export default function UserProfile() {
             </div>
             {selectedPlanId && (() => {
               const selectedPlan = filteredPlans.find(p => p.id === selectedPlanId);
-              const planPrice = Number(selectedPlan?.price || 0);
-              const currentPlanPrice = Number(user.plan?.price || 0);
-              const proratedResult = calculateProratedPrice(user.expires_at, planPrice, currentPlanPrice, user.billing_cycle || 'monthly');
-              const amountToDeduct = user.status !== 'expired' && proratedResult.isValid ? proratedResult.proratedAmount : planPrice;
-              const hasInsufficientBalance = user.status !== 'expired' && user.balance < amountToDeduct;
-              const isDowngrade = user.status !== 'expired' && planPrice < currentPlanPrice;
-              
               return (
                 <div className="p-3 bg-muted/50 rounded-lg space-y-2">
-                  {user.status !== 'expired' && proratedResult.isValid && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Current Plan Price:</span>
-                        <span className="font-semibold text-foreground">৳{currentPlanPrice.toLocaleString()}/month</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">New Plan Price:</span>
-                        <span className="font-semibold text-foreground">৳{planPrice.toLocaleString()}/month</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Remaining Days:</span>
-                        <span className="font-semibold text-info">{proratedResult.remainingDays} days</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">New Plan Cost:</span>
-                        <span className="font-semibold text-foreground">৳{proratedResult.newPlanCost.toFixed(0)}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Current Plan Credit:</span>
-                        <span className="font-semibold text-success">-৳{proratedResult.currentPlanCredit.toFixed(0)}</span>
-                      </div>
-                      <div className="flex items-center justify-between border-t border-border pt-2">
-                        <span className="text-sm font-medium text-muted-foreground">Prorated Amount:</span>
-                        <span className="text-lg font-bold text-primary">৳{amountToDeduct.toLocaleString()}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        (৳{planPrice} ÷ 30 × {proratedResult.remainingDays}) - (৳{currentPlanPrice} ÷ 30 × {proratedResult.remainingDays}) = ৳{amountToDeduct}
-                      </p>
-                    </>
-                  )}
-                  {user.status !== 'expired' && !proratedResult.isValid && (
-                    <div className="flex items-center justify-between border-b border-border pb-2">
-                      <span className="text-sm font-medium text-muted-foreground">Required Balance:</span>
-                      <span className="text-lg font-bold text-primary">৳{planPrice.toLocaleString()}</span>
-                    </div>
-                  )}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Your Balance:</span>
-                    <span className={`font-semibold ${hasInsufficientBalance ? 'text-destructive' : 'text-success'}`}>
-                      ৳{user.balance.toLocaleString()}
-                    </span>
+                    <span className="text-sm text-muted-foreground">New Plan Price:</span>
+                    <span className="font-semibold text-foreground">৳{Number(selectedPlan?.price || 0).toLocaleString()}/month</span>
                   </div>
-                  {user.status !== 'expired' && (
-                    <div className="flex items-center justify-between pt-2 border-t border-border">
-                      <span className="text-sm text-muted-foreground">Balance After Change:</span>
-                      <span className={`font-semibold ${hasInsufficientBalance ? 'text-destructive' : 'text-foreground'}`}>
-                        ৳{(user.balance - amountToDeduct).toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-                  {hasInsufficientBalance && (
-                    <p className="text-sm text-destructive font-medium pt-1">
-                      ⚠️ Insufficient balance! Recharge ৳{(amountToDeduct - user.balance).toLocaleString()} to change plan.
-                    </p>
-                  )}
-                  {isDowngrade && (
-                    <p className="text-sm text-destructive font-medium pt-1">
-                      ⚠️ Plan downgrade is not allowed! User must be expired to downgrade.
-                    </p>
-                  )}
-                  {user.status === 'expired' && (
-                    <p className="text-sm text-info font-medium pt-1">
-                      ℹ️ No balance deduction for expired users
-                    </p>
-                  )}
                 </div>
               );
             })()}
@@ -576,19 +473,7 @@ export default function UserProfile() {
             <Button
               className="bg-gradient-primary text-primary-foreground"
               onClick={handleChangePlan}
-              disabled={
-                updateUser.isPending || 
-                !selectedPlanId || 
-                (() => {
-                  if (user.status === 'expired') return false;
-                  const selectedPlan = filteredPlans.find(p => p.id === selectedPlanId);
-                  const planPrice = Number(selectedPlan?.price || 0);
-                  const currentPlanPrice = Number(user.plan?.price || 0);
-                  const proratedResult = calculateProratedPrice(user.expires_at, planPrice, currentPlanPrice, user.billing_cycle || 'monthly');
-                  const amountToDeduct = proratedResult.isValid ? proratedResult.proratedAmount : planPrice;
-                  return user.balance < amountToDeduct || planPrice < currentPlanPrice;
-                })()
-              }
+              disabled={updateUser.isPending || !selectedPlanId}
             >
               {updateUser.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Update Plan
