@@ -95,7 +95,9 @@ export function SmsGatewaySettings() {
     saveMutation.mutate(config);
   };
 
-  const handleTestSms = () => {
+  const [isSending, setIsSending] = useState(false);
+
+  const handleTestSms = async () => {
     if (!config.api_url || !config.api_key) {
       toast.error('Please configure API URL and API Key first.');
       return;
@@ -104,7 +106,35 @@ export function SmsGatewaySettings() {
       toast.error('Please enter a phone number to test.');
       return;
     }
-    toast.info(`Test SMS would be sent to ${testPhone} via ${config.provider || 'configured provider'}`);
+
+    setIsSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-sms', {
+        body: {
+          api_url: config.api_url,
+          api_key: config.api_key,
+          sender_id: config.sender_id,
+          number: testPhone,
+          message: 'This is a test SMS from FlyNet-ISP RADIUS Manager.',
+        },
+      });
+
+      if (error) {
+        toast.error(`SMS failed: ${error.message}`);
+        return;
+      }
+
+      if (data?.success) {
+        toast.success(`Test SMS sent successfully to ${testPhone}!`);
+      } else {
+        const errorMsg = data?.api_response?.error_message || data?.api_response?.raw_response || data?.message || 'Unknown error';
+        toast.error(`SMS failed: ${errorMsg} (Code: ${data?.status_code || 'N/A'})`);
+      }
+    } catch (err: any) {
+      toast.error(`SMS error: ${err.message}`);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   if (isLoading) {
@@ -227,9 +257,13 @@ export function SmsGatewaySettings() {
                   value={testPhone}
                   onChange={(e) => setTestPhone(e.target.value)}
                 />
-                <Button variant="outline" className="border-border shrink-0" onClick={handleTestSms}>
-                  <Send className="w-4 h-4 mr-1" />
-                  Test
+                <Button variant="outline" className="border-border shrink-0" onClick={handleTestSms} disabled={isSending}>
+                  {isSending ? (
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-1" />
+                  )}
+                  {isSending ? 'Sending...' : 'Test'}
                 </Button>
               </div>
             </div>
