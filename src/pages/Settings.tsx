@@ -55,6 +55,7 @@ import { SuperAdminAccountSettings } from '@/components/settings/SuperAdminAccou
 import { RequestNoteSettings } from '@/components/settings/RequestNoteSettings';
 import { BrandingSettings } from '@/components/settings/BrandingSettings';
 import { ThemeSettings } from '@/components/settings/ThemeSettings';
+import { SmsGatewaySettings } from '@/components/settings/SmsGatewaySettings';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -917,99 +918,7 @@ export default function SettingsPage() {
 
         {/* SMS Management Settings */}
         <TabsContent value="sms" className="space-y-6">
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-primary" />
-                SMS Gateway Configuration
-              </CardTitle>
-              <CardDescription>
-                Configure SMS gateway for notifications and alerts.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Gateway Settings</h4>
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <Label>SMS Provider</Label>
-                      <Input
-                        placeholder="e.g., BulkSMS, Twilio"
-                        className="bg-secondary border-border"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label>API URL</Label>
-                      <Input
-                        placeholder="https://api.smsprovider.com/send"
-                        className="bg-secondary border-border"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label>API Key</Label>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        className="bg-secondary border-border"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label>Sender ID</Label>
-                      <Input
-                        placeholder="MYISP"
-                        className="bg-secondary border-border"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium">Notification Settings</h4>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Bill Reminder</Label>
-                        <p className="text-sm text-muted-foreground">Send bill reminder SMS</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Payment Confirmation</Label>
-                        <p className="text-sm text-muted-foreground">Send payment received SMS</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Expiry Warning</Label>
-                        <p className="text-sm text-muted-foreground">Send expiry warning SMS</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Service Activation</Label>
-                        <p className="text-sm text-muted-foreground">Send activation SMS</p>
-                      </div>
-                      <Switch />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <Button variant="outline" className="border-border">
-                  Test SMS
-                </Button>
-                <Button className="bg-gradient-primary text-primary-foreground">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save SMS Settings
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <SmsGatewaySettings />
         </TabsContent>
 
         {/* Notifications Settings */}
