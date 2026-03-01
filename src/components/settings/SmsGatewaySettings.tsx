@@ -124,11 +124,15 @@ export function SmsGatewaySettings() {
         return;
       }
 
-      if (data?.success) {
+      const apiResponse = data?.api_response;
+      const responseCode = apiResponse?.response_code || apiResponse?.status_code;
+      const isRealSuccess = responseCode === 202;
+      
+      if (isRealSuccess) {
         toast.success(`Test SMS sent successfully to ${testPhone}!`);
       } else {
-        const errorMsg = data?.api_response?.error_message || data?.api_response?.raw_response || data?.message || 'Unknown error';
-        toast.error(`SMS failed: ${errorMsg} (Code: ${data?.status_code || 'N/A'})`);
+        const errorMsg = apiResponse?.error_message || apiResponse?.raw_response || data?.message || 'Unknown error';
+        toast.error(`SMS failed: ${errorMsg} (Code: ${responseCode || 'N/A'})`);
       }
     } catch (err: any) {
       toast.error(`SMS error: ${err.message}`);
