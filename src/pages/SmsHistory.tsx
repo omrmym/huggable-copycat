@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3 } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from 'recharts';
 
 // Mock SMS history data
@@ -55,18 +56,26 @@ export default function SmsHistory() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [smsData, setSmsData] = useState(mockSmsHistory);
 
-  const filtered = mockSmsHistory.filter((sms) => {
+  const filtered = smsData.filter((sms) => {
     const matchSearch = !search || sms.recipient.includes(search) || sms.recipientName.toLowerCase().includes(search.toLowerCase());
     const matchType = typeFilter === 'all' || sms.type === typeFilter;
     const matchStatus = statusFilter === 'all' || sms.status === statusFilter;
     return matchSearch && matchType && matchStatus;
   });
 
-  const totalSent = mockSmsHistory.length;
-  const totalDelivered = mockSmsHistory.filter(s => s.status === 'delivered').length;
-  const totalFailed = mockSmsHistory.filter(s => s.status === 'failed').length;
-  const totalCost = mockSmsHistory.reduce((sum, s) => sum + s.cost, 0);
+  const totalSent = smsData.length;
+  const totalDelivered = smsData.filter(s => s.status === 'delivered').length;
+  const totalFailed = smsData.filter(s => s.status === 'failed').length;
+  const totalCost = smsData.reduce((sum, s) => sum + s.cost, 0);
+
+  const handleClearHistory = () => {
+    setSmsData([]);
+    setSearch('');
+    setTypeFilter('all');
+    setStatusFilter('all');
+  };
 
   return (
     <DashboardLayout title="SMS History" subtitle="View SMS sending history and analytics">
@@ -202,11 +211,25 @@ export default function SmsHistory() {
       {/* History Table */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-primary" />
-            SMS History
-          </CardTitle>
-          <CardDescription>Complete log of all sent SMS messages (demo data)</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                SMS History
+              </CardTitle>
+              <CardDescription>Complete log of all sent SMS messages (demo data)</CardDescription>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleClearHistory}
+              disabled={smsData.length === 0}
+              className="flex items-center gap-1.5"
+            >
+              <Trash2 className="w-4 h-4" />
+              Clear History
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {/* Filters */}
