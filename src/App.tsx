@@ -55,6 +55,7 @@ import MonthlyNewLineReport from "./pages/reports/MonthlyNewLineReport";
 import MonthlyExpireReport from "./pages/reports/MonthlyExpireReport";
 import BTRCReport from "./pages/reports/BTRCReport";
 import Activity from "./pages/Activity";
+import SmsHistory from "./pages/SmsHistory";
 import RoleEdit from "./pages/settings/RoleEdit";
 import NotFound from "./pages/NotFound";
 
@@ -332,6 +333,14 @@ const App = () => (
               }
             />
             <Route path="/payment/callback" element={<PaymentCallback />} />
+            <Route
+              path="/sms-history"
+              element={
+                <ProtectedRoute>
+                  <SmsHistory />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/finance/overview"
               element={
