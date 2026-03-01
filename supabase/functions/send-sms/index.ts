@@ -47,13 +47,16 @@ serve(async (req) => {
     }
 
     // Build the BulkSMSBD API URL
-    // Extract only the base URL (strip any existing query params)
-    let baseUrl = api_url || 'http://bulksmsbd.net/api/smsapi';
-    try {
-      const parsed = new URL(baseUrl);
-      baseUrl = `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
-    } catch {
-      // If URL parsing fails, use as-is
+    // Always use the correct smsapi endpoint - extract only host from user-provided URL
+    let baseUrl = 'http://bulksmsbd.net/api/smsapi';
+    if (api_url) {
+      try {
+        const parsed = new URL(api_url);
+        // Use only the host from user config, always force /api/smsapi path
+        baseUrl = `${parsed.protocol}//${parsed.host}/api/smsapi`;
+      } catch {
+        // If URL parsing fails, use default
+      }
     }
     
     const params = new URLSearchParams({
