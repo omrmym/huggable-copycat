@@ -19,11 +19,13 @@ import { BandwidthLiveChart } from '@/components/users/profile/BandwidthLiveChar
 import { BandwidthHistoryChart } from '@/components/users/profile/BandwidthHistoryChart';
 import { ActivityLogTab } from '@/components/users/profile/ActivityLogTab';
 import { GraceActivationDialog } from '@/components/users/profile/GraceActivationDialog';
-
+import { sendSms } from '@/hooks/useSendSms';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
  import {
@@ -56,6 +58,8 @@ import {
   Package,
   Loader2,
   Clock,
+  MessageSquare,
+  Send,
 } from 'lucide-react';
 
 export default function UserProfile() {
@@ -66,6 +70,9 @@ export default function UserProfile() {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [planDialogOpen, setPlanDialogOpen] = useState(false);
   const [graceDialogOpen, setGraceDialogOpen] = useState(false);
+  const [smsDialogOpen, setSmsDialogOpen] = useState(false);
+  const [smsMessage, setSmsMessage] = useState('');
+  const [isSendingSms, setIsSendingSms] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [selectedPlanId, setSelectedPlanId] = useState('');
@@ -152,6 +159,25 @@ export default function UserProfile() {
     setSelectedPlanId('');
   };
 
+  const handleSendSms = async () => {
+    if (!user?.phone || !smsMessage.trim()) return;
+    setIsSendingSms(true);
+    try {
+      const success = await sendSms({ phone: user.phone, message: smsMessage.trim() });
+      if (success) {
+        toast.success('SMS sent successfully!');
+        setSmsDialogOpen(false);
+        setSmsMessage('');
+      } else {
+        toast.error('Failed to send SMS. Check SMS gateway settings.');
+      }
+    } catch {
+      toast.error('Failed to send SMS');
+    } finally {
+      setIsSendingSms(false);
+    }
+  };
+
   if (usersLoading) {
     return (
       <DashboardLayout title="User Profile" subtitle="Loading...">
@@ -212,7 +238,16 @@ export default function UserProfile() {
             <Banknote className="w-4 h-4 mr-2" />
             Quick Recharge
           </Button>
-          <Button 
+          {user.phone && (
+            <Button
+              variant="outline"
+              onClick={() => setSmsDialogOpen(true)}
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Send SMS
+            </Button>
+          )}
+          <Button
             variant="outline"
             onClick={() => setPasswordDialogOpen(true)}
           >
@@ -501,6 +536,49 @@ export default function UserProfile() {
           }}
         />
       )}
+
+      {/* Send SMS Dialog */}
+      <Dialog open={smsDialogOpen} onOpenChange={setSmsDialogOpen}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-primary" />
+              Send SMS to {user.full_name || user.username}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Phone Number</Label>
+              <p className="text-sm font-mono text-muted-foreground">{user.phone || 'No phone number'}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sms-message">Message</Label>
+              <Textarea
+                id="sms-message"
+                placeholder="Type your message here..."
+                value={smsMessage}
+                onChange={(e) => setSmsMessage(e.target.value)}
+                className="bg-secondary border-border min-h-[120px]"
+                maxLength={500}
+              />
+              <p className="text-xs text-muted-foreground text-right">{smsMessage.length}/500</p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setSmsDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-gradient-primary text-primary-foreground"
+              onClick={handleSendSms}
+              disabled={isSendingSms || !smsMessage.trim() || !user.phone}
+            >
+              {isSendingSms ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+              Send SMS
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
