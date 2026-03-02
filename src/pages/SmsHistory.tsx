@@ -11,19 +11,8 @@ import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Tr
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import SmsTemplates from '@/components/sms/SmsTemplates';
 
-// Mock SMS history data
-const mockSmsHistory = [
-  { id: '1', recipient: '01909509331', recipientName: 'Jhumon', type: 'Bill Reminder', message: 'Your bill of ৳70 is due on March 7.', status: 'delivered', sentAt: '2026-03-01T10:30:00Z', cost: 0.25 },
-  { id: '2', recipient: '01919744232', recipientName: 'Md Omar Faruk', type: 'Payment Confirmation', message: 'Payment of ৳300 received. Thank you!', status: 'delivered', sentAt: '2026-03-01T09:15:00Z', cost: 0.25 },
-  { id: '3', recipient: '01712345678', recipientName: 'Karim Uddin', type: 'Expiry Warning', message: 'Your connection expires in 3 days.', status: 'delivered', sentAt: '2026-02-28T14:20:00Z', cost: 0.25 },
-  { id: '4', recipient: '01812345679', recipientName: 'Rahim Mia', type: 'Service Activation', message: 'Your internet service has been activated.', status: 'failed', sentAt: '2026-02-28T11:00:00Z', cost: 0.25 },
-  { id: '5', recipient: '01612345680', recipientName: 'Salam Ahmed', type: 'Bill Reminder', message: 'Your bill of ৳200 is due on March 5.', status: 'delivered', sentAt: '2026-02-27T16:45:00Z', cost: 0.25 },
-  { id: '6', recipient: '01512345681', recipientName: 'Nasir Hossain', type: 'Payment Confirmation', message: 'Payment of ৳150 received. Thank you!', status: 'pending', sentAt: '2026-02-27T13:30:00Z', cost: 0.25 },
-  { id: '7', recipient: '01909509331', recipientName: 'Jhumon', type: 'Expiry Warning', message: 'Your connection expires tomorrow.', status: 'delivered', sentAt: '2026-02-26T08:00:00Z', cost: 0.25 },
-  { id: '8', recipient: '01919744232', recipientName: 'Md Omar Faruk', type: 'Bill Reminder', message: 'Your bill of ৳300 is due on Feb 27.', status: 'delivered', sentAt: '2026-02-25T10:00:00Z', cost: 0.25 },
-  { id: '9', recipient: '01312345682', recipientName: 'Jamal Khan', type: 'Service Activation', message: 'Your internet service has been activated.', status: 'delivered', sentAt: '2026-02-24T15:20:00Z', cost: 0.25 },
-  { id: '10', recipient: '01412345683', recipientName: 'Faruk Islam', type: 'Expiry Warning', message: 'Your connection expires in 2 days.', status: 'failed', sentAt: '2026-02-23T09:10:00Z', cost: 0.25 },
-];
+// SMS history data type
+type SmsRecord = { id: string; recipient: string; recipientName: string; type: string; message: string; status: string; sentAt: string; cost: number };
 
 const typeColors: Record<string, string> = {
   'Bill Reminder': 'hsl(var(--primary))',
@@ -32,7 +21,7 @@ const typeColors: Record<string, string> = {
   'Service Activation': 'hsl(262, 83%, 58%)',
 };
 
-const buildDailyData = (data: typeof mockSmsHistory) => {
+const buildDailyData = (data: SmsRecord[]) => {
   const map: Record<string, { sent: number; delivered: number; failed: number }> = {};
   data.forEach((sms) => {
     const date = new Date(sms.sentAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
@@ -46,7 +35,7 @@ const buildDailyData = (data: typeof mockSmsHistory) => {
     .sort((a, b) => new Date(a.date + ' 2026').getTime() - new Date(b.date + ' 2026').getTime());
 };
 
-const buildTypeData = (data: typeof mockSmsHistory) => {
+const buildTypeData = (data: SmsRecord[]) => {
   const map: Record<string, number> = {};
   data.forEach((sms) => {
     map[sms.type] = (map[sms.type] || 0) + 1;
@@ -74,7 +63,7 @@ export default function SmsHistory() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [smsData, setSmsData] = useState(mockSmsHistory);
+  const [smsData, setSmsData] = useState<SmsRecord[]>([]);
 
   const filtered = smsData.filter((sms) => {
     const matchSearch = !search || sms.recipient.includes(search) || sms.recipientName.toLowerCase().includes(search.toLowerCase());
@@ -99,10 +88,7 @@ export default function SmsHistory() {
   };
 
   const handleReloadHistory = () => {
-    setSmsData(mockSmsHistory);
-    setSearch('');
-    setTypeFilter('all');
-    setStatusFilter('all');
+    setSmsData([]);
   };
 
   return (
@@ -235,15 +221,9 @@ export default function SmsHistory() {
                     <MessageSquare className="w-5 h-5 text-primary" />
                     SMS History
                   </CardTitle>
-                  <CardDescription>Complete log of all sent SMS messages (demo data)</CardDescription>
+                  <CardDescription>Complete log of all sent SMS messages</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  {smsData.length === 0 && (
-                    <Button variant="outline" size="sm" onClick={handleReloadHistory} className="flex items-center gap-1.5">
-                      <RefreshCw className="w-4 h-4" />
-                      Reload Demo Data
-                    </Button>
-                  )}
                   <Button
                     variant="destructive"
                     size="sm"
