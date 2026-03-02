@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { useRechargeUser } from '@/hooks/useRadiusUsers';
+import { sendSms } from '@/hooks/useSendSms';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -75,13 +76,19 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
     const paymentMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
     const collectedBy = authUser?.user_metadata?.full_name || authUser?.email || 'Unknown';
 
-    await rechargeUser.mutateAsync({
+    const result = await rechargeUser.mutateAsync({
       userId: user.id,
       amount,
       description: rechargeDescription || undefined,
       paymentMethod: paymentMethod?.name,
       collectedBy,
     });
+
+    // Send payment confirmation SMS
+    if (user.phone) {
+      const smsMessage = `Payment of ৳${amount.toLocaleString()} received. New balance: ৳${result.newBalance.toLocaleString()}. Expires: ${new Date(result.newExpiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Thank you!`;
+      sendSms({ phone: user.phone, message: smsMessage, automationType: 'payment_confirmation' }).catch(() => {});
+    }
 
     onOpenChange(false);
   };
