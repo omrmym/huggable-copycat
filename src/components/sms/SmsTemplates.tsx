@@ -317,6 +317,43 @@ export default function SmsTemplates() {
         </div>
       </CardContent>
 
+      {/* Variable Reference */}
+      <Card className="bg-muted/30 border-border mt-4">
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-sm font-medium text-foreground">Available Variables for SMS Templates</CardTitle>
+          <CardDescription className="text-xs">Use these codes inside your message. They will be replaced with real data when the SMS is sent.</CardDescription>
+        </CardHeader>
+        <CardContent className="px-4 pb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1.5">
+            {[
+              { code: '{name}', desc: 'Customer full name' },
+              { code: '{username}', desc: 'Login username' },
+              { code: '{phone}', desc: 'Customer phone number' },
+              { code: '{amount}', desc: 'Bill / payment amount (৳)' },
+              { code: '{balance}', desc: 'Current account balance (৳)' },
+              { code: '{date}', desc: 'Due date / payment date' },
+              { code: '{exp_date}', desc: 'Connection expiry date' },
+              { code: '{month}', desc: 'Billing month name' },
+              { code: '{plan}', desc: 'Active plan name' },
+              { code: '{speed}', desc: 'Plan speed (Mbps)' },
+              { code: '{company}', desc: 'Your company / ISP name' },
+              { code: '{pay_number}', desc: 'bKash/Nagad payment number' },
+              { code: '{password}', desc: 'User password (reset only)' },
+              { code: '{ip}', desc: 'Assigned IP address' },
+              { code: '{mac}', desc: 'MAC address' },
+              { code: '{area}', desc: 'Customer area name' },
+              { code: '{connection_date}', desc: 'Original connection date' },
+              { code: '{invoice_id}', desc: 'Invoice / transaction ID' },
+            ].map(v => (
+              <div key={v.code} className="flex items-center gap-2 py-1">
+                <Badge variant="outline" className="font-mono text-xs px-2 py-0.5 border-primary/30 text-primary whitespace-nowrap">{v.code}</Badge>
+                <span className="text-xs text-muted-foreground">{v.desc}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="sm:max-w-[420px]">
