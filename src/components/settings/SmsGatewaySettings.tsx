@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { MessageSquare, Save, Loader2, Send } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -16,10 +18,25 @@ interface SmsGatewayConfig {
   api_key: string;
   sender_id: string;
   bill_reminder: boolean;
+  bill_reminder_days: number;
+  bill_reminder_template: string;
   payment_confirmation: boolean;
+  payment_confirmation_template: string;
   expiry_warning: boolean;
+  expiry_warning_days: number;
+  expiry_warning_template: string;
   service_activation: boolean;
+  service_activation_template: string;
 }
+
+const defaultTemplates = [
+  { id: 'bill_reminder', label: 'Bill Reminder', message: 'Dear {name}, your bill of ৳{amount} is due on {date}. Please pay to avoid service interruption. - {company}' },
+  { id: 'payment_confirmation', label: 'Payment Confirmation', message: 'Dear {name}, payment of ৳{amount} received. New balance: ৳{balance}. Expires: {date}. Thank you! - {company}' },
+  { id: 'expiry_warning', label: 'Expiry Warning', message: 'Dear {name}, your internet connection expires on {date}. Please recharge to continue service. - {company}' },
+  { id: 'service_activation', label: 'Service Activation', message: 'Dear {name}, your internet service has been activated. Username: {username}, Plan: {plan}. Enjoy! - {company}' },
+  { id: 'monthly_invoice', label: 'Monthly Invoice', message: 'Dear {name}, your invoice for {month} is ৳{amount}. Due date: {date}. Pay via bKash/Nagad to {pay_number}. - {company}' },
+  { id: 'service_suspended', label: 'Service Suspended', message: 'Dear {name}, your internet service has been suspended due to non-payment. Please contact us to restore. - {company}' },
+];
 
 const defaultConfig: SmsGatewayConfig = {
   provider: '',
@@ -27,9 +44,15 @@ const defaultConfig: SmsGatewayConfig = {
   api_key: '',
   sender_id: '',
   bill_reminder: true,
+  bill_reminder_days: 3,
+  bill_reminder_template: defaultTemplates[0].message,
   payment_confirmation: true,
+  payment_confirmation_template: defaultTemplates[1].message,
   expiry_warning: true,
+  expiry_warning_days: 1,
+  expiry_warning_template: defaultTemplates[2].message,
   service_activation: false,
+  service_activation_template: defaultTemplates[3].message,
 };
 
 export function SmsGatewaySettings() {
@@ -209,46 +232,199 @@ export function SmsGatewaySettings() {
 
           <div className="space-y-4">
             <h4 className="font-medium">Notification Settings</h4>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Bill Reminder</Label>
-                  <p className="text-sm text-muted-foreground">Send bill reminder SMS</p>
+            <div className="space-y-5">
+              {/* Bill Reminder */}
+              <div className="space-y-2 p-3 rounded-lg border border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Bill Reminder</Label>
+                    <p className="text-sm text-muted-foreground">Send bill reminder SMS before expiry</p>
+                  </div>
+                  <Switch
+                    checked={config.bill_reminder}
+                    onCheckedChange={(checked) => setConfig({ ...config, bill_reminder: checked })}
+                  />
                 </div>
-                <Switch
-                  checked={config.bill_reminder}
-                  onCheckedChange={(checked) => setConfig({ ...config, bill_reminder: checked })}
-                />
+                {config.bill_reminder && (
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Days Before Expiry</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="30"
+                        className="bg-secondary border-border w-24"
+                        value={config.bill_reminder_days || 3}
+                        onChange={(e) => setConfig({ ...config, bill_reminder_days: parseInt(e.target.value) || 3 })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Template</Label>
+                      <Select
+                        value={defaultTemplates.find(t => t.message === config.bill_reminder_template)?.id || 'custom'}
+                        onValueChange={(val) => {
+                          const tpl = defaultTemplates.find(t => t.id === val);
+                          if (tpl) setConfig({ ...config, bill_reminder_template: tpl.message });
+                        }}
+                      >
+                        <SelectTrigger className="bg-secondary border-border">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {defaultTemplates.map(t => (
+                            <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Textarea
+                        className="bg-secondary border-border text-xs mt-1"
+                        rows={2}
+                        value={config.bill_reminder_template || ''}
+                        onChange={(e) => setConfig({ ...config, bill_reminder_template: e.target.value })}
+                        placeholder="Use {name}, {amount}, {date}, {company}"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Payment Confirmation</Label>
-                  <p className="text-sm text-muted-foreground">Send payment received SMS</p>
+
+              {/* Payment Confirmation */}
+              <div className="space-y-2 p-3 rounded-lg border border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Payment Confirmation</Label>
+                    <p className="text-sm text-muted-foreground">Send payment received SMS</p>
+                  </div>
+                  <Switch
+                    checked={config.payment_confirmation}
+                    onCheckedChange={(checked) => setConfig({ ...config, payment_confirmation: checked })}
+                  />
                 </div>
-                <Switch
-                  checked={config.payment_confirmation}
-                  onCheckedChange={(checked) => setConfig({ ...config, payment_confirmation: checked })}
-                />
+                {config.payment_confirmation && (
+                  <div className="space-y-2 pt-2 border-t border-border">
+                    <Label className="text-xs">Template</Label>
+                    <Select
+                      value={defaultTemplates.find(t => t.message === config.payment_confirmation_template)?.id || 'custom'}
+                      onValueChange={(val) => {
+                        const tpl = defaultTemplates.find(t => t.id === val);
+                        if (tpl) setConfig({ ...config, payment_confirmation_template: tpl.message });
+                      }}
+                    >
+                      <SelectTrigger className="bg-secondary border-border">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {defaultTemplates.map(t => (
+                          <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Textarea
+                      className="bg-secondary border-border text-xs"
+                      rows={2}
+                      value={config.payment_confirmation_template || ''}
+                      onChange={(e) => setConfig({ ...config, payment_confirmation_template: e.target.value })}
+                      placeholder="Use {name}, {amount}, {balance}, {date}, {company}"
+                    />
+                  </div>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Expiry Warning</Label>
-                  <p className="text-sm text-muted-foreground">Send expiry warning SMS</p>
+
+              {/* Expiry Warning */}
+              <div className="space-y-2 p-3 rounded-lg border border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Expiry Warning</Label>
+                    <p className="text-sm text-muted-foreground">Send expiry warning SMS</p>
+                  </div>
+                  <Switch
+                    checked={config.expiry_warning}
+                    onCheckedChange={(checked) => setConfig({ ...config, expiry_warning: checked })}
+                  />
                 </div>
-                <Switch
-                  checked={config.expiry_warning}
-                  onCheckedChange={(checked) => setConfig({ ...config, expiry_warning: checked })}
-                />
+                {config.expiry_warning && (
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Days Before Expiry</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="30"
+                        className="bg-secondary border-border w-24"
+                        value={config.expiry_warning_days || 1}
+                        onChange={(e) => setConfig({ ...config, expiry_warning_days: parseInt(e.target.value) || 1 })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Template</Label>
+                      <Select
+                        value={defaultTemplates.find(t => t.message === config.expiry_warning_template)?.id || 'custom'}
+                        onValueChange={(val) => {
+                          const tpl = defaultTemplates.find(t => t.id === val);
+                          if (tpl) setConfig({ ...config, expiry_warning_template: tpl.message });
+                        }}
+                      >
+                        <SelectTrigger className="bg-secondary border-border">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {defaultTemplates.map(t => (
+                            <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Textarea
+                        className="bg-secondary border-border text-xs mt-1"
+                        rows={2}
+                        value={config.expiry_warning_template || ''}
+                        onChange={(e) => setConfig({ ...config, expiry_warning_template: e.target.value })}
+                        placeholder="Use {name}, {date}, {company}"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Service Activation</Label>
-                  <p className="text-sm text-muted-foreground">Send activation SMS</p>
+
+              {/* Service Activation */}
+              <div className="space-y-2 p-3 rounded-lg border border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Service Activation</Label>
+                    <p className="text-sm text-muted-foreground">Send activation SMS</p>
+                  </div>
+                  <Switch
+                    checked={config.service_activation}
+                    onCheckedChange={(checked) => setConfig({ ...config, service_activation: checked })}
+                  />
                 </div>
-                <Switch
-                  checked={config.service_activation}
-                  onCheckedChange={(checked) => setConfig({ ...config, service_activation: checked })}
-                />
+                {config.service_activation && (
+                  <div className="space-y-2 pt-2 border-t border-border">
+                    <Label className="text-xs">Template</Label>
+                    <Select
+                      value={defaultTemplates.find(t => t.message === config.service_activation_template)?.id || 'custom'}
+                      onValueChange={(val) => {
+                        const tpl = defaultTemplates.find(t => t.id === val);
+                        if (tpl) setConfig({ ...config, service_activation_template: tpl.message });
+                      }}
+                    >
+                      <SelectTrigger className="bg-secondary border-border">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {defaultTemplates.map(t => (
+                          <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Textarea
+                      className="bg-secondary border-border text-xs"
+                      rows={2}
+                      value={config.service_activation_template || ''}
+                      onChange={(e) => setConfig({ ...config, service_activation_template: e.target.value })}
+                      placeholder="Use {name}, {username}, {plan}, {company}"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
