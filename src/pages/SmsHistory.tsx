@@ -25,22 +25,38 @@ const mockSmsHistory = [
   { id: '10', recipient: '01412345683', recipientName: 'Faruk Islam', type: 'Expiry Warning', message: 'Your connection expires in 2 days.', status: 'failed', sentAt: '2026-02-23T09:10:00Z', cost: 0.25 },
 ];
 
-const dailyData = [
-  { date: 'Feb 23', sent: 8, delivered: 6, failed: 2 },
-  { date: 'Feb 24', sent: 12, delivered: 11, failed: 1 },
-  { date: 'Feb 25', sent: 15, delivered: 14, failed: 1 },
-  { date: 'Feb 26', sent: 10, delivered: 9, failed: 1 },
-  { date: 'Feb 27', sent: 18, delivered: 16, failed: 2 },
-  { date: 'Feb 28', sent: 22, delivered: 20, failed: 2 },
-  { date: 'Mar 01', sent: 14, delivered: 13, failed: 1 },
-];
+const typeColors: Record<string, string> = {
+  'Bill Reminder': 'hsl(var(--primary))',
+  'Payment Confirmation': 'hsl(142, 76%, 36%)',
+  'Expiry Warning': 'hsl(38, 92%, 50%)',
+  'Service Activation': 'hsl(262, 83%, 58%)',
+};
 
-const typeData = [
-  { name: 'Bill Reminder', value: 42, color: 'hsl(var(--primary))' },
-  { name: 'Payment Confirmation', value: 28, color: 'hsl(142, 76%, 36%)' },
-  { name: 'Expiry Warning', value: 20, color: 'hsl(38, 92%, 50%)' },
-  { name: 'Service Activation', value: 10, color: 'hsl(262, 83%, 58%)' },
-];
+const buildDailyData = (data: typeof mockSmsHistory) => {
+  const map: Record<string, { sent: number; delivered: number; failed: number }> = {};
+  data.forEach((sms) => {
+    const date = new Date(sms.sentAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+    if (!map[date]) map[date] = { sent: 0, delivered: 0, failed: 0 };
+    map[date].sent++;
+    if (sms.status === 'delivered') map[date].delivered++;
+    if (sms.status === 'failed') map[date].failed++;
+  });
+  return Object.entries(map)
+    .map(([date, counts]) => ({ date, ...counts }))
+    .sort((a, b) => new Date(a.date + ' 2026').getTime() - new Date(b.date + ' 2026').getTime());
+};
+
+const buildTypeData = (data: typeof mockSmsHistory) => {
+  const map: Record<string, number> = {};
+  data.forEach((sms) => {
+    map[sms.type] = (map[sms.type] || 0) + 1;
+  });
+  return Object.entries(map).map(([name, value]) => ({
+    name,
+    value,
+    color: typeColors[name] || 'hsl(var(--muted-foreground))',
+  }));
+};
 
 const statusColors: Record<string, string> = {
   delivered: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
@@ -71,6 +87,9 @@ export default function SmsHistory() {
   const totalDelivered = smsData.filter(s => s.status === 'delivered').length;
   const totalFailed = smsData.filter(s => s.status === 'failed').length;
   const totalCost = smsData.reduce((sum, s) => sum + s.cost, 0);
+
+  const dailyData = buildDailyData(smsData);
+  const typeData = buildTypeData(smsData);
 
   const handleClearHistory = () => {
     setSmsData([]);
