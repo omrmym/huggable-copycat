@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, CreditCard, CalendarIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, CreditCard, CalendarIcon, Link } from 'lucide-react';
 import { useIncome } from '@/hooks/useIncome';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useRadiusUsers } from '@/hooks/useRadiusUsers';
+import { useSalaryPayments } from '@/hooks/useSalaryPayments';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -18,8 +20,10 @@ export default function FinanceOverview() {
   const { data: incomeList = [], isLoading: incomeLoading } = useIncome();
   const { data: expenseList = [], isLoading: expenseLoading } = useExpenses();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
+  const { data: radiusUsers = [], isLoading: usersLoading } = useRadiusUsers();
+  const { data: salaryPayments = [], isLoading: salaryLoading } = useSalaryPayments();
 
-  const isLoading = incomeLoading || expenseLoading || transactionsLoading;
+  const isLoading = incomeLoading || expenseLoading || transactionsLoading || usersLoading || salaryLoading;
 
   // Filter helper
   const isInRange = (dateStr: string) => {
@@ -35,14 +39,24 @@ export default function FinanceOverview() {
   const filteredIncome = useMemo(() => incomeList.filter(i => isInRange(i.date)), [incomeList, startDate, endDate]);
   const filteredExpenses = useMemo(() => expenseList.filter(e => isInRange(e.date)), [expenseList, startDate, endDate]);
   const filteredTransactions = useMemo(() => transactions.filter(t => isInRange(t.created_at)), [transactions, startDate, endDate]);
+  const filteredUsers = useMemo(() => radiusUsers.filter(u => u.connection_date && isInRange(u.connection_date)), [radiusUsers, startDate, endDate]);
+  const filteredSalaryPayments = useMemo(() => salaryPayments.filter(s => isInRange(s.payment_date)), [salaryPayments, startDate, endDate]);
 
-  const totalIncome = filteredIncome.reduce((sum, item) => sum + Number(item.amount), 0);
-  const totalExpense = filteredExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
+  const extraIncome = filteredIncome.reduce((sum, item) => sum + Number(item.amount), 0);
+  const totalExpenseAmount = filteredExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
 
   const completedPayments = filteredTransactions.filter((t) => t.status === 'completed' && t.type === 'payment');
   const totalBillCollection = completedPayments.reduce((sum, t) => sum + Number(t.amount), 0);
 
-  const netProfit = totalIncome - totalExpense;
+  const connectionFee = filteredUsers.reduce((sum, u) => sum + Number(u.connection_fee || 0), 0);
+  const totalSalary = filteredSalaryPayments.filter(s => s.status === 'paid').reduce((sum, s) => sum + Number(s.net_salary), 0);
+
+  // Total Income = Bill Collection + Connection Fee + Extra Income
+  const totalIncome = totalBillCollection + connectionFee + extraIncome;
+  // Total Expenses = Expenses + Salary
+  const totalExpenses = totalExpenseAmount + totalSalary;
+  // Net Profit = Total Income - Total Expenses
+  const netProfit = totalIncome - totalExpenses;
 
   const recentIncome = filteredIncome.slice(0, 5);
   const recentExpenses = filteredExpenses.slice(0, 5);
@@ -82,7 +96,7 @@ export default function FinanceOverview() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Bill Collection</CardTitle>
@@ -100,6 +114,38 @@ export default function FinanceOverview() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Connection Fee</CardTitle>
+              <Link className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary">
+                {isLoading ? '...' : `৳${connectionFee.toLocaleString()}`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {filteredUsers.length} connections
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Extra Income</CardTitle>
+              <TrendingUp className="h-4 w-4 text-success" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-success">
+                {isLoading ? '...' : `৳${extraIncome.toLocaleString()}`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {filteredIncome.length} entries
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Income</CardTitle>
               <TrendingUp className="h-4 w-4 text-success" />
             </CardHeader>
@@ -108,22 +154,37 @@ export default function FinanceOverview() {
                 {isLoading ? '...' : `৳${totalIncome.toLocaleString()}`}
               </div>
               <p className="text-xs text-muted-foreground">
-                {filteredIncome.length} entries
+                Bill + Connection Fee + Income
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+              <CardTitle className="text-sm font-medium">Expenses</CardTitle>
               <TrendingDown className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-destructive">
-                {isLoading ? '...' : `৳${totalExpense.toLocaleString()}`}
+                {isLoading ? '...' : `৳${totalExpenseAmount.toLocaleString()}`}
               </div>
               <p className="text-xs text-muted-foreground">
                 {filteredExpenses.length} entries
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Salary Paid</CardTitle>
+              <TrendingDown className="h-4 w-4 text-destructive" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-destructive">
+                {isLoading ? '...' : `৳${totalSalary.toLocaleString()}`}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {filteredSalaryPayments.filter(s => s.status === 'paid').length} payments
               </p>
             </CardContent>
           </Card>
