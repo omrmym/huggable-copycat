@@ -32,7 +32,7 @@ export default function BillingReport() {
       
       const dayTransactions = transactions.filter(tx => {
         const txDate = new Date(tx.created_at);
-        return txDate >= dayStart && txDate <= dayEnd && tx.status === 'completed';
+        return txDate >= dayStart && txDate <= dayEnd && tx.status === 'completed' && tx.type === 'payment';
       });
       
       const totalAmount = dayTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);

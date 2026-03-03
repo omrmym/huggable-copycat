@@ -15,7 +15,7 @@ export default function FinanceOverview() {
   
   // Calculate bill collection from completed transactions
   const totalBillCollection = transactions
-    .filter((t) => t.status === 'completed' && t.type === 'recharge')
+    .filter((t) => t.status === 'completed' && t.type === 'payment')
     .reduce((sum, t) => sum + Number(t.amount), 0);
   
   const netProfit = totalIncome - totalExpense;
@@ -41,7 +41,7 @@ export default function FinanceOverview() {
                 {isLoading ? '...' : `৳${totalBillCollection.toLocaleString()}`}
               </div>
               <p className="text-xs text-muted-foreground">
-                {transactions.filter((t) => t.status === 'completed' && t.type === 'recharge').length} transactions
+                {transactions.filter((t) => t.status === 'completed' && t.type === 'payment').length} transactions
               </p>
             </CardContent>
           </Card>
