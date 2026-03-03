@@ -1,34 +1,86 @@
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, CreditCard } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, CreditCard, CalendarIcon } from 'lucide-react';
 import { useIncome } from '@/hooks/useIncome';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useTransactions } from '@/hooks/useTransactions';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { format, parseISO, isWithinInterval, startOfDay, endOfDay, startOfMonth } from 'date-fns';
 
 export default function FinanceOverview() {
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+
   const { data: incomeList = [], isLoading: incomeLoading } = useIncome();
   const { data: expenseList = [], isLoading: expenseLoading } = useExpenses();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
 
-  const totalIncome = incomeList.reduce((sum, item) => sum + Number(item.amount), 0);
-  const totalExpense = expenseList.reduce((sum, item) => sum + Number(item.amount), 0);
-  
-  // Calculate bill collection from completed transactions
-  const totalBillCollection = transactions
-    .filter((t) => t.status === 'completed' && t.type === 'payment')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  
-  const netProfit = totalIncome - totalExpense;
-
   const isLoading = incomeLoading || expenseLoading || transactionsLoading;
 
-  // Get recent entries for quick view
-  const recentIncome = incomeList.slice(0, 5);
-  const recentExpenses = expenseList.slice(0, 5);
+  // Filter helper
+  const isInRange = (dateStr: string) => {
+    const date = parseISO(dateStr);
+    if (startDate && endDate) {
+      return isWithinInterval(date, { start: startOfDay(startDate), end: endOfDay(endDate) });
+    }
+    if (startDate) return date >= startOfDay(startDate);
+    if (endDate) return date <= endOfDay(endDate);
+    return true;
+  };
+
+  const filteredIncome = useMemo(() => incomeList.filter(i => isInRange(i.date)), [incomeList, startDate, endDate]);
+  const filteredExpenses = useMemo(() => expenseList.filter(e => isInRange(e.date)), [expenseList, startDate, endDate]);
+  const filteredTransactions = useMemo(() => transactions.filter(t => isInRange(t.created_at)), [transactions, startDate, endDate]);
+
+  const totalIncome = filteredIncome.reduce((sum, item) => sum + Number(item.amount), 0);
+  const totalExpense = filteredExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
+
+  const completedPayments = filteredTransactions.filter((t) => t.status === 'completed' && t.type === 'payment');
+  const totalBillCollection = completedPayments.reduce((sum, t) => sum + Number(t.amount), 0);
+
+  const netProfit = totalIncome - totalExpense;
+
+  const recentIncome = filteredIncome.slice(0, 5);
+  const recentExpenses = filteredExpenses.slice(0, 5);
 
   return (
     <DashboardLayout title="Finance Overview" subtitle="Summary of your financial status">
       <div className="space-y-6">
+        {/* Date Filter */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {startDate ? format(startDate, "dd MMM yyyy") : "Start Date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {endDate ? format(endDate, "dd MMM yyyy") : "End Date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+            </PopoverContent>
+          </Popover>
+
+          <Button variant="ghost" size="sm" onClick={() => { setStartDate(startOfMonth(new Date())); setEndDate(new Date()); }}>
+            Reset
+          </Button>
+        </div>
+
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
@@ -41,7 +93,7 @@ export default function FinanceOverview() {
                 {isLoading ? '...' : `৳${totalBillCollection.toLocaleString()}`}
               </div>
               <p className="text-xs text-muted-foreground">
-                {transactions.filter((t) => t.status === 'completed' && t.type === 'payment').length} transactions
+                {completedPayments.length} transactions
               </p>
             </CardContent>
           </Card>
@@ -56,7 +108,7 @@ export default function FinanceOverview() {
                 {isLoading ? '...' : `৳${totalIncome.toLocaleString()}`}
               </div>
               <p className="text-xs text-muted-foreground">
-                {incomeList.length} entries
+                {filteredIncome.length} entries
               </p>
             </CardContent>
           </Card>
@@ -71,7 +123,7 @@ export default function FinanceOverview() {
                 {isLoading ? '...' : `৳${totalExpense.toLocaleString()}`}
               </div>
               <p className="text-xs text-muted-foreground">
-                {expenseList.length} entries
+                {filteredExpenses.length} entries
               </p>
             </CardContent>
           </Card>
