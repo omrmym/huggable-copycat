@@ -85,11 +85,11 @@ export default function DeviceReportPage() {
     const colWidths = [35, 45, 30, 50, 25, 40, 35];
     let y = 30;
     doc.setFontSize(8);
-    doc.setFont(undefined as any, 'bold');
+    doc.setFont('helvetica', 'bold');
     headers.forEach((h, i) => {
       doc.text(h, 14 + colWidths.slice(0, i).reduce((a, b) => a + b, 0), y);
     });
-    doc.setFont(undefined as any, 'normal');
+    doc.setFont('helvetica', 'normal');
     y += 6;
     filtered.forEach((d) => {
       if (y > 190) { doc.addPage(); y = 15; }

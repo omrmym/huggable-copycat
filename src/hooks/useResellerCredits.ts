@@ -10,7 +10,6 @@ export interface ResellerCredit {
   description: string | null;
   balance_after: number;
   payment_method: string | null;
-  created_by: string | null;
   created_at: string;
   resellers?: { name: string; balance: number } | null;
 }
@@ -61,8 +60,6 @@ export function useTransferCredit() {
       if (updateError) throw updateError;
       
       // Create credit record
-      const { data: user } = await supabase.auth.getUser();
-      
       const { data, error } = await supabase
         .from('reseller_credits')
         .insert({
@@ -72,7 +69,6 @@ export function useTransferCredit() {
           description: description || 'Credit transfer',
           balance_after: newBalance,
           payment_method: payment_method || null,
-          created_by: user.user?.id || null,
         })
         .select()
         .single();
