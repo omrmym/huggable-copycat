@@ -11,14 +11,14 @@ import {
   Download,
   Printer,
   CalendarIcon,
-  Store
+  
 } from 'lucide-react';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useSalaryPayments } from '@/hooks/useSalaryPayments';
 import { useIncome } from '@/hooks/useIncome';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useRadiusUsers } from '@/hooks/useRadiusUsers';
-import { useResellerCredits } from '@/hooks/useResellerCredits';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -37,9 +37,9 @@ export default function FinalReport() {
   const { data: incomeList = [], isLoading: incomeLoading } = useIncome();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
   const { data: users = [], isLoading: usersLoading } = useRadiusUsers();
-  const { data: resellerCredits = [], isLoading: resellerCreditsLoading } = useResellerCredits();
+  
 
-  const isLoading = expensesLoading || salaryLoading || incomeLoading || transactionsLoading || usersLoading || resellerCreditsLoading;
+  const isLoading = expensesLoading || salaryLoading || incomeLoading || transactionsLoading || usersLoading;
 
   // Filter data by date range
   const filteredExpenses = useMemo(() => {
@@ -108,18 +108,6 @@ export default function FinalReport() {
     });
   }, [users, startDate, endDate]);
 
-  const filteredResellerCredits = useMemo(() => {
-    if (!startDate && !endDate) return resellerCredits;
-    return resellerCredits.filter(c => {
-      const date = parseISO(c.created_at);
-      if (startDate && endDate) {
-        return isWithinInterval(date, { start: startOfDay(startDate), end: endOfDay(endDate) });
-      }
-      if (startDate) return date >= startOfDay(startDate);
-      if (endDate) return date <= endOfDay(endDate);
-      return true;
-    });
-  }, [resellerCredits, startDate, endDate]);
 
   // Calculate totals based on filtered data
   const totals = useMemo(() => {
@@ -134,10 +122,6 @@ export default function FinalReport() {
     // Connection fee from filtered users
     const connectionFee = filteredUsers.reduce((sum, u) => sum + (u.connection_fee || 0), 0);
 
-    // Reseller credit (only credits, not debits)
-    const resellerCredit = filteredResellerCredits
-      .filter(c => c.type === 'credit')
-      .reduce((sum, c) => sum + Number(c.amount), 0);
 
     // Total expense from filtered expenses
     const totalExpense = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
@@ -147,7 +131,7 @@ export default function FinalReport() {
       .filter(p => p.status === 'paid')
       .reduce((sum, p) => sum + Number(p.net_salary), 0);
 
-    const totalIncome = totalBill + extraIncome + connectionFee + resellerCredit;
+    const totalIncome = totalBill + extraIncome + connectionFee;
     const totalOutgoing = totalExpense + totalSalary;
     const profitLoss = totalIncome - totalOutgoing;
 
@@ -155,14 +139,13 @@ export default function FinalReport() {
       totalBill,
       extraIncome,
       connectionFee,
-      resellerCredit,
       totalExpense,
       totalSalary,
       totalIncome,
       totalOutgoing,
       profitLoss,
     };
-  }, [filteredExpenses, filteredSalaryPayments, filteredIncome, filteredTransactions, filteredUsers, filteredResellerCredits]);
+  }, [filteredExpenses, filteredSalaryPayments, filteredIncome, filteredTransactions, filteredUsers]);
 
   const formatCurrency = (amount: number) => `৳${amount.toLocaleString()}`;
   const formatCurrencyPDF = (amount: number) => `BDT ${amount.toLocaleString()}`;
@@ -224,10 +207,6 @@ export default function FinalReport() {
               <span class="label">Connection Fee</span>
               <span class="value income">${formatCurrency(totals.connectionFee)}</span>
             </div>
-            <div class="row">
-              <span class="label">Reseller Credit</span>
-              <span class="value income">${formatCurrency(totals.resellerCredit)}</span>
-            </div>
             <div class="total-row">
               <div class="row" style="border: none;">
                 <span class="label">Total Income</span>
@@ -285,7 +264,7 @@ export default function FinalReport() {
       ['Income', 'Total Bill', totals.totalBill.toString()],
       ['Income', 'Extra Income', totals.extraIncome.toString()],
       ['Income', 'Connection Fee', totals.connectionFee.toString()],
-      ['Income', 'Reseller Credit', totals.resellerCredit.toString()],
+      
       ['Income', 'Total Income', totals.totalIncome.toString()],
       ['Expense', 'Total Expense', totals.totalExpense.toString()],
       ['Expense', 'Total Salary', totals.totalSalary.toString()],
@@ -333,7 +312,7 @@ export default function FinalReport() {
       { label: 'Total Bill', value: totals.totalBill },
       { label: 'Extra Income', value: totals.extraIncome },
       { label: 'Connection Fee', value: totals.connectionFee },
-      { label: 'Reseller Credit', value: totals.resellerCredit },
+      
     ];
 
     incomeItems.forEach(item => {
@@ -481,7 +460,7 @@ export default function FinalReport() {
             <TrendingUp className="w-5 h-5 text-success" />
             Income
           </h3>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Bill</CardTitle>
@@ -521,18 +500,6 @@ export default function FinalReport() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Reseller Credit</CardTitle>
-                <Store className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-success">
-                  {isLoading ? <Skeleton className="h-8 w-24" /> : formatCurrency(totals.resellerCredit)}
-                </div>
-                <p className="text-xs text-muted-foreground">{filteredResellerCredits.filter(c => c.type === 'credit').length} transfers</p>
-              </CardContent>
-            </Card>
 
             <Card className="bg-success/10 border-success/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
