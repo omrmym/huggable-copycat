@@ -319,8 +319,8 @@ export default function ManageRecharge() {
                   <TableHead>Bill</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Expire Date</TableHead>
-                  <TableHead className="text-center">Grace</TableHead>
-                  <TableHead>Collect By</TableHead>
+                   <TableHead className="text-center">Payment Method</TableHead>
+                   <TableHead>Collect By</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-[50px]">Action</TableHead>
                 </TableRow>
