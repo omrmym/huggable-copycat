@@ -370,7 +370,7 @@ export default function ManageRecharge() {
                         {tx.radius_users?.phone || '-'}
                       </TableCell>
                       <TableCell className="font-medium">
-                        ৳{tx.radius_users?.plan?.price ? Number(tx.radius_users.plan.price).toLocaleString() : '0'}
+                        ৳{tx.radius_users?.monthly_bill ? Number(tx.radius_users.monthly_bill).toLocaleString() : '0'}
                       </TableCell>
                       <TableCell className="font-semibold">
                         ৳{Number(tx.amount).toLocaleString()}
