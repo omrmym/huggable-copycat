@@ -119,12 +119,12 @@ export default function UsersPage() {
     const matchesService = serviceFilter === 'all' || user.service_type === serviceFilter;
     
     
-    // Billing filter: free (monthly_bill = 0), paid (balance > 0)
+    // Billing filter: free (monthly_bill = 0)
     let matchesBilling = true;
     if (billingFilter === 'free') {
       matchesBilling = (user.monthly_bill || 0) === 0;
     } else if (billingFilter === 'paid') {
-      matchesBilling = (user.balance || 0) > 0;
+      matchesBilling = true; // No balance tracking
     } else if (billingFilter === 'auto_renew') {
       matchesBilling = user.auto_renew === true;
     }
@@ -287,7 +287,7 @@ export default function UsersPage() {
       'Connectivity': user.connectivity_type || '',
       'Plan': getPlanName(user.plan_id),
       'Monthly Bill': user.monthly_bill || 0,
-      'Balance': user.balance || 0,
+      
       
       'Status': user.status,
       'Expires At': user.expires_at ? new Date(user.expires_at).toLocaleDateString() : '',
@@ -400,9 +400,6 @@ export default function UsersPage() {
                   Usage
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Balance
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Expires
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -410,6 +407,9 @@ export default function UsersPage() {
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Status
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Actions
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Actions
@@ -519,15 +519,6 @@ export default function UsersPage() {
                           </div>
                         )}
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`text-sm font-mono ${
-                          user.balance < 0 ? 'text-destructive' : 'text-foreground'
-                        }`}
-                      >
-                        ৳{user.balance.toLocaleString()}
-                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-sm text-muted-foreground">

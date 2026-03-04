@@ -119,8 +119,7 @@ export function ResellerRechargeDialog({ open, onOpenChange, user, resellerId }:
 
   if (!user) return null;
 
-  const currentBalance = user.balance || 0;
-  const newBalance = currentBalance + (parseFloat(rechargeAmount) || 0);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -150,10 +149,6 @@ export function ResellerRechargeDialog({ open, onOpenChange, user, resellerId }:
                     {user.service_type}
                   </span>
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Current Balance</p>
-                <p className="text-lg font-bold text-foreground">৳{currentBalance.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -272,15 +267,8 @@ export function ResellerRechargeDialog({ open, onOpenChange, user, resellerId }:
             </div>
           )}
 
-          {/* New Balance Preview */}
-          {parseFloat(rechargeAmount) > 0 && (
-            <div className="flex justify-between items-center p-4 bg-success/10 rounded-lg border border-success/30">
-              <span className="text-success font-medium">New Balance After Recharge</span>
-              <span className="text-xl font-bold text-success">
-                ৳{newBalance.toLocaleString()}
-              </span>
-            </div>
-          )}
+
+
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">

@@ -222,23 +222,16 @@ export default function CustomerPortal() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Account Balance */}
+            {/* Quick Actions */}
             <Card className="bg-card border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5" />
-                  Account Balance
+                  Quick Actions
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p
-                  className={`text-3xl font-bold ${
-                    currentUser.balance < 0 ? 'text-destructive' : 'text-foreground'
-                  }`}
-                >
-                  ৳{currentUser.balance.toLocaleString()}
-                </p>
-                <div className="mt-4 space-y-2">
+                <div className="space-y-2">
                   <BkashPaymentButton 
                     userId={currentUser.id} 
                     userName={currentUser.fullName}

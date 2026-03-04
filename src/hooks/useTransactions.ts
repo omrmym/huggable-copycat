@@ -10,7 +10,6 @@ type Transaction = Tables<'transactions'> & {
     username: string;
     full_name: string | null;
     phone: string | null;
-    balance: number;
     expires_at: string | null;
     billing_cycle: string | null;
     plan_id: string | null;
@@ -32,7 +31,7 @@ export function useTransactions(status?: string) {
         .from('transactions')
         .select(`
           *,
-          radius_user:radius_users(id, username, full_name, phone, balance, expires_at, billing_cycle, plan_id, plan:billing_plans(id, name, price))
+          radius_user:radius_users(id, username, full_name, phone, expires_at, billing_cycle, plan_id, plan:billing_plans(id, name, price))
         `)
         .order('created_at', { ascending: false });
 
@@ -81,17 +80,6 @@ export function useApproveTransaction() {
 
   return useMutation({
     mutationFn: async ({ transactionId, userId, amount }: { transactionId: string; userId: string; amount: number }) => {
-      // Get current user balance
-      const { data: user, error: fetchError } = await supabase
-        .from('radius_users')
-        .select('balance')
-        .eq('id', userId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const newBalance = (user.balance || 0) + amount;
-
       // Update transaction status
       const { error: txError } = await supabase
         .from('transactions')
@@ -100,20 +88,12 @@ export function useApproveTransaction() {
 
       if (txError) throw txError;
 
-      // Update user balance
-      const { error: balanceError } = await supabase
-        .from('radius_users')
-        .update({ balance: newBalance })
-        .eq('id', userId);
-
-      if (balanceError) throw balanceError;
-
-      return { newBalance };
+      return {};
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
-      toast.success('Transaction approved and balance updated');
+      toast.success('Transaction approved');
     },
     onError: (error: Error) => {
       toast.error(`Failed to approve transaction: ${error.message}`);
@@ -174,16 +154,13 @@ export function useDeleteTransaction() {
         // Get current user data including plan info
         const { data: user, error: fetchError } = await supabase
           .from('radius_users')
-          .select('balance, expires_at, billing_cycle, plan_id, status, billing_plans:plan_id(duration_days)')
+          .select('expires_at, billing_cycle, plan_id, status, billing_plans:plan_id(duration_days)')
           .eq('id', userId)
           .maybeSingle();
 
         if (fetchError) throw fetchError;
 
         if (user) {
-          // Calculate new balance (subtract the transaction amount)
-          const newBalance = Math.max((user.balance || 0) - amount, 0);
-
           // Calculate previous expiration date using plan duration or billing cycle
           let newExpiresAt = user.expires_at;
           if (user.expires_at) {
@@ -215,9 +192,8 @@ export function useDeleteTransaction() {
             }
           }
 
-          // Update user balance, expiration date, and status
+          // Update user expiration date and status
           const updateData: Record<string, unknown> = { 
-            balance: newBalance,
             expires_at: newExpiresAt,
             status: newStatus,
           };
@@ -252,11 +228,11 @@ export function useDeleteTransaction() {
             console.warn('MikroTik sync after bill delete failed:', syncError);
           }
 
-          return { newBalance, newExpiresAt };
+          return { newExpiresAt };
         }
       }
 
-      return { newBalance: null, newExpiresAt: null };
+      return { newExpiresAt: null };
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -269,7 +245,7 @@ export function useDeleteTransaction() {
         entityId: variables.transactionId,
         details: { amount: variables.amount },
       });
-      if (data.newBalance !== null) {
+      if (data.newExpiresAt !== null) {
         toast.success('Invoice deleted and user expiry date updated');
       } else {
         toast.success('Invoice deleted');

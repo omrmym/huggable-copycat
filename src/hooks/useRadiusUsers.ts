@@ -420,13 +420,12 @@ export function useRechargeUser() {
       // Get current user data including status, expires_at, billing_cycle, grace_days_used, and plan
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('balance, username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans:plan_id(name, data_limit_mb, duration_days)')
+        .select('username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans:plan_id(name, data_limit_mb, duration_days)')
         .eq('id', userId)
         .single();
 
       if (fetchError) throw fetchError;
 
-      const newBalance = (user.balance || 0) + amount;
       const billingCycle = user.billing_cycle || 'monthly';
       const graceDaysUsed = user.grace_days_used || 0;
       const planData = (user as any).billing_plans;
@@ -464,7 +463,6 @@ export function useRechargeUser() {
 
       // Build update object - only include plan_id if explicitly provided
       const updateData: Record<string, unknown> = {
-        balance: newBalance,
         status: 'active',
         expires_at: newExpiresAt.toISOString(),
         mikrotik_synced: false,
@@ -476,7 +474,7 @@ export function useRechargeUser() {
         updateData.plan_id = planId;
       }
 
-      // Update balance, status, and optionally plan
+      // Update status and expiry
       const { error: updateError } = await supabase
         .from('radius_users')
         .update(updateData)
@@ -523,12 +521,12 @@ export function useRechargeUser() {
         console.warn('MikroTik enable after recharge failed:', syncError);
       }
 
-      return { newBalance, newExpiresAt, graceDaysDeducted: graceDaysUsed };
+      return { newExpiresAt, graceDaysDeducted: graceDaysUsed };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      let message = `Recharge successful! New balance: ৳${data.newBalance.toLocaleString()}`;
+      let message = `Recharge successful! Expires: ${new Date(data.newExpiresAt).toLocaleDateString()}`;
       if (data.graceDaysDeducted > 0) {
         message += ` (${data.graceDaysDeducted} grace day(s) deducted)`;
       }

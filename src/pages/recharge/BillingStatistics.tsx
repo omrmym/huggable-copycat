@@ -78,13 +78,11 @@ export default function BillingStatistics() {
   const stats = useMemo(() => {
     const activeUsers = users.filter(u => u.status === 'active');
     const expiredUsers = users.filter(u => u.status === 'expired');
-    const paidUsers = users.filter(u => (u.balance || 0) > 0);
 
     return {
       totalBill: users.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
       activeUsersBill: activeUsers.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
       expiredUsersBill: expiredUsers.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
-      alreadyPaidBill: paidUsers.reduce((sum, u) => sum + (u.balance || 0), 0),
     };
   }, [users]);
 
@@ -98,7 +96,7 @@ export default function BillingStatistics() {
       
       const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
       const matchesBillingType = billingTypeFilter === 'all' || user.billing_type === billingTypeFilter;
-      const matchesPaid = paidFilter === 'all' || paidFilter === 'auto_renew' || (paidFilter === 'paid' && (user.balance || 0) > 0) || (paidFilter === 'unpaid' && (user.balance || 0) === 0);
+      const matchesPaid = paidFilter === 'all' || paidFilter === 'auto_renew' || paidFilter === 'paid' || paidFilter === 'unpaid';
       
       return matchesSearch && matchesStatus && matchesBillingType && matchesPaid;
     });
@@ -154,12 +152,6 @@ export default function BillingStatistics() {
           value={`৳${stats.expiredUsersBill.toLocaleString()}`} 
           icon={UserX}
           subtitle="Expired users monthly bill"
-        />
-        <StatCard 
-          title="Already Paid Bill" 
-          value={`৳${stats.alreadyPaidBill.toLocaleString()}`} 
-          icon={Wallet}
-          subtitle="Total user balance"
         />
       </div>
 
@@ -279,8 +271,8 @@ export default function BillingStatistics() {
                     <TableHead>Status</TableHead>
                     <TableHead>Billing Type</TableHead>
                     <TableHead className="text-right">Monthly Bill</TableHead>
-                    <TableHead className="text-right">Balance</TableHead>
                     <TableHead className="text-center">Grace</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -323,9 +315,6 @@ export default function BillingStatistics() {
                           ) : (
                             `৳${(user.monthly_bill || 0).toLocaleString()}`
                           )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          ৳{(user.balance || 0).toLocaleString()}
                         </TableCell>
                         <TableCell className="text-center">
                           {user.grace_days_used > 0 ? (

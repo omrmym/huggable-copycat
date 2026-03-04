@@ -37,7 +37,7 @@ export function useDashboardStats() {
       // Get user stats (only admin-created users)
       const { data: users, error: usersError } = await supabase
         .from('radius_users')
-        .select('status, data_used_mb, balance, monthly_bill, connection_fee, auto_renew, connection_date, created_at')
+        .select('status, data_used_mb, monthly_bill, connection_fee, auto_renew, connection_date, created_at')
         .is('reseller_id', null);
 
       if (usersError) throw usersError;
@@ -75,7 +75,7 @@ export function useDashboardStats() {
       const suspendedUsers = users?.filter(u => u.status === 'suspended').length || 0;
       const disabledUsers = users?.filter(u => u.status === 'disabled').length || 0;
       const freeUsers = users?.filter(u => (u.monthly_bill || 0) === 0).length || 0;
-      const alreadyPaidUsers = users?.filter(u => (u.balance || 0) > 0).length || 0;
+      const alreadyPaidUsers = 0;
       const autoRenewUsers = users?.filter(u => u.auto_renew === true).length || 0;
       const totalDataUsedMB = users?.reduce((sum, u) => sum + (u.data_used_mb || 0), 0) || 0;
 
@@ -83,7 +83,7 @@ export function useDashboardStats() {
       const totalBill = users?.reduce((sum, u) => sum + (u.monthly_bill || 0), 0) || 0;
       const activeUsersBill = users?.filter(u => u.status === 'active').reduce((sum, u) => sum + (u.monthly_bill || 0), 0) || 0;
       const expiredUsersBill = users?.filter(u => u.status === 'expired').reduce((sum, u) => sum + (u.monthly_bill || 0), 0) || 0;
-      const alreadyPaidBill = users?.filter(u => (u.balance || 0) > 0).reduce((sum, u) => sum + (u.monthly_bill || 0), 0) || 0;
+      const alreadyPaidBill = 0;
 
       const totalVouchers = vouchers?.length || 0;
       const unusedVouchers = vouchers?.filter(v => v.status === 'unused').length || 0;
