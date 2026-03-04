@@ -144,7 +144,6 @@ export default function CustomerRecharge() {
                     <TableHead>Plan</TableHead>
                     <TableHead className="text-center">Grace</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
