@@ -48,6 +48,8 @@ interface TransactionWithUser {
   status: string;
   type: string;
   description: string | null;
+  collected_by: string | null;
+  payment_method: string | null;
   radius_user_id: string | null;
   radius_users: {
     id: string;
@@ -122,8 +124,8 @@ export default function ManageRecharge() {
     
     const matchesStatus = statusFilter === 'all' || tx.status === statusFilter;
     
-    // Collect By filter (currently all are "Admin")
-    const collectBy = 'Admin';
+    // Collect By filter
+    const collectBy = tx.collected_by || 'Unknown';
     const matchesCollectBy = collectByFilter === 'all' || collectBy === collectByFilter;
     
     // Date range filter
@@ -249,7 +251,9 @@ export default function ManageRecharge() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Collectors</SelectItem>
-                    <SelectItem value="Admin">Admin</SelectItem>
+                    {Array.from(new Set(transactions?.map(tx => tx.collected_by).filter(Boolean) || [])).map(name => (
+                      <SelectItem key={name} value={name!}>{name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -384,7 +388,7 @@ export default function ManageRecharge() {
                         )}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        Admin
+                        {tx.collected_by || 'Unknown'}
                       </TableCell>
                       <TableCell>{getStatusBadge(tx.status)}</TableCell>
                       <TableCell>
