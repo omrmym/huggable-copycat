@@ -105,7 +105,6 @@ export const PERMISSION_DEFINITIONS = {
         permissions: [
           { key: 'users.create.service_type', label: 'Service Type' },
           { key: 'users.create.connection_date', label: 'Connection Date' },
-          
           { key: 'users.create.expire_date', label: 'Expire Date' },
           { key: 'users.create.monthly_bill', label: 'Monthly Bill' },
         ],
@@ -117,6 +116,7 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.all.change_status', label: 'Change Status' },
           { key: 'users.all.change_expire', label: 'Change Expire' },
           { key: 'users.all.edit', label: 'Edit User' },
+          { key: 'users.all.delete', label: 'Delete User' },
         ],
       },
       user_profile: {
@@ -127,6 +127,8 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.profile.change_password', label: 'Change Password' },
           { key: 'users.profile.change_plan', label: 'Change Plan' },
           { key: 'users.profile.edit', label: 'Edit User' },
+          { key: 'users.profile.grace', label: 'Grace Activation' },
+          { key: 'users.profile.mac_lock', label: 'MAC Lock Control' },
         ],
       },
       edit_user: {
@@ -135,13 +137,36 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.edit.personal', label: 'Personal' },
           { key: 'users.edit.address', label: 'Address' },
           { key: 'users.edit.connection', label: 'Connection' },
-      { key: 'users.edit.billing', label: 'Billing' },
+          { key: 'users.edit.billing', label: 'Billing' },
         ],
       },
       auto_renew: {
         label: 'Auto Renew',
         permissions: [
           { key: 'users.auto_renew.toggle', label: 'Toggle Auto Renew' },
+        ],
+      },
+      requests: {
+        label: 'User Requests',
+        permissions: [
+          { key: 'users.requests.view', label: 'View Requests' },
+          { key: 'users.requests.approve', label: 'Approve Request' },
+          { key: 'users.requests.reject', label: 'Reject Request' },
+          { key: 'users.requests.delete', label: 'Delete Request' },
+        ],
+      },
+      location: {
+        label: 'Location Management',
+        permissions: [
+          { key: 'users.area.manage', label: 'Manage Areas' },
+          { key: 'users.district.manage', label: 'Manage Districts' },
+          { key: 'users.police_station.manage', label: 'Manage Police Stations' },
+        ],
+      },
+      online_offline: {
+        label: 'Online/Offline',
+        permissions: [
+          { key: 'users.online_offline.view', label: 'View Online/Offline Users' },
         ],
       },
     },
@@ -233,18 +258,65 @@ export const PERMISSION_DEFINITIONS = {
     },
     permissions: [],
   },
+  sms: {
+    label: 'SMS',
+    icon: FileText,
+    permissions: [
+      { key: 'sms.send', label: 'Send SMS' },
+      { key: 'sms.history', label: 'View SMS History' },
+      { key: 'sms.templates', label: 'Manage Templates' },
+    ],
+  },
+  activity: {
+    label: 'Activity & Logs',
+    icon: FileText,
+    permissions: [
+      { key: 'activity.system', label: 'View System Activity' },
+      { key: 'activity.login', label: 'View Login Activity' },
+      { key: 'activity.user', label: 'View User Activity' },
+    ],
+  },
   settings: {
     label: 'Settings',
     icon: Settings,
-    permissions: [
-      { key: 'settings.users', label: 'Manage Software Users' },
-      { key: 'settings.roles', label: 'Manage Roles' },
-      { key: 'settings.mikrotik', label: 'Manage MikroTik Routers' },
-      { key: 'settings.categories', label: 'Manage Categories' },
-      { key: 'settings.payment', label: 'Manage Payment Methods' },
-      { key: 'settings.session', label: 'Session Timeout Settings' },
-      { key: 'settings.activity', label: 'View Activity Logs' },
-    ],
+    subcategories: {
+      user_management: {
+        label: 'User & Role Management',
+        permissions: [
+          { key: 'settings.users', label: 'Manage Software Users' },
+          { key: 'settings.roles', label: 'Manage Roles' },
+        ],
+      },
+      network: {
+        label: 'Network & Connectivity',
+        permissions: [
+          { key: 'settings.mikrotik', label: 'Manage MikroTik Routers' },
+          { key: 'settings.connectivity_types', label: 'Manage Connectivity Types' },
+        ],
+      },
+      finance_settings: {
+        label: 'Finance Settings',
+        permissions: [
+          { key: 'settings.categories', label: 'Manage Expense/Income Categories' },
+          { key: 'settings.payment', label: 'Manage Payment Methods' },
+          { key: 'settings.payment_gateway', label: 'Payment Gateway Settings' },
+          { key: 'settings.shareholders', label: 'Manage Shareholders' },
+        ],
+      },
+      system: {
+        label: 'System Settings',
+        permissions: [
+          { key: 'settings.branding', label: 'Branding & Theme' },
+          { key: 'settings.sms_gateway', label: 'SMS Gateway Settings' },
+          { key: 'settings.session', label: 'Session Timeout Settings' },
+          { key: 'settings.timezone', label: 'Timezone Settings' },
+          { key: 'settings.super_admin', label: 'Super Admin Account' },
+          { key: 'settings.activity', label: 'View Activity Logs' },
+          { key: 'settings.customer_portal', label: 'Customer Portal Settings' },
+        ],
+      },
+    },
+    permissions: [],
   },
 };
 
