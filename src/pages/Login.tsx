@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -10,22 +10,15 @@ import { Loader2, Wifi, Mail, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 import { Network } from 'lucide-react';
+import { GalaxyBackground } from '@/components/auth/GalaxyBackground';
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState<'email' | 'userid'>('email');
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-  const bgRef = useRef<HTMLDivElement>(null);
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: branding } = useBrandingSettings();
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const x = e.clientX / window.innerWidth;
-    const y = e.clientY / window.innerHeight;
-    setMousePos({ x, y });
-  }, []);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -81,116 +74,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" onMouseMove={handleMouseMove}>
-      {/* Galaxy background */}
-      <div ref={bgRef} className="fixed inset-0 -z-10">
-        {/* Deep space base */}
-        <div className="absolute inset-0 bg-[hsl(240,30%,3%)]" />
-
-        {/* Galaxy core glow - follows mouse */}
-        <div
-          className="absolute w-[900px] h-[900px] rounded-full transition-all duration-[1500ms] ease-out"
-          style={{
-            background: 'radial-gradient(circle, hsl(270,60%,20%,0.4) 0%, hsl(240,50%,12%,0.2) 40%, transparent 70%)',
-            left: `${mousePos.x * 100}%`,
-            top: `${mousePos.y * 100}%`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-
-        {/* Nebula clouds */}
-        <div
-          className="absolute w-[800px] h-[500px] rounded-full blur-[100px] animate-[nebula1_30s_ease-in-out_infinite] transition-transform duration-[2000ms] ease-out"
-          style={{
-            background: 'radial-gradient(ellipse, hsl(280,80%,30%,0.15) 0%, hsl(320,60%,20%,0.08) 50%, transparent 80%)',
-            left: `${10 + mousePos.x * 15}%`,
-            top: `${5 + mousePos.y * 10}%`,
-          }}
-        />
-        <div
-          className="absolute w-[600px] h-[700px] rounded-full blur-[120px] animate-[nebula2_35s_ease-in-out_infinite] transition-transform duration-[2500ms] ease-out"
-          style={{
-            background: 'radial-gradient(ellipse, hsl(210,90%,35%,0.12) 0%, hsl(250,70%,25%,0.06) 50%, transparent 80%)',
-            right: `${5 + (1 - mousePos.x) * 15}%`,
-            bottom: `${10 + (1 - mousePos.y) * 10}%`,
-          }}
-        />
-        <div
-          className="absolute w-[500px] h-[400px] rounded-full blur-[90px] animate-[nebula3_25s_ease-in-out_infinite] transition-transform duration-[2000ms] ease-out"
-          style={{
-            background: 'radial-gradient(ellipse, hsl(190,80%,30%,0.1) 0%, hsl(220,60%,20%,0.05) 50%, transparent 80%)',
-            left: `${50 + (mousePos.x - 0.5) * 25}%`,
-            top: `${60 + (mousePos.y - 0.5) * 20}%`,
-          }}
-        />
-
-        {/* Spiral arm dust lanes */}
-        <div
-          className="absolute inset-0 opacity-[0.04] transition-transform duration-[3000ms] ease-out"
-          style={{
-            backgroundImage: `
-              radial-gradient(ellipse at 30% 40%, hsl(270,50%,50%) 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 60%, hsl(200,60%,40%) 0%, transparent 40%)
-            `,
-            transform: `rotate(${(mousePos.x - 0.5) * 8}deg) scale(1.2)`,
-          }}
-        />
-
-        {/* Mouse spotlight - soft cosmic glow */}
-        <div
-          className="absolute w-[300px] h-[300px] rounded-full pointer-events-none transition-all duration-500 ease-out"
-          style={{
-            background: 'radial-gradient(circle, hsl(220,80%,70%,0.04) 0%, hsl(270,60%,50%,0.02) 50%, transparent 70%)',
-            left: `${mousePos.x * 100}%`,
-            top: `${mousePos.y * 100}%`,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-
-        {/* Stars - different layers with parallax mouse response */}
-        {Array.from({ length: 120 }).map((_, i) => {
-          const baseLeft = (i * 13 + 7) % 100;
-          const baseTop = (i * 19 + 11) % 100;
-          const layer = i % 3; // 0=far, 1=mid, 2=near
-          const size = layer === 2 ? (i % 7 === 0 ? 3 : 2) : layer === 1 ? 1.5 : 1;
-          const parallax = (layer + 1) * 8;
-          const brightness = layer === 2 ? 0.9 : layer === 1 ? 0.6 : 0.35;
-          const colors = [
-            'hsl(220,60%,85%)', // blue-white
-            'hsl(40,80%,80%)',  // warm yellow
-            'hsl(200,70%,75%)', // cyan
-            'hsl(0,50%,80%)',   // red giant
-            'hsl(270,40%,85%)', // purple
-            'hsl(180,50%,80%)', // teal
-          ];
-          const color = colors[i % colors.length];
-          const twinkleDelay = (i * 0.7) % 8;
-          const twinkleDuration = 3 + (i % 5);
-
-          return (
-            <div
-              key={i}
-              className="absolute rounded-full transition-transform duration-[2000ms] ease-out"
-              style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                backgroundColor: color,
-                opacity: brightness,
-                left: `${baseLeft}%`,
-                top: `${baseTop}%`,
-                transform: `translate(${(mousePos.x - 0.5) * parallax}px, ${(mousePos.y - 0.5) * parallax}px)`,
-                animation: `twinkle ${twinkleDuration}s ease-in-out ${twinkleDelay}s infinite`,
-                boxShadow: size >= 2 ? `0 0 ${size * 2}px ${color}` : 'none',
-              }}
-            />
-          );
-        })}
-
-        {/* Shooting stars */}
-        <div className="absolute w-[2px] h-[2px] bg-white rounded-full animate-[shootingStar1_8s_linear_infinite]" style={{ top: '15%', left: '-5%', boxShadow: '0 0 4px 1px hsl(210,80%,80%,0.6)' }} />
-        <div className="absolute w-[1.5px] h-[1.5px] bg-white rounded-full animate-[shootingStar2_12s_linear_4s_infinite]" style={{ top: '35%', left: '-5%', boxShadow: '0 0 3px 1px hsl(270,60%,80%,0.5)' }} />
-        <div className="absolute w-[2px] h-[2px] bg-white rounded-full animate-[shootingStar3_15s_linear_9s_infinite]" style={{ top: '65%', left: '-5%', boxShadow: '0 0 4px 1px hsl(190,70%,80%,0.6)' }} />
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      <GalaxyBackground />
 
       {/* Login card */}
       <Card className="w-full max-w-md backdrop-blur-xl bg-[hsl(240,20%,8%,0.75)] border-[hsl(270,30%,30%,0.3)] shadow-2xl shadow-[hsl(270,50%,20%,0.2)] animate-fade-in">
@@ -208,9 +93,7 @@ export default function Login() {
             </div>
           </div>
           <CardTitle className="text-foreground">Admin Portal</CardTitle>
-          <CardDescription>
-            Sign in to manage your hotspot and billing system
-          </CardDescription>
+          <CardDescription>Sign in to manage your hotspot and billing system</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <form onSubmit={handleSignIn} className="space-y-4">
@@ -255,46 +138,6 @@ export default function Login() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Galaxy CSS Animations */}
-      <style>{`
-        @keyframes twinkle {
-          0%, 100% { opacity: inherit; transform: inherit; }
-          50% { opacity: 0.2; }
-        }
-        @keyframes nebula1 {
-          0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-          33% { transform: translate(40px, -30px) rotate(3deg) scale(1.05); }
-          66% { transform: translate(-20px, 20px) rotate(-2deg) scale(0.97); }
-        }
-        @keyframes nebula2 {
-          0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-          33% { transform: translate(-50px, 30px) rotate(-4deg) scale(1.08); }
-          66% { transform: translate(30px, -40px) rotate(2deg) scale(0.95); }
-        }
-        @keyframes nebula3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -20px) scale(1.1); }
-        }
-        @keyframes shootingStar1 {
-          0% { transform: translate(0, 0) rotate(-35deg); opacity: 0; }
-          2% { opacity: 1; }
-          8% { transform: translate(calc(100vw + 200px), calc(40vh)) rotate(-35deg); opacity: 0; }
-          100% { transform: translate(calc(100vw + 200px), calc(40vh)) rotate(-35deg); opacity: 0; }
-        }
-        @keyframes shootingStar2 {
-          0% { transform: translate(0, 0) rotate(-25deg); opacity: 0; }
-          2% { opacity: 1; }
-          6% { transform: translate(calc(80vw), calc(25vh)) rotate(-25deg); opacity: 0; }
-          100% { transform: translate(calc(80vw), calc(25vh)) rotate(-25deg); opacity: 0; }
-        }
-        @keyframes shootingStar3 {
-          0% { transform: translate(0, 0) rotate(-40deg); opacity: 0; }
-          1.5% { opacity: 1; }
-          5% { transform: translate(calc(90vw), calc(50vh)) rotate(-40deg); opacity: 0; }
-          100% { transform: translate(calc(90vw), calc(50vh)) rotate(-40deg); opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }
