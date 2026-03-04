@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -14,10 +14,18 @@ import { Network } from 'lucide-react';
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState<'email' | 'userid'>('email');
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  const bgRef = useRef<HTMLDivElement>(null);
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: branding } = useBrandingSettings();
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+    setMousePos({ x, y });
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,39 +81,90 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="fixed inset-0 -z-10">
-        {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,60%,8%)] via-[hsl(230,50%,12%)] to-[hsl(250,45%,10%)]" />
-        
-        {/* Floating orbs */}
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[hsl(210,100%,50%,0.08)] blur-[120px] animate-[float1_20s_ease-in-out_infinite]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[hsl(260,100%,60%,0.08)] blur-[120px] animate-[float2_25s_ease-in-out_infinite]" />
-        <div className="absolute top-[40%] left-[50%] w-[400px] h-[400px] rounded-full bg-[hsl(180,100%,50%,0.05)] blur-[100px] animate-[float3_18s_ease-in-out_infinite]" />
-        
-        {/* Grid pattern overlay */}
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" onMouseMove={handleMouseMove}>
+      {/* Interactive animated background */}
+      <div ref={bgRef} className="fixed inset-0 -z-10">
+        {/* Base gradient that shifts with mouse */}
         <div 
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 transition-all duration-700 ease-out"
           style={{
-            backgroundImage: `linear-gradient(hsl(210,50%,50%) 1px, transparent 1px), linear-gradient(90deg, hsl(210,50%,50%) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
+            background: `radial-gradient(ellipse at ${mousePos.x * 100}% ${mousePos.y * 100}%, hsl(210,80%,15%) 0%, hsl(230,50%,8%) 50%, hsl(250,45%,6%) 100%)`,
+          }}
+        />
+        
+        {/* Mouse-reactive orbs */}
+        <div 
+          className="absolute w-[700px] h-[700px] rounded-full blur-[150px] animate-[float1_20s_ease-in-out_infinite] transition-transform duration-1000 ease-out"
+          style={{
+            background: 'radial-gradient(circle, hsl(199,89%,48%,0.12) 0%, transparent 70%)',
+            left: `${-10 + mousePos.x * 20}%`,
+            top: `${-20 + mousePos.y * 15}%`,
+          }}
+        />
+        <div 
+          className="absolute w-[600px] h-[600px] rounded-full blur-[130px] animate-[float2_25s_ease-in-out_infinite] transition-transform duration-1200 ease-out"
+          style={{
+            background: 'radial-gradient(circle, hsl(260,100%,60%,0.1) 0%, transparent 70%)',
+            right: `${-10 + (1 - mousePos.x) * 20}%`,
+            bottom: `${-20 + (1 - mousePos.y) * 15}%`,
+          }}
+        />
+        <div 
+          className="absolute w-[500px] h-[500px] rounded-full blur-[120px] animate-[float3_18s_ease-in-out_infinite] transition-transform duration-1500 ease-out"
+          style={{
+            background: 'radial-gradient(circle, hsl(180,100%,50%,0.08) 0%, transparent 70%)',
+            left: `${40 + (mousePos.x - 0.5) * 30}%`,
+            top: `${30 + (mousePos.y - 0.5) * 30}%`,
           }}
         />
 
-        {/* Floating particles */}
-        {Array.from({ length: 30 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-[hsl(210,100%,70%,0.3)]"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `particle${i % 3} ${8 + Math.random() * 12}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          />
-        ))}
+        {/* Mouse spotlight glow */}
+        <div 
+          className="absolute w-[400px] h-[400px] rounded-full pointer-events-none transition-all duration-300 ease-out"
+          style={{
+            background: 'radial-gradient(circle, hsl(199,89%,48%,0.06) 0%, transparent 70%)',
+            left: `${mousePos.x * 100}%`,
+            top: `${mousePos.y * 100}%`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+        
+        {/* Grid pattern that subtly shifts */}
+        <div 
+          className="absolute inset-0 opacity-[0.03] transition-transform duration-1000 ease-out"
+          style={{
+            backgroundImage: `linear-gradient(hsl(210,50%,50%) 1px, transparent 1px), linear-gradient(90deg, hsl(210,50%,50%) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px',
+            transform: `translate(${(mousePos.x - 0.5) * 10}px, ${(mousePos.y - 0.5) * 10}px)`,
+          }}
+        />
+
+        {/* Floating particles that react to mouse */}
+        {Array.from({ length: 40 }).map((_, i) => {
+          const baseLeft = (i * 17 + 7) % 100;
+          const baseTop = (i * 23 + 13) % 100;
+          const size = i % 3 === 0 ? 2 : 1;
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full transition-transform duration-[2000ms] ease-out"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                background: i % 4 === 0 
+                  ? 'hsl(199,89%,60%,0.4)' 
+                  : i % 4 === 1 
+                  ? 'hsl(260,80%,70%,0.3)' 
+                  : 'hsl(180,60%,60%,0.3)',
+                left: `${baseLeft}%`,
+                top: `${baseTop}%`,
+                transform: `translate(${(mousePos.x - 0.5) * (i % 5 + 1) * 15}px, ${(mousePos.y - 0.5) * (i % 5 + 1) * 15}px)`,
+                animation: `particle${i % 3} ${8 + (i % 7) * 2}s ease-in-out infinite`,
+                animationDelay: `${(i * 0.3) % 5}s`,
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Login card */}
