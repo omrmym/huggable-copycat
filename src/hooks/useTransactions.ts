@@ -158,7 +158,7 @@ export function useDeleteTransaction() {
         if (fetchError) throw fetchError;
 
         if (user) {
-          // Calculate previous expiration date using plan duration or billing cycle
+          // Calculate previous expiration date proportionally based on amount
           let newExpiresAt = user.expires_at;
           if (user.expires_at) {
             const currentExpiry = new Date(user.expires_at);
@@ -166,16 +166,26 @@ export function useDeleteTransaction() {
             const planDurationDays = planData?.duration_days || null;
             const cycle = user.billing_cycle || billingCycle || 'monthly';
             
-            if (planDurationDays && planDurationDays > 0) {
-              // Use plan's duration_days to go back
-              currentExpiry.setDate(currentExpiry.getDate() - planDurationDays);
-            } else if (cycle === '30 Days' || cycle === '30days') {
-              currentExpiry.setDate(currentExpiry.getDate() - 30);
-            } else {
-              // Monthly - subtract 1 month
-              currentExpiry.setMonth(currentExpiry.getMonth() - 1);
-            }
+            // Determine full cycle days
+            const fullCycleDays = planDurationDays && planDurationDays > 0
+              ? planDurationDays
+              : (cycle === '30 Days' || cycle === '30days' ? 30 : 30);
             
+            // Get user's monthly bill for proportional calculation
+            const { data: userBillData } = await supabase
+              .from('radius_users')
+              .select('monthly_bill')
+              .eq('id', userId)
+              .single();
+            
+            const userBill = userBillData?.monthly_bill ? Number(userBillData.monthly_bill) : 0;
+            
+            // Proportional days to subtract based on amount paid vs monthly bill
+            const daysToSubtract = userBill > 0
+              ? Math.max(1, Math.round((amount / userBill) * fullCycleDays))
+              : fullCycleDays;
+            
+            currentExpiry.setDate(currentExpiry.getDate() - daysToSubtract);
             newExpiresAt = currentExpiry.toISOString();
           }
 
