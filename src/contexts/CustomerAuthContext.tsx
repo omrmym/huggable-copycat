@@ -14,6 +14,7 @@ interface CustomerUser {
   expires_at: string | null;
   data_used_mb: number;
   mikrotik_router_id: string | null;
+  monthly_bill: number | null;
 }
 
 interface CustomerAuthContextType {
