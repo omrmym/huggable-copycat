@@ -144,7 +144,7 @@ export default function ManageRecharge() {
       matchesDateRange = isWithinInterval(txDate, { start: from, end: to });
     }
     
-    return matchesSearch && matchesStatus && matchesCollectBy && matchesDateRange;
+    return matchesSearch && matchesStatus && matchesCollectBy && matchesPaymentMethod && matchesDateRange;
   });
 
   const clearDateRange = () => {
