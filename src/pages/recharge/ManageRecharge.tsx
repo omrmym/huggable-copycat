@@ -59,6 +59,7 @@ interface TransactionWithUser {
     expires_at: string | null;
     billing_cycle: string | null;
     plan_id: string | null;
+    monthly_bill: number | null;
     grace_days_used: number;
     plan: {
       id: string;
