@@ -417,10 +417,10 @@ export function useRechargeUser() {
       collectedBy?: string;
       planId?: string;
     }) => {
-      // Get current user data for transaction description
+      // Get current user data including plan info
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('username, expires_at')
+        .select('username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
         .eq('id', userId)
         .single();
 
@@ -428,7 +428,7 @@ export function useRechargeUser() {
 
       const txDescription = description || `Recharge for ${user.username}`;
 
-      // Create transaction as PENDING - expiry will be extended on approval
+      // Create transaction as COMPLETED directly
       const { error: txError } = await supabase
         .from('transactions')
         .insert({
@@ -436,7 +436,7 @@ export function useRechargeUser() {
           amount,
           type: 'payment',
           description: txDescription,
-          status: 'pending',
+          status: 'completed',
           payment_method: paymentMethod,
           collected_by: collectedBy,
         });
@@ -451,15 +451,90 @@ export function useRechargeUser() {
           .eq('id', userId);
       }
 
-      return { newExpiresAt: user.expires_at || new Date().toISOString() };
+      // Calculate expiry extension
+      const planData = (user as any).billing_plans;
+      const planDurationDays = planData?.duration_days || null;
+      const graceDaysUsed = user.grace_days_used || 0;
+
+      let fullCycleDays: number;
+      if (planDurationDays && planDurationDays > 0) {
+        fullCycleDays = planDurationDays;
+      } else {
+        fullCycleDays = 30;
+      }
+
+      const userBill = Number(user.monthly_bill) || Number(planData?.price) || 0;
+      let daysToAdd: number;
+      if (userBill > 0) {
+        daysToAdd = Math.round((amount / userBill) * fullCycleDays);
+      } else {
+        daysToAdd = fullCycleDays;
+      }
+      daysToAdd = Math.max(1, daysToAdd);
+
+      let newExpiresAt: Date;
+      const now = new Date();
+      if (user.status === 'expired' || user.status === 'disabled' || !user.expires_at) {
+        newExpiresAt = new Date(now);
+      } else {
+        newExpiresAt = new Date(user.expires_at);
+      }
+      newExpiresAt.setDate(newExpiresAt.getDate() + daysToAdd);
+
+      if (graceDaysUsed > 0) {
+        newExpiresAt.setDate(newExpiresAt.getDate() - graceDaysUsed);
+      }
+      newExpiresAt.setHours(9, 0, 0, 0);
+
+      // Update user: activate, extend expiry, reset grace days, reset data usage
+      const updateData: Record<string, unknown> = {
+        status: 'active',
+        expires_at: newExpiresAt.toISOString(),
+        mikrotik_synced: false,
+        grace_days_used: 0,
+      };
+
+      if (planData?.data_limit_mb) {
+        updateData.data_used_mb = 0;
+      }
+
+      const { error: updateError } = await supabase
+        .from('radius_users')
+        .update(updateData)
+        .eq('id', userId);
+
+      if (updateError) throw updateError;
+
+      // Sync MikroTik - enable user
+      try {
+        const profileName = planData?.name || undefined;
+        await supabase.functions.invoke('mikrotik-sync', {
+          body: {
+            action: 'sync-user',
+            username: user.username,
+            password: user.password_hash,
+            profile: profileName,
+            service_type: user.service_type,
+            disabled: false,
+          },
+        });
+      } catch (syncError) {
+        console.warn('MikroTik enable after recharge failed:', syncError);
+      }
+
+      return { newExpiresAt: newExpiresAt.toISOString(), graceDaysDeducted: graceDaysUsed };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      toast.success('Bill generated! Pending approval.');
+      let message = `Recharge successful! Expires: ${new Date(data.newExpiresAt).toLocaleDateString()}`;
+      if (data.graceDaysDeducted > 0) {
+        message += ` (${data.graceDaysDeducted} grace day(s) deducted)`;
+      }
+      toast.success(message);
     },
     onError: (error: Error) => {
-      toast.error(`Failed to generate bill: ${error.message}`);
+      toast.error(`Failed to recharge: ${error.message}`);
     },
   });
 }
