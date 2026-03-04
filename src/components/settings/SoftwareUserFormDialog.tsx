@@ -23,9 +23,11 @@ import {
   AppRole,
   ROLE_LABELS,
   ROLE_DESCRIPTIONS,
+  getRoleLabel,
   useCreateSoftwareUser,
   useUpdateSoftwareUser,
 } from '@/hooks/useSoftwareUsers';
+import { useRoleDefinitions } from '@/hooks/useRoleDefinitions';
 
 interface SoftwareUserFormDialogProps {
   open: boolean;
@@ -33,7 +35,7 @@ interface SoftwareUserFormDialogProps {
   user?: SoftwareUser | null;
 }
 
-const ROLES: AppRole[] = ['super_admin', 'admin', 'manager', 'operator', 'viewer'];
+const BUILT_IN_ROLES: AppRole[] = ['super_admin', 'admin', 'manager', 'operator', 'viewer'];
 
 export function SoftwareUserFormDialog({
   open,
@@ -51,7 +53,16 @@ export function SoftwareUserFormDialog({
 
   const createUser = useCreateSoftwareUser();
   const updateUser = useUpdateSoftwareUser();
+  const { data: roleDefinitions = [] } = useRoleDefinitions();
   const isEditing = !!user;
+
+  // Combine built-in roles with custom roles from role_definitions
+  const allRoles = [
+    ...BUILT_IN_ROLES.map(code => ({ code, name: ROLE_LABELS[code] || code, description: ROLE_DESCRIPTIONS[code] || '' })),
+    ...roleDefinitions
+      .filter(rd => rd.is_active && !BUILT_IN_ROLES.includes(rd.code))
+      .map(rd => ({ code: rd.code, name: rd.name, description: rd.description || '' })),
+  ];
 
   useEffect(() => {
     if (user) {
@@ -209,17 +220,17 @@ export function SoftwareUserFormDialog({
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                {ROLES.map((role) => (
-                  <SelectItem key={role} value={role}>
+                {allRoles.map((role) => (
+                  <SelectItem key={role.code} value={role.code}>
                     <div className="flex flex-col">
-                      <span className="font-medium">{ROLE_LABELS[role]}</span>
+                      <span className="font-medium">{role.name}</span>
                     </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              {ROLE_DESCRIPTIONS[formData.role]}
+              {allRoles.find(r => r.code === formData.role)?.description || ''}
             </p>
           </div>
 

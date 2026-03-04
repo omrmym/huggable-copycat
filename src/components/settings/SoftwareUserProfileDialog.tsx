@@ -26,8 +26,10 @@ import {
   AppRole,
   ROLE_LABELS,
   ROLE_DESCRIPTIONS,
+  getRoleLabel,
   useUpdateSoftwareUser,
 } from '@/hooks/useSoftwareUsers';
+import { useRoleDefinitions } from '@/hooks/useRoleDefinitions';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useMutation } from '@tanstack/react-query';
@@ -40,7 +42,7 @@ interface SoftwareUserProfileDialogProps {
   isSuperAdmin: boolean;
 }
 
-const ROLES: AppRole[] = ['super_admin', 'admin', 'manager', 'operator', 'viewer'];
+const BUILT_IN_ROLES: AppRole[] = ['super_admin', 'admin', 'manager', 'operator', 'viewer'];
 
 const getRoleBadgeClass = (role: string) => {
   switch (role) {
@@ -82,6 +84,15 @@ export function SoftwareUserProfileDialog({
   });
 
   const updateUser = useUpdateSoftwareUser();
+  const { data: roleDefinitions = [] } = useRoleDefinitions();
+
+  // Combine built-in roles with custom roles
+  const allRoles = [
+    ...BUILT_IN_ROLES.map(code => ({ code, name: ROLE_LABELS[code] || code, description: ROLE_DESCRIPTIONS[code] || '' })),
+    ...roleDefinitions
+      .filter(rd => rd.is_active && !BUILT_IN_ROLES.includes(rd.code))
+      .map(rd => ({ code: rd.code, name: rd.name, description: rd.description || '' })),
+  ];
 
   // Change password mutation
   const changePassword = useMutation({
@@ -165,7 +176,7 @@ export function SoftwareUserProfileDialog({
               <p className="text-sm text-muted-foreground">{user.email}</p>
               <div className="flex items-center gap-2 mt-1">
                 <Badge className={getRoleBadgeClass(user.role)}>
-                  {ROLE_LABELS[user.role]}
+                  {getRoleLabel(user.role, roleDefinitions)}
                 </Badge>
                 <Badge variant={user.is_active ? 'default' : 'destructive'} className={
                   user.is_active
@@ -217,15 +228,15 @@ export function SoftwareUserProfileDialog({
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {ROLES.map((role) => (
-                        <SelectItem key={role} value={role}>
-                          <span className="font-medium">{ROLE_LABELS[role]}</span>
+                      {allRoles.map((role) => (
+                        <SelectItem key={role.code} value={role.code}>
+                          <span className="font-medium">{role.name}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    {ROLE_DESCRIPTIONS[formData.role]}
+                    {allRoles.find(r => r.code === formData.role)?.description || ''}
                   </p>
                 </div>
               )}
@@ -290,7 +301,7 @@ export function SoftwareUserProfileDialog({
                     Role
                   </div>
                   <Badge className={getRoleBadgeClass(user.role)}>
-                    {ROLE_LABELS[user.role]}
+                    {getRoleLabel(user.role, roleDefinitions)}
                   </Badge>
                 </div>
 

@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Users, Plus, Search, Shield } from 'lucide-react';
-import { useSoftwareUsers, SoftwareUser, ROLE_LABELS } from '@/hooks/useSoftwareUsers';
+import { useSoftwareUsers, SoftwareUser, getRoleLabel } from '@/hooks/useSoftwareUsers';
+import { useRoleDefinitions } from '@/hooks/useRoleDefinitions';
 import { SoftwareUserTable } from './SoftwareUserTable';
 import { SoftwareUserFormDialog } from './SoftwareUserFormDialog';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,6 +16,7 @@ export function SoftwareUserManagement() {
 
   const { user: authUser } = useAuth();
   const { data: users = [], isLoading } = useSoftwareUsers();
+  const { data: roleDefinitions = [] } = useRoleDefinitions();
 
   // Find current logged-in user's software_user record
   const currentSoftwareUser = users.find((u) => u.user_id === authUser?.id) || null;
@@ -23,7 +25,7 @@ export function SoftwareUserManagement() {
     (user) =>
       user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ROLE_LABELS[user.role].toLowerCase().includes(searchTerm.toLowerCase())
+      getRoleLabel(user.role, roleDefinitions).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddUser = () => {
