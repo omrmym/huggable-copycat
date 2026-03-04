@@ -150,7 +150,7 @@ export function SoftwareUserTable({ users, isLoading, currentSoftwareUser }: Sof
               <TableHead>Name</TableHead>
               <TableHead>User ID</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead>Rule</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Last Login</TableHead>
               <TableHead>Created</TableHead>

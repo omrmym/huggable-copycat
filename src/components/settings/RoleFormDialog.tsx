@@ -87,18 +87,18 @@ export function RoleFormDialog({ open, onOpenChange, role }: RoleFormDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-card">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Role' : 'Add New Role'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Rule' : 'Add New Rule'}</DialogTitle>
           <DialogDescription>
             {isEditing
-              ? 'Update role details and manage permissions.'
-              : 'Create a new role with custom permissions.'}
+              ? 'Update rule details and manage permissions.'
+              : 'Create a new rule with custom permissions.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="code">Role Code *</Label>
+              <Label htmlFor="code">Rule Code *</Label>
               <Input
                 id="code"
                 value={formData.code}
@@ -111,7 +111,7 @@ export function RoleFormDialog({ open, onOpenChange, role }: RoleFormDialogProps
               />
               {isEditing && (
                 <p className="text-xs text-muted-foreground">
-                  Role code cannot be changed.
+                  Rule code cannot be changed.
                 </p>
               )}
             </div>
@@ -139,7 +139,7 @@ export function RoleFormDialog({ open, onOpenChange, role }: RoleFormDialogProps
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              placeholder="Describe what this role can do..."
+              placeholder="Describe what this rule can do..."
               rows={2}
             />
           </div>
@@ -147,7 +147,7 @@ export function RoleFormDialog({ open, onOpenChange, role }: RoleFormDialogProps
           {isSystemRole ? (
             <div className="p-3 rounded-md bg-accent border border-border">
               <p className="text-xs text-muted-foreground">
-                This is a system role with full permissions. Permissions cannot be modified.
+                This is a system rule with full permissions. Permissions cannot be modified.
               </p>
             </div>
           ) : (
@@ -174,9 +174,9 @@ export function RoleFormDialog({ open, onOpenChange, role }: RoleFormDialogProps
                   {isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : isEditing ? (
-                'Update Role'
+                'Update Rule'
               ) : (
-                'Create Role'
+                'Create Rule'
               )}
             </Button>
           </DialogFooter>

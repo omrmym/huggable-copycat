@@ -105,7 +105,7 @@ export default function RoleEdit() {
 
   if (isLoading && isEditing) {
     return (
-      <DashboardLayout title={isEditing ? 'Edit Role' : 'Create Role'}>
+    <DashboardLayout title={isEditing ? 'Edit Rule' : 'Create Rule'}>
         <div className="space-y-6">
           <Skeleton className="h-8 w-64" />
           <Card className="bg-card border-border">
@@ -127,11 +127,11 @@ export default function RoleEdit() {
 
   if (isEditing && !role && !isLoading) {
     return (
-      <DashboardLayout title="Role Not Found">
+      <DashboardLayout title="Rule Not Found">
         <div className="flex flex-col items-center justify-center py-12">
           <Shield className="h-12 w-12 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Role Not Found</h2>
-          <p className="text-muted-foreground mb-4">The role you're looking for doesn't exist.</p>
+          <h2 className="text-xl font-semibold mb-2">Rule Not Found</h2>
+          <p className="text-muted-foreground mb-4">The rule you're looking for doesn't exist.</p>
           <Button onClick={() => navigate('/settings')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Settings
@@ -142,7 +142,7 @@ export default function RoleEdit() {
   }
 
   return (
-    <DashboardLayout title={isEditing ? 'Edit Role' : 'Create Role'}>
+    <DashboardLayout title={isEditing ? 'Edit Rule' : 'Create Rule'}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -156,12 +156,12 @@ export default function RoleEdit() {
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Shield className="h-6 w-6 text-primary" />
-              {isEditing ? 'Edit Role' : 'Create New Role'}
+              {isEditing ? 'Edit Rule' : 'Create New Rule'}
             </h1>
             <p className="text-muted-foreground">
               {isEditing
-                ? 'Update role details and manage permissions'
-                : 'Create a new role with custom permissions'}
+                ? 'Update rule details and manage permissions'
+                : 'Create a new rule with custom permissions'}
             </p>
           </div>
         </div>
@@ -173,9 +173,9 @@ export default function RoleEdit() {
               <div className="flex items-center gap-3">
                 <Lock className="h-5 w-5 text-amber-500" />
                 <div>
-                  <p className="font-medium text-amber-600 dark:text-amber-400">System Role</p>
+                  <p className="font-medium text-amber-600 dark:text-amber-400">System Rule</p>
                   <p className="text-sm text-muted-foreground">
-                    This is a system role with full permissions. Some fields cannot be modified.
+                    This is a system rule with full permissions. Some fields cannot be modified.
                   </p>
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function RoleEdit() {
           <div className="mb-6">
             <div className="flex items-center gap-4 max-w-md">
               <div className="flex-1 space-y-2">
-                <Label htmlFor="name">Role Name *</Label>
+                <Label htmlFor="name">Rule Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -203,7 +203,7 @@ export default function RoleEdit() {
               </div>
               {!isEditing && (
                 <div className="flex-1 space-y-2">
-                  <Label htmlFor="code">Role Code *</Label>
+                  <Label htmlFor="code">Rule Code *</Label>
                   <Input
                     id="code"
                     value={formData.code}
@@ -235,7 +235,7 @@ export default function RoleEdit() {
                     <span className="font-medium">Full Access</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    System roles have all permissions enabled by default and cannot be modified.
+                    System rules have all permissions enabled by default and cannot be modified.
                   </p>
                 </div>
               ) : (
@@ -274,9 +274,9 @@ export default function RoleEdit() {
                   {isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : isEditing ? (
-                'Update Role'
+                'Update Rule'
               ) : (
-                'Create Role'
+                'Create Rule'
               )}
             </Button>
           </div>

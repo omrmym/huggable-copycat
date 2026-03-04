@@ -23,10 +23,10 @@ export function RoleSettingsEditor({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
-          Role Settings
+          Rule Settings
         </CardTitle>
         <CardDescription>
-          Configure operational limits for this role
+          Configure operational limits for this rule
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -63,8 +63,8 @@ export function RoleSettingsEditor({
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              Users with this role can activate grace periods up to this many days.
-              Super Admin can activate unlimited times, while other roles can only activate once per billing cycle.
+              Users with this rule can activate grace periods up to this many days.
+              Super Admin can activate unlimited times, while other rules can only activate once per billing cycle.
             </p>
           </div>
         </div>

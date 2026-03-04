@@ -209,7 +209,7 @@ export function SoftwareUserFormDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="role">Role *</Label>
+            <Label htmlFor="role">Rule *</Label>
             <Select
               value={formData.role}
               onValueChange={(value: AppRole) =>
@@ -217,7 +217,7 @@ export function SoftwareUserFormDialog({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a role" />
+                <SelectValue placeholder="Select a rule" />
               </SelectTrigger>
               <SelectContent>
                 {allRoles.map((role) => (
