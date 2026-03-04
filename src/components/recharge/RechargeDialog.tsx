@@ -3,6 +3,8 @@ import { format } from 'date-fns';
 import { useRechargeUser } from '@/hooks/useRadiusUsers';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,6 +41,21 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
   const rechargeUser = useRechargeUser();
   const { user: authUser } = useAuth();
 
+  // Fetch admin user's full name from admin_users table
+  const { data: adminUser } = useQuery({
+    queryKey: ['admin-user-name', authUser?.id],
+    queryFn: async () => {
+      if (!authUser?.id) return null;
+      const { data } = await supabase
+        .from('admin_users')
+        .select('full_name')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!authUser?.id,
+  });
+
   // Get current plan price
   const currentPlanPrice = user?.monthly_bill || user?.plan?.price || 0;
 
@@ -73,7 +90,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
     if (isNaN(amount) || amount <= 0) return;
 
     const paymentMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
-    const collectedBy = authUser?.user_metadata?.full_name || authUser?.email || 'Unknown';
+    const collectedBy = adminUser?.full_name || authUser?.user_metadata?.full_name || authUser?.email || 'Unknown';
 
     const result = await rechargeUser.mutateAsync({
       userId: user.id,
