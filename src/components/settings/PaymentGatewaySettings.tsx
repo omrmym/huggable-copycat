@@ -83,7 +83,6 @@ export function PaymentGatewaySettings() {
           .insert({
             key: 'payment_gateway',
             value: settings as unknown as Json,
-            description: 'Payment gateway configuration (bKash, Nagad)',
           });
         if (error) throw error;
       }
