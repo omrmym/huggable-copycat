@@ -87,7 +87,7 @@ export function useDashboardStats() {
       const totalBill = users?.reduce((sum, u) => sum + (u.monthly_bill || 0), 0) || 0;
       const activeUsersBill = users?.filter(u => u.status === 'active').reduce((sum, u) => sum + (u.monthly_bill || 0), 0) || 0;
       const expiredUsersBill = users?.filter(u => u.status === 'expired').reduce((sum, u) => sum + (u.monthly_bill || 0), 0) || 0;
-      const alreadyPaidBill = paidUsersInScope.reduce((sum, u) => sum + (u.monthly_bill || 0), 0);
+      const alreadyPaidBill = paidTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
       const totalVouchers = vouchers?.length || 0;
       const unusedVouchers = vouchers?.filter(v => v.status === 'unused').length || 0;
