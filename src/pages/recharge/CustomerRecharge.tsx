@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { startOfMonth, endOfMonth, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useRadiusUsers } from '@/hooks/useRadiusUsers';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,9 +16,10 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Wallet, User, Phone, CreditCard } from 'lucide-react';
+import { Search, Wallet, User, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RechargeDialog } from '@/components/recharge/RechargeDialog';
+import { DateRangeFilter } from '@/components/finance/DateRangeFilter';
 import type { Tables } from '@/integrations/supabase/types';
 
 type RadiusUser = Tables<'radius_users'> & {
@@ -35,19 +37,34 @@ export default function CustomerRecharge() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<RadiusUser | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState<Date | undefined>(endOfMonth(new Date()));
   const navigate = useNavigate();
 
   const { data: users = [], isLoading } = useRadiusUsers();
 
-  // Filter users based on search query
+  // Filter users based on search query and date range
   const filteredUsers = users.filter((user) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch =
       user.username.toLowerCase().includes(query) ||
       user.full_name?.toLowerCase().includes(query) ||
       user.phone?.toLowerCase().includes(query) ||
-      user.email?.toLowerCase().includes(query)
-    );
+      user.email?.toLowerCase().includes(query);
+
+    let matchesDate = true;
+    if (startDate || endDate) {
+      const userDate = new Date(user.created_at);
+      if (startDate && endDate) {
+        matchesDate = isWithinInterval(userDate, { start: startOfDay(startDate), end: endOfDay(endDate) });
+      } else if (startDate) {
+        matchesDate = userDate >= startOfDay(startDate);
+      } else if (endDate) {
+        matchesDate = userDate <= endOfDay(endDate);
+      }
+    }
+
+    return matchesSearch && matchesDate;
   });
 
   const handleSelectUser = (user: RadiusUser) => {
@@ -74,6 +91,15 @@ export default function CustomerRecharge() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <DateRangeFilter
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+              onClear={() => { setStartDate(undefined); setEndDate(undefined); }}
+            />
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
