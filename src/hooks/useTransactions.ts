@@ -80,7 +80,46 @@ export function useApproveTransaction() {
 
   return useMutation({
     mutationFn: async ({ transactionId, userId, amount }: { transactionId: string; userId: string; amount: number }) => {
-      // Update transaction status
+      // Get user data for expiry calculation
+      const { data: user, error: fetchError } = await supabase
+        .from('radius_users')
+        .select('username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans:plan_id(name, data_limit_mb, duration_days)')
+        .eq('id', userId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const billingCycle = user.billing_cycle || 'monthly';
+      const graceDaysUsed = user.grace_days_used || 0;
+      const planData = (user as any).billing_plans;
+      const planDurationDays = planData?.duration_days || null;
+
+      // Calculate new expiration date
+      let newExpiresAt: Date;
+      const now = new Date();
+
+      if (user.status === 'expired' || user.status === 'disabled' || !user.expires_at) {
+        newExpiresAt = new Date(now);
+      } else {
+        newExpiresAt = new Date(user.expires_at);
+      }
+
+      if (planDurationDays && planDurationDays > 0) {
+        newExpiresAt.setDate(newExpiresAt.getDate() + planDurationDays);
+      } else if (billingCycle === '30 Days' || billingCycle === '30days') {
+        newExpiresAt.setDate(newExpiresAt.getDate() + 30);
+      } else {
+        newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+      }
+
+      // Deduct grace days
+      if (graceDaysUsed > 0) {
+        newExpiresAt.setDate(newExpiresAt.getDate() - graceDaysUsed);
+      }
+
+      newExpiresAt.setHours(9, 0, 0, 0);
+
+      // Update transaction status to completed
       const { error: txError } = await supabase
         .from('transactions')
         .update({ status: 'completed' })
@@ -88,12 +127,52 @@ export function useApproveTransaction() {
 
       if (txError) throw txError;
 
-      return {};
+      // Update user: activate, extend expiry, reset grace days, reset data usage
+      const updateData: Record<string, unknown> = {
+        status: 'active',
+        expires_at: newExpiresAt.toISOString(),
+        mikrotik_synced: false,
+        grace_days_used: 0,
+      };
+
+      if (planData?.data_limit_mb) {
+        updateData.data_used_mb = 0;
+      }
+
+      const { error: updateError } = await supabase
+        .from('radius_users')
+        .update(updateData)
+        .eq('id', userId);
+
+      if (updateError) throw updateError;
+
+      // Sync MikroTik - enable user
+      try {
+        const profileName = planData?.name || undefined;
+        await supabase.functions.invoke('mikrotik-sync', {
+          body: {
+            action: 'sync-user',
+            username: user.username,
+            password: user.password_hash,
+            profile: profileName,
+            service_type: user.service_type,
+            disabled: false,
+          },
+        });
+      } catch (syncError) {
+        console.warn('MikroTik enable after approval failed:', syncError);
+      }
+
+      return { newExpiresAt: newExpiresAt.toISOString(), graceDaysDeducted: graceDaysUsed };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
-      toast.success('Transaction approved');
+      let message = `Transaction approved! Expires: ${new Date(data.newExpiresAt).toLocaleDateString()}`;
+      if (data.graceDaysDeducted > 0) {
+        message += ` (${data.graceDaysDeducted} grace day(s) deducted)`;
+      }
+      toast.success(message);
     },
     onError: (error: Error) => {
       toast.error(`Failed to approve transaction: ${error.message}`);
