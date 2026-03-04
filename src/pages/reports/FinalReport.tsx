@@ -97,8 +97,10 @@ export default function FinalReport() {
   const filteredUsers = useMemo(() => {
     if (!startDate && !endDate) return users;
     return users.filter(u => {
-      if (!u.connection_date) return false;
-      const date = parseISO(u.connection_date);
+      // Use connection_date if available, otherwise fall back to created_at
+      const dateStr = u.connection_date || u.created_at;
+      if (!dateStr) return false;
+      const date = parseISO(dateStr);
       if (startDate && endDate) {
         return isWithinInterval(date, { start: startOfDay(startDate), end: endOfDay(endDate) });
       }
