@@ -14,3 +14,15 @@ verify_jwt = false
 
 [functions.send-sms]
 verify_jwt = false
+
+[functions.mikrotik-sync]
+verify_jwt = false
+
+[functions.login-lookup]
+verify_jwt = false
+
+[functions.create-admin-user]
+verify_jwt = false
+
+[functions.update-admin-account]
+verify_jwt = false
