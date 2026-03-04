@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { startOfMonth, endOfMonth, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2, FileText, RefreshCw, Loader2 } from 'lucide-react';
+import { DateRangeFilter } from '@/components/finance/DateRangeFilter';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import SmsTemplates from '@/components/sms/SmsTemplates';
 import { useSmsHistory, useClearSmsHistory, type SmsHistoryRecord } from '@/hooks/useSmsHistory';
@@ -63,6 +65,8 @@ export default function SmsHistory() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState<Date | undefined>(endOfMonth(new Date()));
 
   const { data: smsData = [], isLoading } = useSmsHistory();
   const clearHistory = useClearSmsHistory();
@@ -72,15 +76,28 @@ export default function SmsHistory() {
     const matchSearch = !search || sms.recipient_phone.includes(search) || (sms.recipient_name || '').toLowerCase().includes(search.toLowerCase());
     const matchType = typeFilter === 'all' || sms.sms_type === typeFilter;
     const matchStatus = statusFilter === 'all' || sms.status === statusFilter;
-    return matchSearch && matchType && matchStatus;
+
+    let matchDate = true;
+    if (startDate || endDate) {
+      const smsDate = new Date(sms.created_at);
+      if (startDate && endDate) {
+        matchDate = isWithinInterval(smsDate, { start: startOfDay(startDate), end: endOfDay(endDate) });
+      } else if (startDate) {
+        matchDate = smsDate >= startOfDay(startDate);
+      } else if (endDate) {
+        matchDate = smsDate <= endOfDay(endDate);
+      }
+    }
+
+    return matchSearch && matchType && matchStatus && matchDate;
   });
 
-  const totalSent = smsData.length;
-  const totalDelivered = smsData.filter(s => s.status === 'delivered').length;
-  const totalFailed = smsData.filter(s => s.status === 'failed').length;
+  const totalSent = filtered.length;
+  const totalDelivered = filtered.filter(s => s.status === 'delivered').length;
+  const totalFailed = filtered.filter(s => s.status === 'failed').length;
 
-  const dailyData = buildDailyData(smsData);
-  const typeData = buildTypeData(smsData);
+  const dailyData = buildDailyData(filtered);
+  const typeData = buildTypeData(filtered);
 
   return (
     <DashboardLayout title="SMS Management" subtitle="SMS history, analytics and templates">
@@ -97,6 +114,17 @@ export default function SmsHistory() {
         </TabsList>
 
         <TabsContent value="history" className="space-y-6">
+          {/* Date Filter */}
+          <div className="flex flex-wrap items-center gap-4">
+            <DateRangeFilter
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+              onClear={() => { setStartDate(undefined); setEndDate(undefined); }}
+            />
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Card className="bg-card border-border">
