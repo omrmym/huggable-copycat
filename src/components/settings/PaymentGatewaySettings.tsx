@@ -12,6 +12,7 @@ import type { Json } from '@/integrations/supabase/types';
 
 interface PaymentGatewayConfig {
   bkash_enabled: boolean;
+  bkash_sandbox: boolean;
   bkash_app_key: string;
   bkash_app_secret: string;
   bkash_username: string;
@@ -26,6 +27,7 @@ interface PaymentGatewayConfig {
 
 const defaultConfig: PaymentGatewayConfig = {
   bkash_enabled: false,
+  bkash_sandbox: true,
   bkash_app_key: '',
   bkash_app_secret: '',
   bkash_username: '',
@@ -180,6 +182,13 @@ export function PaymentGatewaySettings() {
                   <Switch
                     checked={config.bkash_enabled}
                     onCheckedChange={(checked) => setConfig({ ...config, bkash_enabled: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <Label className="text-sm">Sandbox Mode</Label>
+                  <Switch
+                    checked={config.bkash_sandbox}
+                    onCheckedChange={(checked) => setConfig({ ...config, bkash_sandbox: checked })}
                   />
                 </div>
               </div>
