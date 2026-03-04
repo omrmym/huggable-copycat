@@ -73,6 +73,7 @@ export default function ManageRecharge() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [collectByFilter, setCollectByFilter] = useState<string>('all');
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: endOfMonth(new Date()),
@@ -130,6 +131,10 @@ export default function ManageRecharge() {
     const collectBy = tx.collected_by || 'Unknown';
     const matchesCollectBy = collectByFilter === 'all' || collectBy === collectByFilter;
     
+    // Payment Method filter
+    const paymentMethod = tx.payment_method || '';
+    const matchesPaymentMethod = paymentMethodFilter === 'all' || paymentMethod === paymentMethodFilter;
+    
     // Date range filter
     let matchesDateRange = true;
     if (dateRange?.from) {
@@ -139,7 +144,7 @@ export default function ManageRecharge() {
       matchesDateRange = isWithinInterval(txDate, { start: from, end: to });
     }
     
-    return matchesSearch && matchesStatus && matchesCollectBy && matchesDateRange;
+    return matchesSearch && matchesStatus && matchesCollectBy && matchesPaymentMethod && matchesDateRange;
   });
 
   const clearDateRange = () => {
@@ -255,6 +260,18 @@ export default function ManageRecharge() {
                     <SelectItem value="all">All Collectors</SelectItem>
                     {Array.from(new Set(transactions?.map(tx => tx.collected_by).filter(Boolean) || [])).map(name => (
                       <SelectItem key={name} value={name!}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={paymentMethodFilter} onValueChange={setPaymentMethodFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Payment Method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Methods</SelectItem>
+                    {Array.from(new Set(transactions?.map(tx => tx.payment_method).filter(Boolean) || [])).map(method => (
+                      <SelectItem key={method} value={method!}>{method}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
