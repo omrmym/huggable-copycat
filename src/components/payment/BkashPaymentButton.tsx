@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,13 +22,20 @@ interface BkashPaymentButtonProps {
 
 export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess }: BkashPaymentButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [amount, setAmount] = useState(defaultAmount ? defaultAmount.toString() : '');
+  const isFixedAmount = typeof defaultAmount === 'number' && defaultAmount > 0;
+  const [amount, setAmount] = useState(isFixedAmount ? defaultAmount.toString() : '');
   const { createPayment, isLoading } = useBkashPayment();
+
+  useEffect(() => {
+    if (isFixedAmount && defaultAmount) {
+      setAmount(defaultAmount.toString());
+    }
+  }, [isFixedAmount, defaultAmount]);
 
   const quickAmounts = [100, 200, 500, 1000];
 
   const handlePayment = async () => {
-    const numAmount = parseFloat(amount);
+    const numAmount = isFixedAmount && defaultAmount ? defaultAmount : parseFloat(amount);
     if (isNaN(numAmount) || numAmount < 10) {
       return;
     }
@@ -62,7 +69,9 @@ export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess 
             bKash Payment
           </DialogTitle>
           <DialogDescription>
-            Enter the amount to add to your account balance.
+            {isFixedAmount
+              ? 'The payment amount is fixed to your monthly bill.'
+              : 'Enter the amount to add to your account balance.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -79,25 +88,29 @@ export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess 
                 onChange={(e) => setAmount(e.target.value)}
                 className="pl-8"
                 min={10}
+                readOnly={isFixedAmount}
+                disabled={isFixedAmount}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Quick Select</Label>
-            <div className="grid grid-cols-4 gap-2">
-              {quickAmounts.map((preset) => (
-                <Button
-                  key={preset}
-                  variant={amount === preset.toString() ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setAmount(preset.toString())}
-                >
-                  ৳{preset}
-                </Button>
-              ))}
+          {!isFixedAmount && (
+            <div className="space-y-2">
+              <Label>Quick Select</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {quickAmounts.map((preset) => (
+                  <Button
+                    key={preset}
+                    variant={amount === preset.toString() ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setAmount(preset.toString())}
+                  >
+                    ৳{preset}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <Button
             className="w-full bg-[#E2136E] hover:bg-[#C11160] text-white"
@@ -115,7 +128,7 @@ export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess 
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Minimum amount: ৳10 • Secured by bKash
+            {isFixedAmount ? 'Fixed monthly bill amount' : 'Minimum amount: ৳10'} • Secured by bKash
           </p>
         </div>
       </DialogContent>

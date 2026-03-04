@@ -320,6 +320,7 @@ export default function CustomerDashboard() {
                         <NagadPaymentButton
                           userId={customer.id}
                           userName={customer.full_name || customer.username}
+                          defaultAmount={customer.monthly_bill ?? undefined}
                         />
                       )}
                       <Button 

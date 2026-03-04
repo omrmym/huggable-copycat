@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,18 +16,26 @@ import { toast } from 'sonner';
 interface NagadPaymentButtonProps {
   userId: string;
   userName?: string;
+  defaultAmount?: number;
   onSuccess?: (newBalance: number) => void;
 }
 
-export function NagadPaymentButton({ userId, userName, onSuccess }: NagadPaymentButtonProps) {
+export function NagadPaymentButton({ userId, userName, defaultAmount, onSuccess }: NagadPaymentButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [amount, setAmount] = useState('');
+  const isFixedAmount = typeof defaultAmount === 'number' && defaultAmount > 0;
+  const [amount, setAmount] = useState(isFixedAmount ? defaultAmount.toString() : '');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isFixedAmount && defaultAmount) {
+      setAmount(defaultAmount.toString());
+    }
+  }, [isFixedAmount, defaultAmount]);
 
   const quickAmounts = [100, 200, 500, 1000];
 
   const handlePayment = async () => {
-    const numAmount = parseFloat(amount);
+    const numAmount = isFixedAmount && defaultAmount ? defaultAmount : parseFloat(amount);
     if (isNaN(numAmount) || numAmount < 10) {
       return;
     }
@@ -55,7 +63,9 @@ export function NagadPaymentButton({ userId, userName, onSuccess }: NagadPayment
             Nagad Payment
           </DialogTitle>
           <DialogDescription>
-            Enter the amount to add to your account balance.
+            {isFixedAmount
+              ? 'The payment amount is fixed to your monthly bill.'
+              : 'Enter the amount to add to your account balance.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -72,25 +82,29 @@ export function NagadPaymentButton({ userId, userName, onSuccess }: NagadPayment
                 onChange={(e) => setAmount(e.target.value)}
                 className="pl-8"
                 min={10}
+                readOnly={isFixedAmount}
+                disabled={isFixedAmount}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Quick Select</Label>
-            <div className="grid grid-cols-4 gap-2">
-              {quickAmounts.map((preset) => (
-                <Button
-                  key={preset}
-                  variant={amount === preset.toString() ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setAmount(preset.toString())}
-                >
-                  ৳{preset}
-                </Button>
-              ))}
+          {!isFixedAmount && (
+            <div className="space-y-2">
+              <Label>Quick Select</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {quickAmounts.map((preset) => (
+                  <Button
+                    key={preset}
+                    variant={amount === preset.toString() ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setAmount(preset.toString())}
+                  >
+                    ৳{preset}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <Button
             className="w-full bg-[#F6921E] hover:bg-[#E07D10] text-white"
@@ -108,7 +122,7 @@ export function NagadPaymentButton({ userId, userName, onSuccess }: NagadPayment
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Minimum amount: ৳10 • Secured by Nagad
+            {isFixedAmount ? 'Fixed monthly bill amount' : 'Minimum amount: ৳10'} • Secured by Nagad
           </p>
         </div>
       </DialogContent>
