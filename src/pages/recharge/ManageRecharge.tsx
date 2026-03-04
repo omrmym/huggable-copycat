@@ -59,6 +59,7 @@ interface TransactionWithUser {
     expires_at: string | null;
     billing_cycle: string | null;
     plan_id: string | null;
+    monthly_bill: number | null;
     grace_days_used: number;
     plan: {
       id: string;
@@ -98,6 +99,7 @@ export default function ManageRecharge() {
             expires_at,
             billing_cycle,
             plan_id,
+            monthly_bill,
             grace_days_used,
             plan:billing_plans (
               id,
@@ -317,8 +319,8 @@ export default function ManageRecharge() {
                   <TableHead>Bill</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Expire Date</TableHead>
-                  <TableHead className="text-center">Grace</TableHead>
-                  <TableHead>Collect By</TableHead>
+                   <TableHead className="text-center">Payment Method</TableHead>
+                   <TableHead>Collect By</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-[50px]">Action</TableHead>
                 </TableRow>
@@ -368,7 +370,7 @@ export default function ManageRecharge() {
                         {tx.radius_users?.phone || '-'}
                       </TableCell>
                       <TableCell className="font-medium">
-                        ৳{tx.radius_users?.plan?.price ? Number(tx.radius_users.plan.price).toLocaleString() : '0'}
+                        ৳{tx.radius_users?.monthly_bill ? Number(tx.radius_users.monthly_bill).toLocaleString() : '0'}
                       </TableCell>
                       <TableCell className="font-semibold">
                         ৳{Number(tx.amount).toLocaleString()}
@@ -378,14 +380,8 @@ export default function ManageRecharge() {
                           ? format(new Date(tx.radius_users.expires_at), 'MMM d, yyyy')
                           : '-'}
                       </TableCell>
-                      <TableCell className="text-center">
-                        {tx.radius_users?.grace_days_used && tx.radius_users.grace_days_used > 0 ? (
-                          <Badge variant="outline" className="bg-warning/20 text-warning border-warning/30">
-                            {tx.radius_users.grace_days_used}d
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                      <TableCell className="text-center text-sm">
+                        {tx.payment_method || '-'}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {tx.collected_by || 'Unknown'}
