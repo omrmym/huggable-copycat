@@ -401,7 +401,7 @@ export default function SettingsPage() {
   // Define which tabs map to which permissions
   const settingsTabs = [
     { value: 'admin-user', label: 'Software User', icon: Users, permission: 'settings.users' },
-    { value: 'roles', label: 'Role Manage', icon: Shield, permission: 'settings.roles' },
+    { value: 'roles', label: 'Rule Manage', icon: Shield, permission: 'settings.roles' },
     { value: 'mikrotik', label: 'MikroTik Manage', icon: Server, permission: 'settings.mikrotik' },
     { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories'] },
     { value: 'sms', label: 'SMS Manage', icon: MessageSquare, permission: 'settings.sms_gateway' },

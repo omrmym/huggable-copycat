@@ -81,7 +81,7 @@ export function RoleManagement() {
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Total Roles</p>
+                <p className="text-sm text-muted-foreground">Total Rules</p>
                 <p className="text-2xl font-bold">{roles.length}</p>
               </div>
             </div>
@@ -95,7 +95,7 @@ export function RoleManagement() {
                 <Lock className="h-6 w-6 text-amber-500" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">System Roles</p>
+                <p className="text-sm text-muted-foreground">System Rules</p>
                 <p className="text-2xl font-bold">{systemRolesCount}</p>
               </div>
             </div>
@@ -109,7 +109,7 @@ export function RoleManagement() {
                 <Shield className="h-6 w-6 text-accent-foreground" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Custom Roles</p>
+                <p className="text-sm text-muted-foreground">Custom Rules</p>
                 <p className="text-2xl font-bold">{customRolesCount}</p>
               </div>
             </div>
@@ -124,15 +124,15 @@ export function RoleManagement() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="w-5 h-5 text-primary" />
-                Role Management
+                Rule Management
               </CardTitle>
               <CardDescription>
-                Manage user roles and their descriptions. System roles cannot be deleted.
+                Manage user rules and their descriptions. System rules cannot be deleted.
               </CardDescription>
             </div>
             <Button onClick={handleAddRole} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
-              Add Role
+              Add Rule
             </Button>
           </div>
         </CardHeader>
@@ -153,7 +153,7 @@ export function RoleManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Role</TableHead>
+                  <TableHead>Rule</TableHead>
                   <TableHead>Code</TableHead>
                   <TableHead className="hidden md:table-cell">Description</TableHead>
                   <TableHead>Type</TableHead>
@@ -174,7 +174,7 @@ export function RoleManagement() {
                 ) : filteredRoles.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      No roles found
+                      No rules found
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -232,9 +232,9 @@ export function RoleManagement() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="bg-card">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Role</AlertDialogTitle>
+            <AlertDialogTitle>Delete Rule</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the role "{roleToDelete?.name}"? 
+              Are you sure you want to delete the rule "{roleToDelete?.name}"? 
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

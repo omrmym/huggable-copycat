@@ -281,10 +281,10 @@ export const PERMISSION_DEFINITIONS = {
     icon: Settings,
     subcategories: {
       user_management: {
-        label: 'User & Role Management',
+        label: 'User & Rule Management',
         permissions: [
           { key: 'settings.users', label: 'Manage Software Users' },
-          { key: 'settings.roles', label: 'Manage Roles' },
+          { key: 'settings.roles', label: 'Manage Rules' },
         ],
       },
       network: {
