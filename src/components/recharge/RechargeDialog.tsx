@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { format } from 'date-fns';
 import { useRechargeUser } from '@/hooks/useRadiusUsers';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,13 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Wallet, User, Loader2, CreditCard, FileText } from 'lucide-react';
+import { Wallet, User, Loader2, CalendarIcon, CreditCard, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -32,6 +35,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
   const [rechargeAmount, setRechargeAmount] = useState('');
   const [rechargeDescription, setRechargeDescription] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [rechargeDate, setRechargeDate] = useState<Date>(new Date());
 
   const { data: paymentMethods = [] } = usePaymentMethods();
   const rechargeUser = useRechargeUser();
@@ -81,6 +85,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
       setRechargeAmount(currentPlanPrice > 0 ? currentPlanPrice.toString() : '');
       setRechargeDescription('');
       setSelectedPaymentMethod('');
+      setRechargeDate(new Date());
     }
   }, [open, user, currentPlanPrice]);
 
@@ -159,6 +164,37 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Recharge Date */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                Recharge Date *
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal bg-secondary border-border",
+                      !rechargeDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {rechargeDate ? format(rechargeDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-popover border-border" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={rechargeDate}
+                    onSelect={(date) => date && setRechargeDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Current Expiry Date (Read-only) */}
