@@ -83,11 +83,14 @@ serve(async (req) => {
       )
     }
 
-    // Add to admin_users table
-    await supabase.from('admin_users').insert({
-      user_id: newUser.user.id,
-      full_name
-    })
+    // Only add to admin_users table for super_admin and admin roles
+    // Other roles should NOT be in admin_users as it bypasses permission checks
+    if (role === 'super_admin' || role === 'admin') {
+      await supabase.from('admin_users').insert({
+        user_id: newUser.user.id,
+        full_name
+      })
+    }
 
     // Add to software_users table
     const { data: softwareUser, error: swError } = await supabase
