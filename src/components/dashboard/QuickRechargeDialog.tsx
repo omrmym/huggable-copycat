@@ -123,19 +123,18 @@ export function QuickRechargeDialog({ open, onOpenChange }: QuickRechargeDialogP
 
     try {
       if (isNotExpired) {
-        // Deduct prorated amount from balance
+        // Deduct prorated amount - just update plan, no balance change
         await updateUser.mutateAsync({
           id: selectedUser.id,
           plan_id: selectedPlanId,
           monthly_bill: selectedPlan.price,
-          balance: selectedUser.balance - amountToDeduct,
           mikrotik_synced: false,
         });
         
         // Create a transaction record for the plan change deduction
         const description = proratedResult.isValid 
           ? `Plan changed to ${selectedPlan.name} - Prorated for ${proratedResult.remainingDays} days`
-          : `Plan changed to ${selectedPlan.name} - Balance deducted`;
+          : `Plan changed to ${selectedPlan.name}`;
         
         await createTransaction.mutateAsync({
           radiusUserId: selectedUser.id,
@@ -145,7 +144,7 @@ export function QuickRechargeDialog({ open, onOpenChange }: QuickRechargeDialogP
           status: 'completed',
         });
       } else {
-        // User is expired - no balance deduction needed
+        // User is expired - just update plan
         await updateUser.mutateAsync({
           id: selectedUser.id,
           plan_id: selectedPlanId,
@@ -249,7 +248,6 @@ export function QuickRechargeDialog({ open, onOpenChange }: QuickRechargeDialogP
                           </div>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="text-sm font-medium">৳{(user.balance || 0).toLocaleString()}</p>
                           <span className={`text-xs px-1.5 py-0.5 rounded ${
                             user.status === 'active' 
                               ? 'bg-success/10 text-success' 
@@ -411,12 +409,10 @@ export function QuickRechargeDialog({ open, onOpenChange }: QuickRechargeDialogP
               {selectedPlanId && (() => {
                 const selectedPlan = filteredPlans.find(p => p.id === selectedPlanId);
                 const planPrice = Number(selectedPlan?.price || 0);
-                const userBalance = Number(selectedUser.balance || 0);
                 const currentPlanPrice = Number(selectedUser.plan?.price || 0);
                 const isNotExpired = selectedUser.status !== 'expired';
                 const proratedResult = calculateProratedPrice(selectedUser.expires_at, planPrice, currentPlanPrice, selectedUser.billing_cycle || 'monthly');
                 const amountToDeduct = isNotExpired && proratedResult.isValid ? proratedResult.proratedAmount : planPrice;
-                const hasInsufficientBalance = isNotExpired && userBalance < amountToDeduct;
                 const isDowngrade = isNotExpired && planPrice < currentPlanPrice;
                 
                 return (
@@ -452,31 +448,6 @@ export function QuickRechargeDialog({ open, onOpenChange }: QuickRechargeDialogP
                         </p>
                       </>
                     )}
-                    {isNotExpired && !proratedResult.isValid && (
-                      <div className="flex items-center justify-between border-b border-border pb-2">
-                        <span className="text-sm font-medium text-muted-foreground">Required Balance:</span>
-                        <span className="text-lg font-bold text-primary">৳{planPrice.toLocaleString()}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Your Balance:</span>
-                      <span className={`font-semibold ${hasInsufficientBalance ? 'text-destructive' : 'text-success'}`}>
-                        ৳{userBalance.toLocaleString()}
-                      </span>
-                    </div>
-                    {isNotExpired && (
-                      <div className="flex items-center justify-between pt-2 border-t border-border">
-                        <span className="text-sm text-muted-foreground">Balance After Change:</span>
-                        <span className={`font-semibold ${hasInsufficientBalance ? 'text-destructive' : 'text-foreground'}`}>
-                          ৳{(userBalance - amountToDeduct).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-                    {hasInsufficientBalance && (
-                      <p className="text-sm text-destructive font-medium pt-1">
-                        ⚠️ Insufficient balance! Need ৳{(amountToDeduct - userBalance).toLocaleString()} more.
-                      </p>
-                    )}
                     {isDowngrade && (
                       <p className="text-sm text-destructive font-medium pt-1">
                         ⚠️ Plan downgrade not allowed for active users.
@@ -484,7 +455,7 @@ export function QuickRechargeDialog({ open, onOpenChange }: QuickRechargeDialogP
                     )}
                     {!isNotExpired && (
                       <p className="text-sm text-info font-medium pt-1">
-                        ℹ️ No balance deduction for expired users
+                        ℹ️ No deduction for expired users
                       </p>
                     )}
                   </div>
@@ -506,9 +477,7 @@ export function QuickRechargeDialog({ open, onOpenChange }: QuickRechargeDialogP
                       const selectedPlan = filteredPlans.find(p => p.id === selectedPlanId);
                       const planPrice = Number(selectedPlan?.price || 0);
                       const currentPlanPrice = Number(selectedUser.plan?.price || 0);
-                      const proratedResult = calculateProratedPrice(selectedUser.expires_at, planPrice, currentPlanPrice, selectedUser.billing_cycle || 'monthly');
-                      const amountToDeduct = proratedResult.isValid ? proratedResult.proratedAmount : planPrice;
-                      return selectedUser.balance < amountToDeduct || planPrice < currentPlanPrice;
+                      return planPrice < currentPlanPrice;
                     })()
                   }
                 >

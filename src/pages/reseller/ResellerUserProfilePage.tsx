@@ -235,12 +235,6 @@ export default function ResellerUserProfilePage() {
         const currentPlanPrice = Number(user.plan?.price || 0);
         const proratedResult = calculateProratedPrice(user.expires_at, planPrice, currentPlanPrice, user.billing_cycle || 'monthly');
         amountToDeduct = proratedResult.isValid ? proratedResult.proratedAmount : planPrice;
-        
-        if (user.balance < amountToDeduct) {
-          toast({ title: 'Error', description: 'Insufficient balance for plan change', variant: 'destructive' });
-          setIsUpdating(false);
-          return;
-        }
       }
       
       const updates: Record<string, unknown> = {
@@ -248,10 +242,6 @@ export default function ResellerUserProfilePage() {
         monthly_bill: plan.price,
         mikrotik_synced: false,
       };
-      
-      if (amountToDeduct > 0) {
-        updates.balance = user.balance - amountToDeduct;
-      }
       
       const { error } = await supabase.functions.invoke('reseller-update-user', {
         body: {
@@ -385,10 +375,6 @@ export default function ResellerUserProfilePage() {
                     <Network className="w-4 h-4" />
                   )}
                   <span className="capitalize">{user.service_type}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <CreditCard className="w-4 h-4" />
-                  <span>৳{user.balance.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
@@ -561,12 +547,6 @@ export default function ResellerUserProfilePage() {
                 {user.plan && ` - ৳${Number(user.plan.price).toLocaleString()}`}
               </p>
             </div>
-            <div className="space-y-2">
-              <Label>Current Balance</Label>
-              <p className={`text-sm font-medium ${user.balance < 0 ? 'text-destructive' : 'text-primary'}`}>
-                ৳{user.balance.toLocaleString()}
-              </p>
-            </div>
             {user.status !== 'expired' && user.expires_at && (
               <div className="space-y-2">
                 <Label>Remaining Days</Label>
@@ -600,18 +580,12 @@ export default function ResellerUserProfilePage() {
                   const currentPlanPrice = Number(user.plan?.price || 0);
                   const proratedResult = calculateProratedPrice(user.expires_at, planPrice, currentPlanPrice, user.billing_cycle || 'monthly');
                   const amount = proratedResult.isValid ? proratedResult.proratedAmount : planPrice;
-                  const hasEnoughBalance = user.balance >= amount;
                   
                   return (
                     <>
                       <p className="text-sm text-muted-foreground">
-                        Required Balance: <span className={hasEnoughBalance ? 'text-primary' : 'text-destructive'}>৳{amount.toLocaleString()}</span>
+                        Prorated Cost: <span className="text-primary">৳{amount.toLocaleString()}</span>
                       </p>
-                      {!hasEnoughBalance && (
-                        <p className="text-sm text-destructive">
-                          Insufficient balance. Need ৳{(amount - user.balance).toLocaleString()} more.
-                        </p>
-                      )}
                     </>
                   );
                 })()}

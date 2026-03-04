@@ -63,7 +63,6 @@ type Transaction = Tables<'transactions'> & {
     username: string;
     full_name: string | null;
     phone: string | null;
-    balance: number;
   } | null;
   collected_by?: string | null;
   payment_method?: string | null;

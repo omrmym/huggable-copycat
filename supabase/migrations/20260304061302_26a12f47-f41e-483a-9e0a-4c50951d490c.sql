@@ -1,0 +1,1 @@
+ALTER TABLE public.radius_users DROP COLUMN IF EXISTS balance;

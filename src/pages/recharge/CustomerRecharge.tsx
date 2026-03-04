@@ -116,8 +116,8 @@ export default function CustomerRecharge() {
                     <TableHead>Customer</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Plan</TableHead>
-                    <TableHead>Balance</TableHead>
                     <TableHead className="text-center">Grace</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
@@ -156,14 +156,6 @@ export default function CustomerRecharge() {
                         </TableCell>
                         <TableCell>
                           <span className="text-foreground">{user.plan?.name || 'No Plan'}</span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <CreditCard className="w-4 h-4 text-primary" />
-                            <span className="font-semibold text-foreground">
-                              ৳{(user.balance || 0).toLocaleString()}
-                            </span>
-                          </div>
                         </TableCell>
                         <TableCell className="text-center">
                           {user.grace_days_used > 0 ? (

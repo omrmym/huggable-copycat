@@ -25,7 +25,6 @@ interface UserOverviewTabProps {
     billing_type: string | null;
     monthly_bill: number | null;
     connection_fee: number | null;
-    balance: number;
     expires_at: string | null;
     district_id: string | null;
     police_station_id: string | null;
@@ -105,11 +104,6 @@ export function UserOverviewTab({
           <InfoRow label="Billing Type" value={user.billing_type || '-'} />
           <InfoRow label="Monthly Bill" value={`৳${user.monthly_bill?.toLocaleString() || 0}`} />
           <InfoRow label="Connection Fee" value={`৳${user.connection_fee?.toLocaleString() || 0}`} />
-          <InfoRow 
-            label="Current Balance" 
-            value={`৳${user.balance.toLocaleString()}`}
-            valueClassName={user.balance < 0 ? 'text-destructive' : 'text-primary'}
-          />
           <InfoRow 
             label="Expires At" 
             value={user.expires_at ? new Date(user.expires_at).toLocaleDateString() : '-'} 

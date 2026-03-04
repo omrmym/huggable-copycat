@@ -296,10 +296,6 @@ export default function UserProfile() {
                   <span className="capitalize">{user.service_type}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CreditCard className="w-4 h-4" />
-                  <span>৳{user.balance.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   <span>
                     Joined {new Date(user.created_at).toLocaleDateString()}

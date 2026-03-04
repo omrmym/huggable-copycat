@@ -86,7 +86,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
 
     // Send payment confirmation SMS
     if (user.phone) {
-      const smsMessage = `Payment of ৳${amount.toLocaleString()} received. New balance: ৳${result.newBalance.toLocaleString()}. Expires: ${new Date(result.newExpiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Thank you!`;
+      const smsMessage = `Payment of ৳${amount.toLocaleString()} received. Expires: ${new Date(result.newExpiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Thank you!`;
       sendSms({ phone: user.phone, message: smsMessage, automationType: 'payment_confirmation' }).catch(() => {});
     }
 
@@ -95,8 +95,6 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
 
   if (!user) return null;
 
-  const currentBalance = user.balance || 0;
-  const newBalance = currentBalance + (parseFloat(rechargeAmount) || 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,10 +124,6 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
                     {user.service_type}
                   </span>
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Current Balance</p>
-                <p className="text-lg font-bold text-foreground">৳{currentBalance.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -221,15 +215,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
             </div>
           </div>
 
-          {/* New Balance Preview */}
-          {parseFloat(rechargeAmount) > 0 && (
-            <div className="flex justify-between items-center p-4 bg-success/10 rounded-lg border border-success/30">
-              <span className="text-success font-medium">New Balance After Recharge</span>
-              <span className="text-xl font-bold text-success">
-                ৳{newBalance.toLocaleString()}
-              </span>
-            </div>
-          )}
+
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">

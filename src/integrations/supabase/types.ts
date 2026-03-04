@@ -921,7 +921,6 @@ export type Database = {
           address_details: string | null
           area_id: string | null
           auto_renew: boolean | null
-          balance: number
           billing_cycle: string | null
           billing_type: string | null
           connection_date: string | null
@@ -964,7 +963,6 @@ export type Database = {
           address_details?: string | null
           area_id?: string | null
           auto_renew?: boolean | null
-          balance?: number
           billing_cycle?: string | null
           billing_type?: string | null
           connection_date?: string | null
@@ -1007,7 +1005,6 @@ export type Database = {
           address_details?: string | null
           area_id?: string | null
           auto_renew?: boolean | null
-          balance?: number
           billing_cycle?: string | null
           billing_type?: string | null
           connection_date?: string | null

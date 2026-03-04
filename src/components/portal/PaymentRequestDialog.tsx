@@ -101,12 +101,8 @@ export function PaymentRequestDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label>Current Balance</Label>
-            <p className={`text-lg font-mono ${currentBalance < 0 ? 'text-destructive' : 'text-foreground'}`}>
-              ৳{currentBalance.toLocaleString()}
-            </p>
-          </div>
+
+
 
           <div className="space-y-2">
             <Label>Select Plan (Optional)</Label>
@@ -151,16 +147,8 @@ export function PaymentRequestDialog({
             />
           </div>
 
-          {amount && parseFloat(amount) > 0 && (
-            <div className="p-3 bg-secondary rounded-lg">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">New Balance (after approval)</span>
-                <span className="font-mono text-primary">
-                  ৳{(currentBalance + parseFloat(amount)).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          )}
+
+
 
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

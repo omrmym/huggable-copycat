@@ -11,7 +11,6 @@ export interface User {
   serviceType: ServiceType;
   planId: string;
   status: UserStatus;
-  balance: number;
   dataUsed: number; // in MB
   dataLimit: number | null; // null = unlimited
   expiresAt: string | null;

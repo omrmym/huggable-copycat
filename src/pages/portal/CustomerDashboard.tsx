@@ -139,7 +139,7 @@ export default function CustomerDashboard() {
         </div>
 
         {/* Account Alert for expired/disabled */}
-        {(customer.status === 'expired' || customer.balance < 0) && (
+        {customer.status === 'expired' && (
           <Card className="mb-6 border-destructive bg-destructive/10">
             <CardContent className="py-4">
               <div className="flex items-center gap-3">
@@ -149,7 +149,7 @@ export default function CustomerDashboard() {
                   <p className="text-sm text-muted-foreground">
                     {customer.status === 'expired' 
                       ? 'Your subscription has expired. Please recharge to continue using the service.'
-                      : 'Your balance is negative. Please add funds to avoid service interruption.'}
+                      : 'Your account needs attention.'}
                   </p>
                 </div>
               </div>
@@ -282,20 +282,15 @@ export default function CustomerDashboard() {
 
               {/* Sidebar */}
               <div className="space-y-6">
-                {/* Balance & Payment */}
+                {/* Quick Actions */}
                 <Card className="bg-card border-border">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <CreditCard className="w-5 h-5" />
-                      Account Balance
+                      Quick Actions
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className={`text-3xl font-bold mb-4 ${
-                      customer.balance < 0 ? 'text-destructive' : 'text-foreground'
-                    }`}>
-                      ৳{customer.balance.toLocaleString()}
-                    </p>
                     <div className="space-y-2">
                       <BkashPaymentButton
                         userId={customer.id}
@@ -532,7 +527,7 @@ export default function CustomerDashboard() {
         onOpenChange={setPaymentDialogOpen}
         userId={customer.id}
         userName={customer.full_name || customer.username}
-        currentBalance={customer.balance}
+        currentBalance={0}
       />
     </div>
   );
