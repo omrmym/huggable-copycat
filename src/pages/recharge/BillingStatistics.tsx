@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { startOfMonth, endOfMonth, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRadiusUsers } from '@/hooks/useRadiusUsers';
@@ -12,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DollarSign, Users, UserX, Wallet, Search } from 'lucide-react';
 import { RechargeDialog } from '@/components/recharge/RechargeDialog';
+import { DateRangeFilter } from '@/components/finance/DateRangeFilter';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -47,6 +49,8 @@ export default function BillingStatistics() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [billingTypeFilter, setBillingTypeFilter] = useState<string>('all');
   const [paidFilter, setPaidFilter] = useState<string>('all');
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState<Date | undefined>(endOfMonth(new Date()));
   
   // Recharge dialog state
   const [selectedUser, setSelectedUser] = useState<RadiusUser | null>(null);
@@ -97,10 +101,23 @@ export default function BillingStatistics() {
       const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
       const matchesBillingType = billingTypeFilter === 'all' || user.billing_type === billingTypeFilter;
       const matchesPaid = paidFilter === 'all' || paidFilter === 'auto_renew' || paidFilter === 'paid' || paidFilter === 'unpaid';
+
+      // Date filter on created_at
+      let matchesDate = true;
+      if (startDate || endDate) {
+        const userDate = new Date(user.created_at);
+        if (startDate && endDate) {
+          matchesDate = isWithinInterval(userDate, { start: startOfDay(startDate), end: endOfDay(endDate) });
+        } else if (startDate) {
+          matchesDate = userDate >= startOfDay(startDate);
+        } else if (endDate) {
+          matchesDate = userDate <= endOfDay(endDate);
+        }
+      }
       
-      return matchesSearch && matchesStatus && matchesBillingType && matchesPaid;
+      return matchesSearch && matchesStatus && matchesBillingType && matchesPaid && matchesDate;
     });
-  }, [users, searchTerm, statusFilter, billingTypeFilter, paidFilter]);
+  }, [users, searchTerm, statusFilter, billingTypeFilter, paidFilter, startDate, endDate]);
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
@@ -161,6 +178,15 @@ export default function BillingStatistics() {
           <CardTitle className="text-lg">Filter Users</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <DateRangeFilter
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+              onClear={() => { setStartDate(undefined); setEndDate(undefined); }}
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
