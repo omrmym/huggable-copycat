@@ -583,31 +583,49 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const authHeader = req.headers.get("Authorization");
+
+    // Parse body early to check action
+    const body = await req.json();
+    const { action } = body;
+
+    // Actions that can be called from customer portal (no Supabase auth)
+    const publicActions = ["get-user-bandwidth"];
+    const isPublicAction = publicActions.includes(action);
+
+    let supabase: ReturnType<typeof createClient>;
+
+    if (isPublicAction) {
+      // Use service role for public actions (customer portal has custom auth)
+      supabase = createClient(supabaseUrl, supabaseServiceKey);
+    } else {
+      // Require auth for all other actions
+      if (!authHeader?.startsWith("Bearer ")) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
       });
+
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
-    const body = await req.json();
-    const { action, router: routerConfig, username, password, profile, mac_address, service_type, expired_profile_name, locked, disabled, behavior } = body;
+    const { router: routerConfig, username, password, profile, mac_address, service_type, expired_profile_name, locked, disabled, behavior } = body;
 
     // Resolve router config
     let router: RouterConfig | null = routerConfig || null;
