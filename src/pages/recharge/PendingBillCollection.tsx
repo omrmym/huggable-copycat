@@ -54,7 +54,7 @@ import {
   Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, isWithinInterval, startOfDay, endOfDay, parseISO } from 'date-fns';
+import { format, isWithinInterval, startOfDay, endOfDay, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Transaction = Tables<'transactions'> & {
@@ -82,8 +82,8 @@ export default function PendingBillCollection() {
   
   const [collectedByFilter, setCollectedByFilter] = useState<string>('all');
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('all');
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState<Date | undefined>(endOfMonth(new Date()));
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const { data: transactions = [], isLoading } = usePendingTransactions();
