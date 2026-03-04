@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Json } from '@/integrations/supabase/types';
+import { SecretField } from './SecretField';
 
 interface PaymentGatewayConfig {
   bkash_enabled: boolean;
@@ -137,26 +138,16 @@ export function PaymentGatewaySettings() {
                 </div>
               </div>
               <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">App Key</Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    className="bg-background border-border"
-                    value={config.bkash_app_key}
-                    onChange={(e) => setConfig({ ...config, bkash_app_key: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">App Secret</Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    className="bg-background border-border"
-                    value={config.bkash_app_secret}
-                    onChange={(e) => setConfig({ ...config, bkash_app_secret: e.target.value })}
-                  />
-                </div>
+                <SecretField
+                  label="App Key"
+                  value={config.bkash_app_key}
+                  onChange={(v) => setConfig({ ...config, bkash_app_key: v })}
+                />
+                <SecretField
+                  label="App Secret"
+                  value={config.bkash_app_secret}
+                  onChange={(v) => setConfig({ ...config, bkash_app_secret: v })}
+                />
                 <div className="space-y-1">
                   <Label className="text-xs">Username</Label>
                   <Input
@@ -167,16 +158,11 @@ export function PaymentGatewaySettings() {
                     onChange={(e) => setConfig({ ...config, bkash_username: e.target.value })}
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Password</Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    className="bg-background border-border"
-                    value={config.bkash_password}
-                    onChange={(e) => setConfig({ ...config, bkash_password: e.target.value })}
-                  />
-                </div>
+                <SecretField
+                  label="Password"
+                  value={config.bkash_password}
+                  onChange={(v) => setConfig({ ...config, bkash_password: v })}
+                />
                 <div className="flex items-center justify-between pt-2">
                   <Label className="text-sm">Enable bKash</Label>
                   <Switch
@@ -217,16 +203,11 @@ export function PaymentGatewaySettings() {
                     onChange={(e) => setConfig({ ...config, nagad_merchant_id: e.target.value })}
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">API Key</Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    className="bg-background border-border"
-                    value={config.nagad_api_key}
-                    onChange={(e) => setConfig({ ...config, nagad_api_key: e.target.value })}
-                  />
-                </div>
+                <SecretField
+                  label="API Key"
+                  value={config.nagad_api_key}
+                  onChange={(v) => setConfig({ ...config, nagad_api_key: v })}
+                />
                 <div className="flex items-center justify-between pt-2">
                   <Label className="text-sm">Enable Nagad</Label>
                   <Switch
@@ -260,16 +241,11 @@ export function PaymentGatewaySettings() {
                     onChange={(e) => setConfig({ ...config, ssl_store_id: e.target.value })}
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Store Password</Label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    className="bg-background border-border"
-                    value={config.ssl_store_password}
-                    onChange={(e) => setConfig({ ...config, ssl_store_password: e.target.value })}
-                  />
-                </div>
+                <SecretField
+                  label="Store Password"
+                  value={config.ssl_store_password}
+                  onChange={(v) => setConfig({ ...config, ssl_store_password: v })}
+                />
                 <div className="flex items-center justify-between pt-2">
                   <Label className="text-sm">Enable SSLCommerz</Label>
                   <Switch
