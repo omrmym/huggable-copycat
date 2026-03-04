@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
 import { useUserTransactions } from '@/hooks/useTransactions';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useUserBandwidth } from '@/hooks/useUserBandwidth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +46,21 @@ export default function CustomerDashboard() {
     customer?.service_type,
     customer?.mikrotik_router_id
   );
+  const { data: paymentConfig } = useQuery({
+    queryKey: ['payment-gateway-config'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'payment_gateway')
+        .maybeSingle();
+      return (data?.value as Record<string, any>) || {};
+    },
+  });
+
+  const bkashEnabled = paymentConfig?.bkash_enabled === true;
+  const nagadEnabled = paymentConfig?.nagad_enabled === true;
+
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
   if (isLoading) {
@@ -292,14 +309,18 @@ export default function CustomerDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <BkashPaymentButton
-                        userId={customer.id}
-                        userName={customer.full_name || customer.username}
-                      />
-                      <NagadPaymentButton
-                        userId={customer.id}
-                        userName={customer.full_name || customer.username}
-                      />
+                      {bkashEnabled && (
+                        <BkashPaymentButton
+                          userId={customer.id}
+                          userName={customer.full_name || customer.username}
+                        />
+                      )}
+                      {nagadEnabled && (
+                        <NagadPaymentButton
+                          userId={customer.id}
+                          userName={customer.full_name || customer.username}
+                        />
+                      )}
                       <Button 
                         variant="outline" 
                         className="w-full border-border"
