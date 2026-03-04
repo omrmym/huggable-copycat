@@ -194,6 +194,12 @@ export default function BillingStatistics() {
           icon={UserX}
           subtitle="Expired users monthly bill"
         />
+        <StatCard 
+          title="Already Paid Bill" 
+          value={`৳${stats.alreadyPaidBill.toLocaleString()}`} 
+          icon={Wallet}
+          subtitle={`${stats.alreadyPaidUsers} users paid this month`}
+        />
       </div>
 
       {/* Filters */}
