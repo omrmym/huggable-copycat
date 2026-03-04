@@ -99,6 +99,7 @@ export default function ManageRecharge() {
             expires_at,
             billing_cycle,
             plan_id,
+            monthly_bill,
             grace_days_used,
             plan:billing_plans (
               id,
