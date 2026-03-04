@@ -90,7 +90,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
     if (isNaN(amount) || amount <= 0) return;
 
     const paymentMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
-    const collectedBy = authUser?.user_metadata?.full_name || authUser?.email || 'Unknown';
+    const collectedBy = adminUser?.full_name || authUser?.user_metadata?.full_name || authUser?.email || 'Unknown';
 
     const result = await rechargeUser.mutateAsync({
       userId: user.id,
