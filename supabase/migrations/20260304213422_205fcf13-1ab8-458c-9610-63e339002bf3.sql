@@ -1,0 +1,1 @@
+DELETE FROM admin_users WHERE user_id = '25b679b7-28fc-4069-acb8-3c2f87ad9f58';

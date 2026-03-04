@@ -1,25 +1,18 @@
 import { useCurrentUserRole } from '@/hooks/useCurrentUserRole';
-import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Hook to check if the current user has a specific permission.
- * Super admins and admins (from admin_users table) bypass permission checks.
+ * Only super_admin and admin roles bypass permission checks.
  */
 export function useHasPermission() {
-  const { isAdmin } = useAuth();
   const { data: userRole, isLoading } = useCurrentUserRole();
 
   const hasPermission = (permission: string): boolean => {
-    // Admin users (from admin_users table) have full access
-    if (isAdmin) return true;
-    // Super admin and admin roles have full access
     if (userRole?.isSuperAdmin || userRole?.isAdmin) return true;
-    // Check specific permission
     return userRole?.permissions?.includes(permission) ?? false;
   };
 
   const hasAnyPermission = (permissions: string[]): boolean => {
-    if (isAdmin) return true;
     if (userRole?.isSuperAdmin || userRole?.isAdmin) return true;
     return permissions.some(p => userRole?.permissions?.includes(p) ?? false);
   };
