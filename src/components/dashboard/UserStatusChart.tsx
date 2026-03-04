@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useOnlineUsers } from '@/hooks/useOnlineUsers';
+import { useRadiusUsers } from '@/hooks/useRadiusUsers';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const COLORS = {
@@ -11,10 +12,22 @@ const COLORS = {
 
 export function UserStatusChart() {
   const navigate = useNavigate();
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const { data: allUsers = [], isLoading: usersLoading } = useRadiusUsers();
   const { data: onlineData, isLoading: onlineLoading } = useOnlineUsers();
 
-  const isLoading = statsLoading || onlineLoading;
+  const onlineUsernames = onlineData?.onlineUsernames || [];
+
+  // Filter to admin-only users (no reseller)
+  const adminUsers = useMemo(() => allUsers.filter(u => !u.reseller_id), [allUsers]);
+
+  const onlineCount = useMemo(() => 
+    adminUsers.filter(u => onlineUsernames.includes(u.username)).length, 
+    [adminUsers, onlineUsernames]
+  );
+  const totalUsers = adminUsers.length;
+  const offlineCount = Math.max(0, totalUsers - onlineCount);
+
+  const isLoading = usersLoading || onlineLoading;
 
   if (isLoading) {
     return (
@@ -24,10 +37,6 @@ export function UserStatusChart() {
       </div>
     );
   }
-
-  const totalUsers = stats?.totalUsers || 0;
-  const onlineCount = onlineData?.onlineCount || 0;
-  const offlineCount = Math.max(0, totalUsers - onlineCount);
 
   // Online/Offline distribution data
   const onlineOfflineData = [
