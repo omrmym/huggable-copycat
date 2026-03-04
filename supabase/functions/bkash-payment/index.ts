@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     const appSecret = settings.bkash_app_secret;
     const bkashUsername = settings.bkash_username;
     const bkashPassword = settings.bkash_password;
-    const isSandbox = settings.bkash_sandbox !== false; // default to sandbox
+    const isSandbox = settings.bkash_sandbox === true; // default to production
 
     if (!appKey || !appSecret || !bkashUsername || !bkashPassword) {
       return new Response(
