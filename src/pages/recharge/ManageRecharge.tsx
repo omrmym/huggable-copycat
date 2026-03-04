@@ -380,14 +380,8 @@ export default function ManageRecharge() {
                           ? format(new Date(tx.radius_users.expires_at), 'MMM d, yyyy')
                           : '-'}
                       </TableCell>
-                      <TableCell className="text-center">
-                        {tx.radius_users?.grace_days_used && tx.radius_users.grace_days_used > 0 ? (
-                          <Badge variant="outline" className="bg-warning/20 text-warning border-warning/30">
-                            {tx.radius_users.grace_days_used}d
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                      <TableCell className="text-center text-sm">
+                        {tx.payment_method || '-'}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {tx.collected_by || 'Unknown'}
