@@ -43,8 +43,20 @@ export default function ResellerLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(220,60%,8%)] via-[hsl(230,50%,12%)] to-[hsl(250,45%,10%)]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[hsl(210,100%,50%,0.08)] blur-[120px] animate-[float1_20s_ease-in-out_infinite]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[hsl(260,100%,60%,0.08)] blur-[120px] animate-[float2_25s_ease-in-out_infinite]" />
+        <div className="absolute top-[40%] left-[50%] w-[400px] h-[400px] rounded-full bg-[hsl(180,100%,50%,0.05)] blur-[100px] animate-[float3_18s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `linear-gradient(hsl(210,50%,50%) 1px, transparent 1px), linear-gradient(90deg, hsl(210,50%,50%) 1px, transparent 1px)`, backgroundSize: '60px 60px' }} />
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div key={i} className="absolute w-1 h-1 rounded-full bg-[hsl(210,100%,70%,0.3)]" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, animation: `particle${i % 3} ${8 + Math.random() * 12}s ease-in-out infinite`, animationDelay: `${Math.random() * 5}s` }} />
+        ))}
+      </div>
+
+      <Card className="w-full max-w-md backdrop-blur-xl bg-card/80 border-border/50 shadow-2xl shadow-black/20 animate-fade-in">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Store className="w-8 h-8 text-primary" />
@@ -96,6 +108,15 @@ export default function ResellerLogin() {
           </div>
         </CardContent>
       </Card>
+
+      <style>{`
+        @keyframes float1 { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(80px, -60px) scale(1.1); } 66% { transform: translate(-40px, 40px) scale(0.95); } }
+        @keyframes float2 { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(-70px, 50px) scale(1.05); } 66% { transform: translate(50px, -70px) scale(0.9); } }
+        @keyframes float3 { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-40%, -60%) scale(1.15); } }
+        @keyframes particle0 { 0%, 100% { transform: translate(0, 0); opacity: 0.3; } 50% { transform: translate(30px, -40px); opacity: 0.8; } }
+        @keyframes particle1 { 0%, 100% { transform: translate(0, 0); opacity: 0.2; } 50% { transform: translate(-20px, 50px); opacity: 0.7; } }
+        @keyframes particle2 { 0%, 100% { transform: translate(0, 0); opacity: 0.4; } 50% { transform: translate(40px, 20px); opacity: 0.6; } }
+      `}</style>
     </div>
   );
 }
