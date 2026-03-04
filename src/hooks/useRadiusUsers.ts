@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { logSystemActivity } from '@/hooks/useSystemActivity';
+import { sendSms } from '@/hooks/useSendSms';
 
 export type { Tables };
 
@@ -420,7 +421,7 @@ export function useRechargeUser() {
       // Get current user data including plan info
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
+        .select('username, full_name, phone, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
         .eq('id', userId)
         .single();
 
@@ -520,6 +521,23 @@ export function useRechargeUser() {
         });
       } catch (syncError) {
         console.warn('MikroTik enable after recharge failed:', syncError);
+      }
+
+      // Send SMS notification for payment confirmation
+      if (user.phone) {
+        try {
+          const planName = planData?.name || 'N/A';
+          const smsMessage = `Payment of ৳${amount.toLocaleString()} received for ${user.full_name || user.username}. Plan: ${planName}. New expiry: ${newExpiresAt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Thank you!`;
+          await sendSms({
+            phone: user.phone,
+            message: smsMessage,
+            automationType: 'payment_confirmation',
+            recipientName: user.full_name || user.username,
+            radiusUserId: userId,
+          });
+        } catch (smsError) {
+          console.warn('SMS after recharge failed:', smsError);
+        }
       }
 
       return { newExpiresAt: newExpiresAt.toISOString(), graceDaysDeducted: graceDaysUsed };
