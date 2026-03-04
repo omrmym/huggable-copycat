@@ -36,7 +36,7 @@ export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess 
 
   const handlePayment = async () => {
     const numAmount = isFixedAmount && defaultAmount ? defaultAmount : parseFloat(amount);
-    if (isNaN(numAmount) || numAmount < 10) {
+    if (isNaN(numAmount) || numAmount < 1) {
       return;
     }
 
@@ -87,7 +87,7 @@ export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess 
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="pl-8"
-                min={10}
+                min={1}
                 readOnly={isFixedAmount}
                 disabled={isFixedAmount}
               />
@@ -115,7 +115,7 @@ export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess 
           <Button
             className="w-full bg-[#E2136E] hover:bg-[#C11160] text-white"
             onClick={handlePayment}
-            disabled={isLoading || !amount || parseFloat(amount) < 10}
+            disabled={isLoading || !amount || parseFloat(amount) < 1}
           >
             {isLoading ? (
               <>
@@ -128,7 +128,7 @@ export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess 
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            {isFixedAmount ? 'Fixed monthly bill amount' : 'Minimum amount: ৳10'} • Secured by bKash
+            {isFixedAmount ? 'Fixed monthly bill amount' : 'Minimum amount: ৳1'} • Secured by bKash
           </p>
         </div>
       </DialogContent>
