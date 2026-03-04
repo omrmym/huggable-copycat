@@ -30,7 +30,11 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Lock } from 'lucide-react';
+import { Loader2, Lock, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 
 interface RadiusUser {
@@ -620,28 +624,55 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     Expiration Date
                     {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
-                  <Input
-                    type="datetime-local"
-                    value={formData.expires_at ? new Date(formData.expires_at).toISOString().slice(0, 16) : ''}
-                    onChange={(e) => {
-                      if (isAdmin && e.target.value) {
-                        setFormData({ ...formData, expires_at: new Date(e.target.value).toISOString() });
-                      }
-                    }}
-                    disabled={!isAdmin}
-                    className={!isAdmin ? 'opacity-60' : ''}
-                  />
-                  {formData.expires_at && (
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(formData.expires_at).toLocaleString('en-GB', { 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric', 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </p>
-                  )}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        disabled={!isAdmin}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.expires_at && "text-muted-foreground",
+                          !isAdmin && "opacity-60"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.expires_at
+                          ? format(new Date(formData.expires_at), "PPP 'at' hh:mm a")
+                          : "Pick expiration date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.expires_at ? new Date(formData.expires_at) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            // Preserve time from existing expires_at or default to 09:00
+                            const existing = formData.expires_at ? new Date(formData.expires_at) : null;
+                            date.setHours(existing?.getHours() ?? 9, existing?.getMinutes() ?? 0, 0, 0);
+                            setFormData({ ...formData, expires_at: date.toISOString() });
+                          }
+                        }}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                      {/* Time picker */}
+                      <div className="border-t p-3">
+                        <Label className="text-xs text-muted-foreground">Time</Label>
+                        <Input
+                          type="time"
+                          value={formData.expires_at ? format(new Date(formData.expires_at), "HH:mm") : "09:00"}
+                          onChange={(e) => {
+                            const [hours, minutes] = e.target.value.split(':').map(Number);
+                            const date = formData.expires_at ? new Date(formData.expires_at) : new Date();
+                            date.setHours(hours, minutes, 0, 0);
+                            setFormData({ ...formData, expires_at: date.toISOString() });
+                          }}
+                          className="mt-1"
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="col-span-2 flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
                   <div>
