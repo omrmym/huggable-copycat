@@ -1461,6 +1461,53 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_history: {
+        Row: {
+          api_response: Json | null
+          created_at: string
+          id: string
+          message: string
+          radius_user_id: string | null
+          recipient_name: string | null
+          recipient_phone: string
+          sent_by: string | null
+          sms_type: string
+          status: string
+        }
+        Insert: {
+          api_response?: Json | null
+          created_at?: string
+          id?: string
+          message: string
+          radius_user_id?: string | null
+          recipient_name?: string | null
+          recipient_phone: string
+          sent_by?: string | null
+          sms_type?: string
+          status?: string
+        }
+        Update: {
+          api_response?: Json | null
+          created_at?: string
+          id?: string
+          message?: string
+          radius_user_id?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string
+          sent_by?: string | null
+          sms_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_history_radius_user_id_fkey"
+            columns: ["radius_user_id"]
+            isOneToOne: false
+            referencedRelation: "radius_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       software_users: {
         Row: {
           created_at: string

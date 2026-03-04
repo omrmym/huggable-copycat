@@ -7,24 +7,24 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2, FileText, RefreshCw } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2, FileText, RefreshCw, Loader2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import SmsTemplates from '@/components/sms/SmsTemplates';
-
-// SMS history data type
-type SmsRecord = { id: string; recipient: string; recipientName: string; type: string; message: string; status: string; sentAt: string; cost: number };
+import { useSmsHistory, useClearSmsHistory, type SmsHistoryRecord } from '@/hooks/useSmsHistory';
+import { useQueryClient } from '@tanstack/react-query';
 
 const typeColors: Record<string, string> = {
   'Bill Reminder': 'hsl(var(--primary))',
   'Payment Confirmation': 'hsl(142, 76%, 36%)',
   'Expiry Warning': 'hsl(38, 92%, 50%)',
   'Service Activation': 'hsl(262, 83%, 58%)',
+  'Custom': 'hsl(var(--muted-foreground))',
 };
 
-const buildDailyData = (data: SmsRecord[]) => {
+const buildDailyData = (data: SmsHistoryRecord[]) => {
   const map: Record<string, { sent: number; delivered: number; failed: number }> = {};
   data.forEach((sms) => {
-    const date = new Date(sms.sentAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+    const date = new Date(sms.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
     if (!map[date]) map[date] = { sent: 0, delivered: 0, failed: 0 };
     map[date].sent++;
     if (sms.status === 'delivered') map[date].delivered++;
@@ -35,10 +35,10 @@ const buildDailyData = (data: SmsRecord[]) => {
     .sort((a, b) => new Date(a.date + ' 2026').getTime() - new Date(b.date + ' 2026').getTime());
 };
 
-const buildTypeData = (data: SmsRecord[]) => {
+const buildTypeData = (data: SmsHistoryRecord[]) => {
   const map: Record<string, number> = {};
   data.forEach((sms) => {
-    map[sms.type] = (map[sms.type] || 0) + 1;
+    map[sms.sms_type] = (map[sms.sms_type] || 0) + 1;
   });
   return Object.entries(map).map(([name, value]) => ({
     name,
@@ -63,11 +63,14 @@ export default function SmsHistory() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [smsData, setSmsData] = useState<SmsRecord[]>([]);
+
+  const { data: smsData = [], isLoading } = useSmsHistory();
+  const clearHistory = useClearSmsHistory();
+  const queryClient = useQueryClient();
 
   const filtered = smsData.filter((sms) => {
-    const matchSearch = !search || sms.recipient.includes(search) || sms.recipientName.toLowerCase().includes(search.toLowerCase());
-    const matchType = typeFilter === 'all' || sms.type === typeFilter;
+    const matchSearch = !search || sms.recipient_phone.includes(search) || (sms.recipient_name || '').toLowerCase().includes(search.toLowerCase());
+    const matchType = typeFilter === 'all' || sms.sms_type === typeFilter;
     const matchStatus = statusFilter === 'all' || sms.status === statusFilter;
     return matchSearch && matchType && matchStatus;
   });
@@ -75,21 +78,9 @@ export default function SmsHistory() {
   const totalSent = smsData.length;
   const totalDelivered = smsData.filter(s => s.status === 'delivered').length;
   const totalFailed = smsData.filter(s => s.status === 'failed').length;
-  const totalCost = smsData.reduce((sum, s) => sum + s.cost, 0);
 
   const dailyData = buildDailyData(smsData);
   const typeData = buildTypeData(smsData);
-
-  const handleClearHistory = () => {
-    setSmsData([]);
-    setSearch('');
-    setTypeFilter('all');
-    setStatusFilter('all');
-  };
-
-  const handleReloadHistory = () => {
-    setSmsData([]);
-  };
 
   return (
     <DashboardLayout title="SMS Management" subtitle="SMS history, analytics and templates">
@@ -105,10 +96,9 @@ export default function SmsHistory() {
           </TabsTrigger>
         </TabsList>
 
-        {/* History & Analytics Tab */}
         <TabsContent value="history" className="space-y-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Card className="bg-card border-border">
               <CardContent className="pt-4 pb-4">
                 <div className="flex items-center gap-3">
@@ -148,19 +138,6 @@ export default function SmsHistory() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="bg-card border-border">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-amber-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">৳{totalCost.toFixed(2)}</p>
-                    <p className="text-xs text-muted-foreground">Total Cost</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Charts */}
@@ -171,7 +148,7 @@ export default function SmsHistory() {
                   <BarChart3 className="w-4 h-4 text-primary" />
                   Daily SMS Activity
                 </CardTitle>
-                <CardDescription className="text-xs">Last 7 days</CardDescription>
+                <CardDescription className="text-xs">Recent activity</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
@@ -225,10 +202,19 @@ export default function SmsHistory() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => queryClient.invalidateQueries({ queryKey: ['sms-history'] })}
+                    className="flex items-center gap-1.5"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Refresh
+                  </Button>
+                  <Button
                     variant="destructive"
                     size="sm"
-                    onClick={handleClearHistory}
-                    disabled={smsData.length === 0}
+                    onClick={() => clearHistory.mutate()}
+                    disabled={smsData.length === 0 || clearHistory.isPending}
                     className="flex items-center gap-1.5"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -259,6 +245,7 @@ export default function SmsHistory() {
                     <SelectItem value="Payment Confirmation">Payment Confirmation</SelectItem>
                     <SelectItem value="Expiry Warning">Expiry Warning</SelectItem>
                     <SelectItem value="Service Activation">Service Activation</SelectItem>
+                    <SelectItem value="Custom">Custom</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -287,43 +274,50 @@ export default function SmsHistory() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((sms) => (
-                      <TableRow key={sms.id} className="hover:bg-muted/20">
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-sm text-foreground">{sms.recipientName}</p>
-                            <p className="text-xs text-muted-foreground">{sms.recipient}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-xs border-border">
-                            {sms.type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <p className="text-xs text-muted-foreground truncate max-w-[300px]">{sms.message}</p>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`text-xs flex items-center gap-1 w-fit ${statusColors[sms.status]}`}>
-                            {statusIcons[sms.status]}
-                            {sms.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(sms.sentAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
-                            {' '}
-                            {new Date(sms.sentAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                          </p>
+                    {isLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <Loader2 className="w-5 h-5 animate-spin mx-auto text-muted-foreground" />
                         </TableCell>
                       </TableRow>
-                    ))}
-                    {filtered.length === 0 && (
+                    ) : filtered.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                           No SMS records found.
                         </TableCell>
                       </TableRow>
+                    ) : (
+                      filtered.map((sms) => (
+                        <TableRow key={sms.id} className="hover:bg-muted/20">
+                          <TableCell>
+                            <div>
+                              <p className="font-medium text-sm text-foreground">{sms.recipient_name || 'Unknown'}</p>
+                              <p className="text-xs text-muted-foreground">{sms.recipient_phone}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs border-border">
+                              {sms.sms_type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <p className="text-xs text-muted-foreground truncate max-w-[300px]">{sms.message}</p>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`text-xs flex items-center gap-1 w-fit ${statusColors[sms.status] || ''}`}>
+                              {statusIcons[sms.status]}
+                              {sms.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(sms.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                              {' '}
+                              {new Date(sms.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      ))
                     )}
                   </TableBody>
                 </Table>
@@ -332,7 +326,6 @@ export default function SmsHistory() {
           </Card>
         </TabsContent>
 
-        {/* Templates Tab */}
         <TabsContent value="templates">
           <SmsTemplates />
         </TabsContent>
