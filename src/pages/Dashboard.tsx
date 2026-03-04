@@ -157,7 +157,7 @@ export default function Dashboard() {
                 value={formatBDT(stats?.alreadyPaidBill || 0)}
                 icon={CreditCard}
                 variant="success"
-                href="/recharge/statistics?paid=true"
+                href="/recharge/manage"
               />
               <StatCard
                 title="Connection Fee"
