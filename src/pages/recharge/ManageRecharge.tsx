@@ -263,6 +263,18 @@ export default function ManageRecharge() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Select value={paymentMethodFilter} onValueChange={setPaymentMethodFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Payment Method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Methods</SelectItem>
+                    {Array.from(new Set(transactions?.map(tx => tx.payment_method).filter(Boolean) || [])).map(method => (
+                      <SelectItem key={method} value={method!}>{method}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                 <Popover>
