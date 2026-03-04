@@ -43,6 +43,25 @@ export default function BillingStatistics() {
       return data || [];
     },
   });
+
+  // Fetch completed payment transactions for current month (for Already Paid Bill)
+  const { data: monthlyPaidTransactions = [] } = useQuery({
+    queryKey: ['monthly-paid-transactions'],
+    queryFn: async () => {
+      const now = new Date();
+      const monthStart = startOfMonth(now).toISOString();
+      const monthEnd = endOfMonth(now).toISOString();
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('amount, radius_user_id')
+        .eq('status', 'completed')
+        .eq('type', 'payment')
+        .gte('created_at', monthStart)
+        .lte('created_at', monthEnd);
+      if (error) throw error;
+      return data || [];
+    },
+  });
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,13 +101,18 @@ export default function BillingStatistics() {
   const stats = useMemo(() => {
     const activeUsers = users.filter(u => u.status === 'active');
     const expiredUsers = users.filter(u => u.status === 'expired');
+    const alreadyPaidBill = monthlyPaidTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
+    const paidUserIds = new Set(monthlyPaidTransactions.map(t => t.radius_user_id).filter(Boolean));
+    const alreadyPaidUsers = users.filter(u => paidUserIds.has(u.id)).length;
 
     return {
       totalBill: users.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
       activeUsersBill: activeUsers.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
       expiredUsersBill: expiredUsers.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
+      alreadyPaidBill,
+      alreadyPaidUsers,
     };
-  }, [users]);
+  }, [users, monthlyPaidTransactions]);
 
   // Filter users
   const filteredUsers = useMemo(() => {
@@ -169,6 +193,12 @@ export default function BillingStatistics() {
           value={`৳${stats.expiredUsersBill.toLocaleString()}`} 
           icon={UserX}
           subtitle="Expired users monthly bill"
+        />
+        <StatCard 
+          title="Already Paid Bill" 
+          value={`৳${stats.alreadyPaidBill.toLocaleString()}`} 
+          icon={Wallet}
+          subtitle={`${stats.alreadyPaidUsers} users paid this month`}
         />
       </div>
 
