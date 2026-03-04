@@ -40,7 +40,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
   const { user: authUser } = useAuth();
 
   // Get current plan price
-  const currentPlanPrice = user?.plan?.price || 0;
+  const currentPlanPrice = user?.monthly_bill || user?.plan?.price || 0;
 
   // Check if DUE is selected
   const isDuePayment = useMemo(() => {
