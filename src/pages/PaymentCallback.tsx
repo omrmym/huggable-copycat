@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useBkashPayment } from '@/hooks/useBkashPayment';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,15 +12,19 @@ export default function PaymentCallback() {
   const [status, setStatus] = useState<'processing' | 'success' | 'failed'>('processing');
   const [message, setMessage] = useState('');
   const [newBalance, setNewBalance] = useState<number | null>(null);
+  const hasProcessedRef = useRef(false);
 
   useEffect(() => {
+    if (hasProcessedRef.current) return;
+    hasProcessedRef.current = true;
+
     const handleCallback = async () => {
       const paymentID = searchParams.get('paymentID');
       const bkashStatus = searchParams.get('status');
 
       // Get stored payment info
       const storedPayment = sessionStorage.getItem('bkash_payment');
-      
+
       if (!storedPayment) {
         setStatus('failed');
         setMessage('Payment session expired. Please try again.');
@@ -31,7 +35,7 @@ export default function PaymentCallback() {
 
       if (bkashStatus === 'success' && paymentID) {
         const result = await executePayment(paymentID, userId, amount);
-        
+
         if (result.success) {
           setStatus('success');
           setMessage('Your payment was successful!');
@@ -53,7 +57,7 @@ export default function PaymentCallback() {
     };
 
     handleCallback();
-  }, [searchParams, executePayment]);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
