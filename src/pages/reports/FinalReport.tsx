@@ -18,8 +18,10 @@ import { useSalaryPayments } from '@/hooks/useSalaryPayments';
 import { useIncome } from '@/hooks/useIncome';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useRadiusUsers } from '@/hooks/useRadiusUsers';
+import { useShareholders } from '@/hooks/useShareholders';
 
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -37,9 +39,9 @@ export default function FinalReport() {
   const { data: incomeList = [], isLoading: incomeLoading } = useIncome();
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions();
   const { data: users = [], isLoading: usersLoading } = useRadiusUsers();
-  
+  const { data: shareholders = [], isLoading: shareholdersLoading } = useShareholders();
 
-  const isLoading = expensesLoading || salaryLoading || incomeLoading || transactionsLoading || usersLoading;
+  const isLoading = expensesLoading || salaryLoading || incomeLoading || transactionsLoading || usersLoading || shareholdersLoading;
 
   // Filter data by date range
   const filteredExpenses = useMemo(() => {
@@ -605,6 +607,44 @@ export default function FinalReport() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Shareholder Profit/Loss Distribution */}
+        {shareholders.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Shareholder Profit/Loss Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {shareholders.filter(s => s.is_active).map(s => {
+                  const shareAmount = (totals.profitLoss * Number(s.business_percent)) / 100;
+                  const isProfit = shareAmount >= 0;
+                  return (
+                    <div key={s.id} className={`p-4 rounded-lg border ${isProfit ? 'bg-success/5 border-success/20' : 'bg-destructive/5 border-destructive/20'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-foreground">{s.name}</span>
+                        <Badge variant="outline">{s.business_percent}%</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        {isProfit ? 'Profit Share' : 'Loss Share'}
+                      </p>
+                      {isLoading ? (
+                        <Skeleton className="h-7 w-24" />
+                      ) : (
+                        <p className={`text-xl font-bold ${isProfit ? 'text-success' : 'text-destructive'}`}>
+                          {formatCurrency(Math.abs(shareAmount))}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );
