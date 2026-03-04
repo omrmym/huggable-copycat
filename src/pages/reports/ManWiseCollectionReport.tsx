@@ -7,6 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Users, CalendarIcon, X, Printer, Download, FileText, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { cn } from '@/lib/utils';
@@ -20,19 +21,39 @@ export default function ManWiseCollectionReport() {
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
+  const [selectedCollector, setSelectedCollector] = useState<string>('all');
 
   const { data: transactions = [], isLoading } = useTransactions();
 
-  const filteredTransactions = useMemo(() => {
-    if (!startDate && !endDate) return transactions;
-    
-    return transactions.filter(tx => {
-      const date = parseISO(tx.created_at);
-      const start = startDate ? startOfDay(startDate) : new Date(0);
-      const end = endDate ? endOfDay(endDate) : new Date();
-      return isWithinInterval(date, { start, end });
+  // Get unique collector names for the filter
+  const collectors = useMemo(() => {
+    const names = new Set<string>();
+    transactions.forEach(tx => {
+      if (tx.collected_by) names.add(tx.collected_by);
     });
-  }, [transactions, startDate, endDate]);
+    return Array.from(names).sort();
+  }, [transactions]);
+
+  const filteredTransactions = useMemo(() => {
+    let filtered = transactions;
+    
+    // Date filter
+    if (startDate || endDate) {
+      filtered = filtered.filter(tx => {
+        const date = parseISO(tx.created_at);
+        const start = startDate ? startOfDay(startDate) : new Date(0);
+        const end = endDate ? endOfDay(endDate) : new Date();
+        return isWithinInterval(date, { start, end });
+      });
+    }
+
+    // Collector filter
+    if (selectedCollector !== 'all') {
+      filtered = filtered.filter(tx => (tx.collected_by || 'Unknown') === selectedCollector);
+    }
+
+    return filtered;
+  }, [transactions, startDate, endDate, selectedCollector]);
 
   const collectorStats = useMemo(() => {
     const stats: Record<string, { 
@@ -90,9 +111,10 @@ export default function ManWiseCollectionReport() {
   const clearFilter = () => {
     setStartDate(startOfMonth(new Date()));
     setEndDate(new Date());
+    setSelectedCollector('all');
   };
 
-  const hasFilter = startDate || endDate;
+  const hasFilter = startDate || endDate || selectedCollector !== 'all';
 
   const getDateRangeLabel = () => {
     if (startDate && endDate) {
@@ -288,6 +310,17 @@ export default function ManWiseCollectionReport() {
             </CardTitle>
 
             <div className="flex flex-wrap items-center gap-2">
+              <Select value={selectedCollector} onValueChange={setSelectedCollector}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All Collectors" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Collectors</SelectItem>
+                  {collectors.map(name => (
+                    <SelectItem key={name} value={name}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Popover open={startOpen} onOpenChange={setStartOpen}>
                 <PopoverTrigger asChild>
                   <Button
