@@ -177,11 +177,17 @@ Deno.serve(async (req) => {
       const dataLimit = Number(plan.data_limit_mb);
 
       if (dataUsed >= dataLimit) {
-        // Set user status to expired
+        // Set user status to expired and reset data usage
         await supabase
           .from("radius_users")
-          .update({ status: "expired" })
+          .update({ status: "expired", data_used_mb: 0 })
           .eq("id", user.id);
+
+        // Remove bandwidth history records for this user
+        await supabase
+          .from("bandwidth_history")
+          .delete()
+          .eq("radius_user_id", user.id);
 
         // Disable on MikroTik
         if (user.mikrotik_router_id) {
