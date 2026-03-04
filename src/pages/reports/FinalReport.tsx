@@ -111,9 +111,9 @@ export default function FinalReport() {
 
   // Calculate totals based on filtered data
   const totals = useMemo(() => {
-    // Total bill from filtered transactions (recharge type)
+    // Total bill from filtered transactions (payment type)
     const totalBill = filteredTransactions
-      .filter(t => t.status === 'completed' && t.type === 'recharge')
+      .filter(t => t.status === 'completed' && t.type === 'payment')
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     // Extra income from filtered income
