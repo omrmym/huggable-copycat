@@ -36,7 +36,7 @@ export function NagadPaymentButton({ userId, userName, defaultAmount, onSuccess 
 
   const handlePayment = async () => {
     const numAmount = isFixedAmount && defaultAmount ? defaultAmount : parseFloat(amount);
-    if (isNaN(numAmount) || numAmount < 1) {
+    if (isNaN(numAmount) || numAmount < 10) {
       return;
     }
 
@@ -81,7 +81,7 @@ export function NagadPaymentButton({ userId, userName, defaultAmount, onSuccess 
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="pl-8"
-                min={1}
+                min={10}
                 readOnly={isFixedAmount}
                 disabled={isFixedAmount}
               />
@@ -109,7 +109,7 @@ export function NagadPaymentButton({ userId, userName, defaultAmount, onSuccess 
           <Button
             className="w-full bg-[#F6921E] hover:bg-[#E07D10] text-white"
             onClick={handlePayment}
-            disabled={isLoading || !amount || parseFloat(amount) < 1}
+            disabled={isLoading || !amount || parseFloat(amount) < 10}
           >
             {isLoading ? (
               <>
@@ -122,7 +122,7 @@ export function NagadPaymentButton({ userId, userName, defaultAmount, onSuccess 
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            {isFixedAmount ? 'Fixed monthly bill amount' : 'Minimum amount: ৳1'} • Secured by Nagad
+            {isFixedAmount ? 'Fixed monthly bill amount' : 'Minimum amount: ৳10'} • Secured by Nagad
           </p>
         </div>
       </DialogContent>
