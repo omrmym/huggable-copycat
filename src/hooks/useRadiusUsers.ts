@@ -417,78 +417,18 @@ export function useRechargeUser() {
       collectedBy?: string;
       planId?: string;
     }) => {
-      // Get current user data including status, expires_at, billing_cycle, grace_days_used, and plan
+      // Get current user data for transaction description
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans:plan_id(name, data_limit_mb, duration_days)')
+        .select('username, expires_at')
         .eq('id', userId)
         .single();
 
       if (fetchError) throw fetchError;
 
-      const billingCycle = user.billing_cycle || 'monthly';
-      const graceDaysUsed = user.grace_days_used || 0;
-      const planData = (user as any).billing_plans;
-      const planDurationDays = planData?.duration_days || null;
-      
-      // Calculate new expiration date based on plan duration_days or billing cycle
-      let newExpiresAt: Date;
-      const now = new Date();
-      
-      if (user.status === 'expired' || user.status === 'disabled' || !user.expires_at) {
-        // If expired/disabled or no expiration, calculate from current date
-        newExpiresAt = new Date(now);
-      } else {
-        // If active, calculate from current expiration date
-        newExpiresAt = new Date(user.expires_at);
-      }
-      
-      // Use plan's duration_days if available, otherwise fall back to billing cycle
-      if (planDurationDays && planDurationDays > 0) {
-        newExpiresAt.setDate(newExpiresAt.getDate() + planDurationDays);
-      } else if (billingCycle === '30 Days' || billingCycle === '30days') {
-        newExpiresAt.setDate(newExpiresAt.getDate() + 30);
-      } else {
-        // Monthly - add 1 month
-        newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
-      }
-      
-      // Deduct grace days used from the new expiration date
-      if (graceDaysUsed > 0) {
-        newExpiresAt.setDate(newExpiresAt.getDate() - graceDaysUsed);
-      }
-      
-      // Set expiration time to 09:00 AM
-      newExpiresAt.setHours(9, 0, 0, 0);
+      const txDescription = description || `Recharge for ${user.username}`;
 
-      // Build update object - only include plan_id if explicitly provided
-      const updateData: Record<string, unknown> = {
-        status: 'active',
-        expires_at: newExpiresAt.toISOString(),
-        mikrotik_synced: false,
-        grace_days_used: 0, // Reset grace days after recharge
-      };
-      
-      // Only update plan_id if a new one is explicitly provided
-      if (planId) {
-        updateData.plan_id = planId;
-      }
-
-      // Update status and expiry
-      const { error: updateError } = await supabase
-        .from('radius_users')
-        .update(updateData)
-        .eq('id', userId);
-
-      if (updateError) throw updateError;
-
-      // Record transaction with payment_method and collected_by
-      // Include note about grace days deduction if applicable
-      let txDescription = description || `Recharge for ${user.username}`;
-      if (graceDaysUsed > 0) {
-        txDescription += ` (${graceDaysUsed} grace day(s) deducted)`;
-      }
-
+      // Create transaction as PENDING - expiry will be extended on approval
       const { error: txError } = await supabase
         .from('transactions')
         .insert({
@@ -496,44 +436,30 @@ export function useRechargeUser() {
           amount,
           type: 'payment',
           description: txDescription,
-          status: 'completed',
+          status: 'pending',
           payment_method: paymentMethod,
           collected_by: collectedBy,
         });
 
       if (txError) throw txError;
 
-      // Enable user in MikroTik with correct profile (sync-user re-creates/updates as enabled)
-      try {
-        const profileName = planData?.name || undefined;
-
-        await supabase.functions.invoke('mikrotik-sync', {
-          body: {
-            action: 'sync-user',
-            username: user.username,
-            password: (user as any).password_hash,
-            profile: profileName,
-            service_type: (user as any).service_type,
-            disabled: false,
-          },
-        });
-      } catch (syncError) {
-        console.warn('MikroTik enable after recharge failed:', syncError);
+      // If planId provided, update the user's plan
+      if (planId) {
+        await supabase
+          .from('radius_users')
+          .update({ plan_id: planId })
+          .eq('id', userId);
       }
 
-      return { newExpiresAt, graceDaysDeducted: graceDaysUsed };
+      return { newExpiresAt: user.expires_at || new Date().toISOString() };
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['radius-users'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      let message = `Recharge successful! Expires: ${new Date(data.newExpiresAt).toLocaleDateString()}`;
-      if (data.graceDaysDeducted > 0) {
-        message += ` (${data.graceDaysDeducted} grace day(s) deducted)`;
-      }
-      toast.success(message);
+      toast.success('Bill generated! Pending approval.');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to recharge: ${error.message}`);
+      toast.error(`Failed to generate bill: ${error.message}`);
     },
   });
 }

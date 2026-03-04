@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { sendSms } from '@/hooks/useSendSms';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { usePendingTransactions, useApproveTransaction } from '@/hooks/useTransactions';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
@@ -174,11 +175,23 @@ export default function PendingBillCollection() {
 
   const handleApprove = async (tx: Transaction) => {
     if (!tx.radius_user_id) return;
-    await approveTransaction.mutateAsync({
+    const result = await approveTransaction.mutateAsync({
       transactionId: tx.id,
       userId: tx.radius_user_id,
       amount: Number(tx.amount),
     });
+
+    // Send payment confirmation SMS after approval
+    if (tx.radius_user?.phone) {
+      const smsMessage = `Payment of ৳${Number(tx.amount).toLocaleString()} approved. Expires: ${new Date(result.newExpiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Thank you!`;
+      sendSms({
+        phone: tx.radius_user.phone,
+        message: smsMessage,
+        automationType: 'payment_confirmation',
+        recipientName: tx.radius_user.full_name || tx.radius_user.username,
+        radiusUserId: tx.radius_user.id,
+      }).catch(() => {});
+    }
   };
 
   const handleBulkApprove = async () => {
