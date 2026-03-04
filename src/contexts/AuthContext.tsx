@@ -43,6 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Mark this browser session as active
+          sessionStorage.setItem('app_session_active', 'true');
           // Use setTimeout to prevent potential deadlocks
           setTimeout(async () => {
             const adminStatus = await checkAdminStatus(session.user.id);
@@ -58,12 +60,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // THEN check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
       if (session?.user) {
+        // If there's a persisted session but no sessionStorage flag,
+        // the browser was closed and reopened — sign out
+        const isActiveBrowserSession = sessionStorage.getItem('app_session_active');
+        if (!isActiveBrowserSession) {
+          await supabase.auth.signOut();
+          setSession(null);
+          setUser(null);
+          setIsAdmin(false);
+          setIsLoading(false);
+          return;
+        }
+
+        setSession(session);
+        setUser(session.user);
         const adminStatus = await checkAdminStatus(session.user.id);
         setIsAdmin(adminStatus);
+      } else {
+        setSession(null);
+        setUser(null);
       }
       setIsLoading(false);
     });
