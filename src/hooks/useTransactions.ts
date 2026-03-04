@@ -83,7 +83,7 @@ export function useApproveTransaction() {
       // Get user data for expiry calculation
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, billing_plans:plan_id(name, data_limit_mb, duration_days)')
+        .select('username, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
         .eq('id', userId)
         .single();
 
@@ -93,6 +93,30 @@ export function useApproveTransaction() {
       const graceDaysUsed = user.grace_days_used || 0;
       const planData = (user as any).billing_plans;
       const planDurationDays = planData?.duration_days || null;
+
+      // Determine full cycle days
+      let fullCycleDays: number;
+      if (planDurationDays && planDurationDays > 0) {
+        fullCycleDays = planDurationDays;
+      } else if (billingCycle === '30 Days' || billingCycle === '30days') {
+        fullCycleDays = 30;
+      } else {
+        fullCycleDays = 30; // default monthly = 30 days
+      }
+
+      // Determine the user's bill amount (monthly_bill or plan price)
+      const userBill = Number(user.monthly_bill) || Number(planData?.price) || 0;
+
+      // Calculate proportional days based on amount paid vs user's bill
+      let daysToAdd: number;
+      if (userBill > 0) {
+        daysToAdd = Math.round((amount / userBill) * fullCycleDays);
+      } else {
+        daysToAdd = fullCycleDays; // fallback to full cycle if no bill set
+      }
+
+      // Ensure at least 1 day is added
+      daysToAdd = Math.max(1, daysToAdd);
 
       // Calculate new expiration date
       let newExpiresAt: Date;
@@ -104,13 +128,7 @@ export function useApproveTransaction() {
         newExpiresAt = new Date(user.expires_at);
       }
 
-      if (planDurationDays && planDurationDays > 0) {
-        newExpiresAt.setDate(newExpiresAt.getDate() + planDurationDays);
-      } else if (billingCycle === '30 Days' || billingCycle === '30days') {
-        newExpiresAt.setDate(newExpiresAt.getDate() + 30);
-      } else {
-        newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
-      }
+      newExpiresAt.setDate(newExpiresAt.getDate() + daysToAdd);
 
       // Deduct grace days
       if (graceDaysUsed > 0) {
