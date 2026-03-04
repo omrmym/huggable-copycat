@@ -175,15 +175,13 @@ export default function PendingBillCollection() {
 
   const handleApprove = async (tx: Transaction) => {
     if (!tx.radius_user_id) return;
-    const result = await approveTransaction.mutateAsync({
+    await approveTransaction.mutateAsync({
       transactionId: tx.id,
-      userId: tx.radius_user_id,
-      amount: Number(tx.amount),
     });
 
     // Send payment confirmation SMS after approval
     if (tx.radius_user?.phone) {
-      const smsMessage = `Payment of ৳${Number(tx.amount).toLocaleString()} approved. Expires: ${new Date(result.newExpiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Thank you!`;
+      const smsMessage = `Payment of ৳${Number(tx.amount).toLocaleString()} approved. Thank you!`;
       sendSms({
         phone: tx.radius_user.phone,
         message: smsMessage,
@@ -199,8 +197,6 @@ export default function PendingBillCollection() {
     for (const tx of selectedTxs) {
       await approveTransaction.mutateAsync({
         transactionId: tx.id,
-        userId: tx.radius_user_id!,
-        amount: Number(tx.amount),
       });
     }
     setSelectedIds(new Set());
