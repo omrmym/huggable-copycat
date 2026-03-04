@@ -87,7 +87,7 @@ export function RechargeDialog({ user, open, onOpenChange }: RechargeDialogProps
     // Send payment confirmation SMS
     if (user.phone) {
       const smsMessage = `Payment of ৳${amount.toLocaleString()} received. Expires: ${new Date(result.newExpiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}. Thank you!`;
-      sendSms({ phone: user.phone, message: smsMessage, automationType: 'payment_confirmation' }).catch(() => {});
+      sendSms({ phone: user.phone, message: smsMessage, automationType: 'payment_confirmation', recipientName: user.full_name || user.username, radiusUserId: user.id }).catch(() => {});
     }
 
     onOpenChange(false);
