@@ -209,9 +209,9 @@ export default function CustomerDashboard() {
                         </h3>
                       </div>
                       <div className="text-right">
-                        <p className="text-primary-foreground/80 text-sm">Monthly</p>
+                        <p className="text-primary-foreground/80 text-sm">Monthly Bill</p>
                         <p className="text-2xl font-bold text-primary-foreground">
-                          ৳{currentPlan?.price.toLocaleString() || 0}
+                          ৳{(customer.monthly_bill ?? currentPlan?.price ?? 0).toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -313,6 +313,7 @@ export default function CustomerDashboard() {
                         <BkashPaymentButton
                           userId={customer.id}
                           userName={customer.full_name || customer.username}
+                          defaultAmount={customer.monthly_bill ?? undefined}
                         />
                       )}
                       {nagadEnabled && (

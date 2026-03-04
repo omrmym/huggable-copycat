@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
     const { data: user, error } = await supabase
       .from("radius_users")
-      .select("id, username, full_name, phone, email, balance, status, plan_id, service_type, expires_at, data_used_mb, mikrotik_router_id")
+      .select("id, username, full_name, phone, email, status, plan_id, service_type, expires_at, data_used_mb, mikrotik_router_id, monthly_bill")
       .eq("id", userId)
       .maybeSingle();
 

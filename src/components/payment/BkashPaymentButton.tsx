@@ -16,12 +16,13 @@ import { Loader2, Wallet } from 'lucide-react';
 interface BkashPaymentButtonProps {
   userId: string;
   userName?: string;
+  defaultAmount?: number;
   onSuccess?: (newBalance: number) => void;
 }
 
-export function BkashPaymentButton({ userId, userName, onSuccess }: BkashPaymentButtonProps) {
+export function BkashPaymentButton({ userId, userName, defaultAmount, onSuccess }: BkashPaymentButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(defaultAmount ? defaultAmount.toString() : '');
   const { createPayment, isLoading } = useBkashPayment();
 
   const quickAmounts = [100, 200, 500, 1000];
