@@ -386,15 +386,32 @@ async function handleDeleteUser(router: RouterConfig, username: string) {
 }
 
 async function handleDisconnectUser(router: RouterConfig, username: string) {
+  let disconnectedSessions = 0;
+  let removedCookies = 0;
+
+  // 1. Remove active sessions
   const sessions = await mikrotikRestRequest(router, `/ip/hotspot/active?=user=${username}`);
   if (sessions.success && Array.isArray(sessions.data)) {
     for (const session of sessions.data) {
       const sessionId = (session as Record<string, string>)[".id"];
       await mikrotikRestRequest(router, `/ip/hotspot/active/remove`, "POST", { ".id": sessionId });
     }
-    return { success: true, data: { disconnected: (sessions.data as unknown[]).length } };
+    disconnectedSessions = (sessions.data as unknown[]).length;
   }
-  return { success: true, data: { disconnected: 0, message: "No active session found" } };
+
+  // 2. Remove hotspot cookies so user cannot auto-reconnect
+  const cookies = await mikrotikRestRequest(router, `/ip/hotspot/cookie?=user=${username}`);
+  if (cookies.success && Array.isArray(cookies.data)) {
+    for (const cookie of cookies.data) {
+      const cookieId = (cookie as Record<string, string>)[".id"];
+      if (cookieId) {
+        await mikrotikRestRequest(router, `/ip/hotspot/cookie/remove`, "POST", { ".id": cookieId });
+      }
+    }
+    removedCookies = (cookies.data as unknown[]).length;
+  }
+
+  return { success: true, data: { disconnected: disconnectedSessions, cookies_removed: removedCookies } };
 }
 
 async function handleExpireUser(router: RouterConfig, username: string, expiredProfile: string, behavior?: string) {
