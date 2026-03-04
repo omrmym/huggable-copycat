@@ -231,6 +231,25 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
       await updateUser.mutateAsync(updateData);
 
+      // Sync MikroTik if status or expiry changed
+      const statusChanged = formData.status !== user.status;
+      const expiryChanged = formData.expires_at !== (user.expires_at || '');
+      if (statusChanged || expiryChanged) {
+        try {
+          await supabase.functions.invoke('mikrotik-sync', {
+            body: {
+              action: 'sync-user',
+              username: user.username,
+              password: '', // not changing password
+              service_type: formData.service_type,
+              disabled: formData.status !== 'active',
+            },
+          });
+        } catch (syncError) {
+          console.warn('MikroTik sync after edit failed:', syncError);
+        }
+      }
+
       if (!deviceChanged && !macSerialChanged) {
         toast.success('User updated successfully');
       }
@@ -647,10 +666,10 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         selected={formData.expires_at ? new Date(formData.expires_at) : undefined}
                         onSelect={(date) => {
                           if (date) {
-                            // Preserve time from existing expires_at or default to 09:00
                             const existing = formData.expires_at ? new Date(formData.expires_at) : null;
                             date.setHours(existing?.getHours() ?? 9, existing?.getMinutes() ?? 0, 0, 0);
-                            setFormData({ ...formData, expires_at: date.toISOString() });
+                            const newStatus = date <= new Date() ? 'expired' : 'active';
+                            setFormData({ ...formData, expires_at: date.toISOString(), status: newStatus as any });
                           }
                         }}
                         initialFocus
@@ -664,9 +683,10 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                           value={formData.expires_at ? format(new Date(formData.expires_at), "HH:mm") : "09:00"}
                           onChange={(e) => {
                             const [hours, minutes] = e.target.value.split(':').map(Number);
-                            const date = formData.expires_at ? new Date(formData.expires_at) : new Date();
-                            date.setHours(hours, minutes, 0, 0);
-                            setFormData({ ...formData, expires_at: date.toISOString() });
+                            const d = formData.expires_at ? new Date(formData.expires_at) : new Date();
+                            d.setHours(hours, minutes, 0, 0);
+                            const newStatus = d <= new Date() ? 'expired' : 'active';
+                            setFormData({ ...formData, expires_at: d.toISOString(), status: newStatus as any });
                           }}
                           className="mt-1"
                         />
