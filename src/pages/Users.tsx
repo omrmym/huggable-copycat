@@ -408,10 +408,7 @@ export default function UsersPage() {
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Actions
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -436,7 +433,7 @@ export default function UsersPage() {
                 ))
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={12} className="px-4 py-8 text-center text-muted-foreground">
                     No users found
                   </td>
                 </tr>
@@ -539,7 +536,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3">
                       <UserStatusBadge status={user.status} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">

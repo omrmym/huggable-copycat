@@ -299,13 +299,12 @@ export default function BillingStatistics() {
                     <TableHead className="text-right">Monthly Bill</TableHead>
                     <TableHead className="text-center">Grace</TableHead>
                     <TableHead className="text-right">Action</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                         No users found matching your filters
                       </TableCell>
                     </TableRow>
