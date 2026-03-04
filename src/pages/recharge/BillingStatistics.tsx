@@ -43,6 +43,25 @@ export default function BillingStatistics() {
       return data || [];
     },
   });
+
+  // Fetch completed payment transactions for current month (for Already Paid Bill)
+  const { data: monthlyPaidTransactions = [] } = useQuery({
+    queryKey: ['monthly-paid-transactions'],
+    queryFn: async () => {
+      const now = new Date();
+      const monthStart = startOfMonth(now).toISOString();
+      const monthEnd = endOfMonth(now).toISOString();
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('amount, radius_user_id')
+        .eq('status', 'completed')
+        .eq('type', 'payment')
+        .gte('created_at', monthStart)
+        .lte('created_at', monthEnd);
+      if (error) throw error;
+      return data || [];
+    },
+  });
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
