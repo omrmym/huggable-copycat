@@ -247,6 +247,19 @@ export default function FinalReport() {
             </div>
           </div>
 
+          ${shareholders.filter(s => s.is_active).length > 0 ? `
+          <div class="section">
+            <div class="section-title">Shareholder Profit/Loss Distribution</div>
+            ${shareholders.filter(s => s.is_active).map(s => {
+              const shareAmount = (totals.profitLoss * Number(s.business_percent)) / 100;
+              return `<div class="row">
+                <span class="label">${s.name} (${s.business_percent}%)</span>
+                <span class="value ${shareAmount >= 0 ? 'income' : 'expense'}">${formatCurrency(Math.abs(shareAmount))} ${shareAmount >= 0 ? 'Profit' : 'Loss'}</span>
+              </div>`;
+            }).join('')}
+          </div>
+          ` : ''}
+
           <div style="text-align: center; margin-top: 30px; color: #666; font-size: 12px;">
             Generated on ${new Date().toLocaleDateString()}
           </div>
@@ -264,16 +277,19 @@ export default function FinalReport() {
 
   const handleDownloadCSV = () => {
     const headers = ['Category', 'Item', 'Amount'];
-    const rows = [
+    const rows: string[][] = [
       ['Income', 'Total Bill', totals.totalBill.toString()],
       ['Income', 'Extra Income', totals.extraIncome.toString()],
       ['Income', 'Connection Fee', totals.connectionFee.toString()],
-      
       ['Income', 'Total Income', totals.totalIncome.toString()],
       ['Expense', 'Total Expense', totals.totalExpense.toString()],
       ['Expense', 'Total Salary', totals.totalSalary.toString()],
       ['Expense', 'Total Outgoing', totals.totalOutgoing.toString()],
       ['Summary', totals.profitLoss >= 0 ? 'Net Profit' : 'Net Loss', Math.abs(totals.profitLoss).toString()],
+      ...shareholders.filter(s => s.is_active).map(s => {
+        const shareAmount = (totals.profitLoss * Number(s.business_percent)) / 100;
+        return ['Shareholder', `${s.name} (${s.business_percent}%)`, `${shareAmount >= 0 ? '' : '-'}${Math.abs(shareAmount).toString()}`];
+      }),
     ];
 
     const csvContent = [
@@ -375,6 +391,27 @@ export default function FinalReport() {
     doc.setFontSize(14);
     doc.text(isProfit ? 'Net Profit' : 'Net Loss', 25, y + 5);
     doc.text(formatCurrencyPDF(Math.abs(totals.profitLoss)), 180, y + 5, { align: 'right' });
+    y += 25;
+
+    // Shareholder Distribution
+    const activeShareholders = shareholders.filter(s => s.is_active);
+    if (activeShareholders.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Shareholder Profit/Loss Distribution', 20, y);
+      doc.line(20, y + 2, 190, y + 2);
+      y += 12;
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+
+      activeShareholders.forEach(s => {
+        const shareAmount = (totals.profitLoss * Number(s.business_percent)) / 100;
+        doc.text(`${s.name} (${s.business_percent}%)`, 25, y);
+        doc.text(`${formatCurrencyPDF(Math.abs(shareAmount))} ${shareAmount >= 0 ? 'Profit' : 'Loss'}`, 180, y, { align: 'right' });
+        y += 8;
+      });
+    }
 
     doc.save('final-report.pdf');
   };
