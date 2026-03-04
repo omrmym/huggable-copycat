@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logSystemActivity } from '@/hooks/useSystemActivity';
 
-export type AppRole = 'super_admin' | 'admin' | 'manager' | 'operator' | 'viewer';
+export type AppRole = 'super_admin' | 'admin' | 'manager' | 'operator' | 'viewer' | string;
 
 export interface SoftwareUser {
   id: string;
@@ -34,7 +34,8 @@ export interface UpdateSoftwareUserInput {
   is_active?: boolean;
 }
 
-export const ROLE_LABELS: Record<AppRole, string> = {
+// Default labels for built-in roles
+export const ROLE_LABELS: Record<string, string> = {
   super_admin: 'Super Admin',
   admin: 'Admin',
   manager: 'Manager',
@@ -42,13 +43,26 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   viewer: 'Viewer',
 };
 
-export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
+export const ROLE_DESCRIPTIONS: Record<string, string> = {
   super_admin: 'Full access to all features including user management',
   admin: 'Full access to all features except user management',
   manager: 'Can manage users, billing, and view reports',
   operator: 'Can manage users and view basic information',
   viewer: 'Read-only access to dashboard and reports',
 };
+
+// Helper to get a role label, falling back to formatted code
+export function getRoleLabel(role: string, roleDefinitions?: { code: string; name: string }[]): string {
+  // Check dynamic role definitions first
+  if (roleDefinitions) {
+    const def = roleDefinitions.find(r => r.code === role);
+    if (def) return def.name;
+  }
+  // Fallback to built-in labels
+  if (ROLE_LABELS[role]) return ROLE_LABELS[role];
+  // Format the code as a readable label
+  return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
 
 export function useSoftwareUsers() {
   return useQuery({

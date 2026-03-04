@@ -30,9 +30,11 @@ import { format } from 'date-fns';
 import {
   SoftwareUser,
   ROLE_LABELS,
+  getRoleLabel,
   useDeleteSoftwareUser,
   useToggleSoftwareUserStatus,
 } from '@/hooks/useSoftwareUsers';
+import { useRoleDefinitions } from '@/hooks/useRoleDefinitions';
 import { useAuth } from '@/contexts/AuthContext';
 import { SoftwareUserProfileDialog } from './SoftwareUserProfileDialog';
 
@@ -85,6 +87,7 @@ export function SoftwareUserTable({ users, isLoading, currentSoftwareUser }: Sof
 
   const deleteUser = useDeleteSoftwareUser();
   const toggleStatus = useToggleSoftwareUserStatus();
+  const { data: roleDefinitions = [] } = useRoleDefinitions();
 
   // Check if current user can edit a specific software user
   // Only the user themselves or a super_admin can edit
@@ -177,7 +180,7 @@ export function SoftwareUserTable({ users, isLoading, currentSoftwareUser }: Sof
                     variant={getRoleBadgeVariant(user.role)}
                     className={getRoleBadgeClass(user.role)}
                   >
-                    {ROLE_LABELS[user.role]}
+                    {getRoleLabel(user.role, roleDefinitions)}
                   </Badge>
                 </TableCell>
                 <TableCell>
