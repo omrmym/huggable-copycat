@@ -61,6 +61,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { writeExcelFile } from '@/lib/excelUtils';
 import type { Tables } from '@/integrations/supabase/types';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 type RadiusUser = Tables<'radius_users'> & {
   plan?: Tables<'billing_plans'> | null;
@@ -94,6 +95,7 @@ export default function UsersPage() {
   const updateUser = useUpdateRadiusUser();
   const bulkDeleteUsers = useBulkDeleteRadiusUsers();
   const bulkTransferRouter = useBulkTransferRouter();
+  const { hasPermission } = useHasPermission();
 
   // Initialize filters from URL params
   useEffect(() => {
@@ -548,10 +550,12 @@ export default function UsersPage() {
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditClick(user)}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit User
-                          </DropdownMenuItem>
+                          {hasPermission('users.all.edit') && (
+                            <DropdownMenuItem onClick={() => handleEditClick(user)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit User
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem
                             className="text-primary"
                             onClick={() => handleRechargeClick(user)}
@@ -559,22 +563,30 @@ export default function UsersPage() {
                             <CreditCard className="w-4 h-4 mr-2" />
                             Recharge
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleExpireDateClick(user)}>
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Change Expire
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusClick(user)}>
-                            <Settings2 className="w-4 h-4 mr-2" />
-                            Change Status
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => handleDeleteUser(user)}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
+                          {hasPermission('users.all.change_expire') && (
+                            <DropdownMenuItem onClick={() => handleExpireDateClick(user)}>
+                              <Calendar className="w-4 h-4 mr-2" />
+                              Change Expire
+                            </DropdownMenuItem>
+                          )}
+                          {hasPermission('users.all.change_status') && (
+                            <DropdownMenuItem onClick={() => handleStatusClick(user)}>
+                              <Settings2 className="w-4 h-4 mr-2" />
+                              Change Status
+                            </DropdownMenuItem>
+                          )}
+                          {hasPermission('users.all.delete') && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={() => handleDeleteUser(user)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>

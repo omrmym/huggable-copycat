@@ -11,8 +11,10 @@ import { useRadiusUsers } from '@/hooks/useRadiusUsers';
 import { Users, Wifi, UserX, UserCheck, CreditCard, Receipt, BadgeDollarSign, Clock, Cable, PlusCircle, UserMinus, RefreshCw, ClipboardList } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatBDT } from '@/lib/utils';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function Dashboard() {
+  const { hasPermission } = useHasPermission();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: users = [], isLoading: usersLoading } = useRadiusUsers();
 
@@ -47,163 +49,85 @@ export default function Dashboard() {
   return (
     <DashboardLayout title="Dashboard" subtitle="Overview of your network">
       {/* User Stats Grid */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">User Statistics</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-          {statsLoading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-card border border-border rounded-xl p-4">
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-8 w-16" />
-              </div>
-            ))
-          ) : (
-            <>
-              <StatCard
-                title="Total Users"
-                value={stats?.totalUsers || 0}
-                icon={Users}
-                variant="primary"
-                href="/users"
-              />
-              <StatCard
-                title="Active Users"
-                value={stats?.activeUsers || 0}
-                icon={Wifi}
-                variant="success"
-                href="/users?status=active"
-              />
-              <StatCard
-                title="Free Users"
-                value={stats?.freeUsers || 0}
-                icon={Clock}
-                variant="warning"
-                href="/users?billing=free"
-              />
-              <StatCard
-                title="Expired Users"
-                value={stats?.expiredUsers || 0}
-                icon={UserX}
-                href="/users?status=expired"
-              />
-              <StatCard
-                title="Disabled Users"
-                value={stats?.disabledUsers || 0}
-                icon={UserMinus}
-                href="/users?status=disabled"
-              />
-              <StatCard
-                title="Already Paid"
-                value={stats?.alreadyPaidUsers || 0}
-                icon={UserCheck}
-                variant="success"
-                href="/users?billing=paid"
-              />
-              <StatCard
-                title="Auto Renew Users"
-                value={stats?.autoRenewUsers || 0}
-                icon={RefreshCw}
-                variant="primary"
-                href="/users?billing=auto_renew"
-              />
-              <StatCard
-                title="Pending Requests"
-                value={stats?.pendingRequests || 0}
-                icon={ClipboardList}
-                variant="warning"
-                href="/users/requests"
-              />
-            </>
-          )}
+      {hasPermission('dashboard.total_users') && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">User Statistics</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {statsLoading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="bg-card border border-border rounded-xl p-4">
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+              ))
+            ) : (
+              <>
+                {hasPermission('dashboard.total_users') && <StatCard title="Total Users" value={stats?.totalUsers || 0} icon={Users} variant="primary" href="/users" />}
+                {hasPermission('dashboard.active_users') && <StatCard title="Active Users" value={stats?.activeUsers || 0} icon={Wifi} variant="success" href="/users?status=active" />}
+                {hasPermission('dashboard.free_users') && <StatCard title="Free Users" value={stats?.freeUsers || 0} icon={Clock} variant="warning" href="/users?billing=free" />}
+                {hasPermission('dashboard.expired_users') && <StatCard title="Expired Users" value={stats?.expiredUsers || 0} icon={UserX} href="/users?status=expired" />}
+                {hasPermission('dashboard.disabled_users') && <StatCard title="Disabled Users" value={stats?.disabledUsers || 0} icon={UserMinus} href="/users?status=disabled" />}
+                {hasPermission('dashboard.already_paid') && <StatCard title="Already Paid" value={stats?.alreadyPaidUsers || 0} icon={UserCheck} variant="success" href="/users?billing=paid" />}
+                <StatCard title="Auto Renew Users" value={stats?.autoRenewUsers || 0} icon={RefreshCw} variant="primary" href="/users?billing=auto_renew" />
+                <StatCard title="Pending Requests" value={stats?.pendingRequests || 0} icon={ClipboardList} variant="warning" href="/users/requests" />
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Bill Stats Grid */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Billing Statistics</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          {statsLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-card border border-border rounded-xl p-4">
-                <Skeleton className="h-4 w-24 mb-2" />
-                <Skeleton className="h-8 w-16" />
-              </div>
-            ))
-          ) : (
-            <>
-              <StatCard
-                title="Total Bill"
-                value={formatBDT(stats?.totalBill || 0)}
-                icon={Receipt}
-                variant="primary"
-                href="/recharge/statistics"
-              />
-              <StatCard
-                title="Active Users Bill"
-                value={formatBDT(stats?.activeUsersBill || 0)}
-                icon={BadgeDollarSign}
-                variant="success"
-                href="/recharge/statistics?status=active"
-              />
-              <StatCard
-                title="Expired Users Bill"
-                value={formatBDT(stats?.expiredUsersBill || 0)}
-                icon={CreditCard}
-                variant="warning"
-                href="/recharge/statistics?status=expired"
-              />
-              <StatCard
-                title="Already Paid Bill"
-                value={formatBDT(stats?.alreadyPaidBill || 0)}
-                icon={CreditCard}
-                variant="success"
-                href="/recharge/manage"
-              />
-              <StatCard
-                title="Connection Fee"
-                value={formatBDT(stats?.totalConnectionFee || 0)}
-                icon={Cable}
-                variant="primary"
-                href="/users"
-              />
-              <StatCard
-                title="Extra Income"
-                value={formatBDT(stats?.totalExtraIncome || 0)}
-                icon={PlusCircle}
-                variant="success"
-                href="/finance/income"
-              />
-              <StatCard
-                title="Auto Renew Bill"
-                value={formatBDT(stats?.autoRenewBill || 0)}
-                icon={RefreshCw}
-                variant="success"
-                href="/recharge/statistics?billing=auto_renew"
-              />
-            </>
-          )}
+      {hasPermission('dashboard.total_bill') && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">Billing Statistics</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            {statsLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-card border border-border rounded-xl p-4">
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+              ))
+            ) : (
+              <>
+                {hasPermission('dashboard.total_bill') && <StatCard title="Total Bill" value={formatBDT(stats?.totalBill || 0)} icon={Receipt} variant="primary" href="/recharge/statistics" />}
+                {hasPermission('dashboard.active_users_bill') && <StatCard title="Active Users Bill" value={formatBDT(stats?.activeUsersBill || 0)} icon={BadgeDollarSign} variant="success" href="/recharge/statistics?status=active" />}
+                {hasPermission('dashboard.expired_users_bill') && <StatCard title="Expired Users Bill" value={formatBDT(stats?.expiredUsersBill || 0)} icon={CreditCard} variant="warning" href="/recharge/statistics?status=expired" />}
+                {hasPermission('dashboard.already_paid_bill') && <StatCard title="Already Paid Bill" value={formatBDT(stats?.alreadyPaidBill || 0)} icon={CreditCard} variant="success" href="/recharge/manage" />}
+                {hasPermission('dashboard.connection_fee') && <StatCard title="Connection Fee" value={formatBDT(stats?.totalConnectionFee || 0)} icon={Cable} variant="primary" href="/users" />}
+                {hasPermission('dashboard.extra_income') && <StatCard title="Extra Income" value={formatBDT(stats?.totalExtraIncome || 0)} icon={PlusCircle} variant="success" href="/finance/income" />}
+                <StatCard title="Auto Renew Bill" value={formatBDT(stats?.autoRenewBill || 0)} icon={RefreshCw} variant="success" href="/recharge/statistics?billing=auto_renew" />
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <MonthlyBillCollectionChart />
-        <DailyBillCollectionChart />
-      </div>
+      {(hasPermission('dashboard.monthly_bill_collection') || hasPermission('dashboard.daily_bill_collection')) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {hasPermission('dashboard.monthly_bill_collection') && <MonthlyBillCollectionChart />}
+          {hasPermission('dashboard.daily_bill_collection') && <DailyBillCollectionChart />}
+        </div>
+      )}
 
       {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <MonthlyPaidUsersChart />
-        <DailyNewUsersChart />
-      </div>
+      {(hasPermission('dashboard.monthly_paid_users') || hasPermission('dashboard.day_wise_new_line')) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {hasPermission('dashboard.monthly_paid_users') && <MonthlyPaidUsersChart />}
+          {hasPermission('dashboard.day_wise_new_line') && <DailyNewUsersChart />}
+        </div>
+      )}
 
       {/* User Status Chart */}
-      <div className="mb-6">
-        <UserStatusChart />
-      </div>
+      {hasPermission('dashboard.online_offline_status') && (
+        <div className="mb-6">
+          <UserStatusChart />
+        </div>
+      )}
 
       {/* Recent Users Table */}
-      <RecentUsersTable users={recentUsers} isLoading={usersLoading} />
+      {hasPermission('dashboard.recent_users') && <RecentUsersTable users={recentUsers} isLoading={usersLoading} />}
     </DashboardLayout>
   );
 }

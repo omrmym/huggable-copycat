@@ -57,6 +57,7 @@ import { BrandingSettings } from '@/components/settings/BrandingSettings';
 import { ThemeSettings } from '@/components/settings/ThemeSettings';
 import { SmsGatewaySettings } from '@/components/settings/SmsGatewaySettings';
 import { ShareholderManagement } from '@/components/settings/ShareholderManagement';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -395,46 +396,39 @@ export default function SettingsPage() {
     },
   });
 
+  const { hasPermission, hasAnyPermission } = useHasPermission();
+
+  // Define which tabs map to which permissions
+  const settingsTabs = [
+    { value: 'admin-user', label: 'Software User', icon: Users, permission: 'settings.users' },
+    { value: 'roles', label: 'Role Manage', icon: Shield, permission: 'settings.roles' },
+    { value: 'mikrotik', label: 'MikroTik Manage', icon: Server, permission: 'settings.mikrotik' },
+    { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories'] },
+    { value: 'sms', label: 'SMS Manage', icon: MessageSquare, permission: 'settings.sms_gateway' },
+    { value: 'notifications', label: 'Notifications', icon: Bell, permission: 'settings.branding' },
+    { value: 'data', label: 'Data', icon: Database, permission: 'settings.activity' },
+    { value: 'system', label: 'System', icon: Server, permissions: ['settings.branding', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.customer_portal'] },
+    { value: 'shareholders', label: 'Shareholders', icon: Users, permission: 'settings.shareholders' },
+  ];
+
+  const visibleTabs = settingsTabs.filter(tab => {
+    if ('permissions' in tab && tab.permissions) return hasAnyPermission(tab.permissions);
+    if ('permission' in tab && tab.permission) return hasPermission(tab.permission);
+    return true;
+  });
+
+  const defaultTab = visibleTabs.length > 0 ? visibleTabs[0].value : 'admin-user';
+
   return (
     <DashboardLayout title="Settings" subtitle="Configure system preferences">
-      <Tabs defaultValue="admin-user" className="space-y-6">
+      <Tabs defaultValue={defaultTab} className="space-y-6">
         <TabsList className="bg-card border border-border flex-wrap h-auto gap-1 p-1">
-          <TabsTrigger value="admin-user" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Users className="w-4 h-4 mr-2" />
-            Software User
-          </TabsTrigger>
-          <TabsTrigger value="roles" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Shield className="w-4 h-4 mr-2" />
-            Role Manage
-          </TabsTrigger>
-          <TabsTrigger value="mikrotik" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Server className="w-4 h-4 mr-2" />
-            MikroTik Manage
-          </TabsTrigger>
-          <TabsTrigger value="payment" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <CreditCard className="w-4 h-4 mr-2" />
-            Payment Manage
-          </TabsTrigger>
-          <TabsTrigger value="sms" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <MessageSquare className="w-4 h-4 mr-2" />
-            SMS Manage
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Bell className="w-4 h-4 mr-2" />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value="data" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Database className="w-4 h-4 mr-2" />
-            Data
-          </TabsTrigger>
-          <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Server className="w-4 h-4 mr-2" />
-            System
-          </TabsTrigger>
-          <TabsTrigger value="shareholders" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Users className="w-4 h-4 mr-2" />
-            Shareholders
-          </TabsTrigger>
+          {visibleTabs.map(tab => (
+            <TabsTrigger key={tab.value} value={tab.value} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <tab.icon className="w-4 h-4 mr-2" />
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* Software User Management */}

@@ -13,9 +13,9 @@ import { format } from 'date-fns';
 interface LeaveRequestTableProps {
   requests: LeaveRequest[];
   isLoading: boolean;
-  onApprove: (id: string) => void;
-  onReject: (id: string, reason: string) => void;
-  onDelete: (id: string) => void;
+  onApprove?: (id: string) => void;
+  onReject?: (id: string, reason: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const statusVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -102,35 +102,41 @@ export function LeaveRequestTable({ requests, isLoading, onApprove, onReject, on
                   <div className="flex justify-end gap-1">
                     {request.status === 'pending' && (
                       <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-primary hover:text-primary hover:bg-primary/10"
-                          onClick={() => onApprove(request.id)}
-                          title="Approve"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => setRejectingId(request.id)}
-                          title="Reject"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        {onApprove && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-primary hover:text-primary hover:bg-primary/10"
+                            onClick={() => onApprove(request.id)}
+                            title="Approve"
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {onReject && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setRejectingId(request.id)}
+                            title="Reject"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
                       </>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={() => onDelete(request.id)}
-                      title="Delete"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {onDelete && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() => onDelete(request.id)}
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
