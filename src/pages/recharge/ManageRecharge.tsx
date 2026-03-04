@@ -131,6 +131,10 @@ export default function ManageRecharge() {
     const collectBy = tx.collected_by || 'Unknown';
     const matchesCollectBy = collectByFilter === 'all' || collectBy === collectByFilter;
     
+    // Payment Method filter
+    const paymentMethod = tx.payment_method || '';
+    const matchesPaymentMethod = paymentMethodFilter === 'all' || paymentMethod === paymentMethodFilter;
+    
     // Date range filter
     let matchesDateRange = true;
     if (dateRange?.from) {
