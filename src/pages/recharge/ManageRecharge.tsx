@@ -37,7 +37,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useDeleteTransaction } from '@/hooks/useTransactions';
 import { InvoicePreviewDialog } from '@/components/invoice/InvoicePreviewDialog';
 import { Search, Filter, CreditCard, CheckCircle2, Trash2, CalendarIcon, X } from 'lucide-react';
-import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+import { format, isWithinInterval, startOfDay, endOfDay, startOfMonth, endOfMonth } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 
@@ -70,7 +70,10 @@ export default function ManageRecharge() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [collectByFilter, setCollectByFilter] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfMonth(new Date()),
+    to: endOfMonth(new Date()),
+  });
   const [selectedInvoice, setSelectedInvoice] = useState<TransactionWithUser | null>(null);
   const [invoicePreviewOpen, setInvoicePreviewOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
