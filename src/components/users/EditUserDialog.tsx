@@ -6,7 +6,6 @@ import { useDistricts } from '@/hooks/useDistricts';
 import { usePoliceStations } from '@/hooks/usePoliceStations';
 import { useMikrotikRouters } from '@/hooks/useMikrotikRouters';
 import { useConnectivityTypes } from '@/hooks/useConnectivityTypes';
-import { useResellers } from '@/hooks/useResellers';
 import { useBranches } from '@/hooks/useBranches';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -82,14 +81,12 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
   const { data: policeStations = [] } = usePoliceStations();
   const { data: routers = [] } = useMikrotikRouters();
   const { data: connectivityTypes = [] } = useConnectivityTypes();
-  const { data: resellers = [] } = useResellers();
   const { data: branches = [] } = useBranches();
 
-  // Combine resellers and branches for dropdown with Main-User option
-  const resellerBranchOptions = [
-    { id: 'main_user', name: 'Main-User', type: 'Admin', resellerId: null },
-    ...resellers.filter(r => r.is_active).map(r => ({ id: `reseller_${r.id}`, name: r.name, type: 'Reseller', resellerId: r.id })),
-    ...branches.filter(b => b.is_active).map(b => ({ id: `branch_${b.id}`, name: b.name, type: 'Branch', resellerId: b.reseller_id })),
+  // Branch options for dropdown with Main-User option
+  const branchOptions = [
+    { id: 'main_user', name: 'Main-User', type: 'Admin' },
+    ...branches.filter(b => b.is_active).map(b => ({ id: `branch_${b.id}`, name: b.name, type: 'Branch' })),
   ];
 
   const [formData, setFormData] = useState({
@@ -515,26 +512,25 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reseller_office" className="flex items-center gap-1">
-                    Reseller/Branch
+                    Branch
                     {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Select
                     value={formData.reseller_office}
                     onValueChange={(value) => {
-                      const selectedOption = resellerBranchOptions.find(o => o.name === value);
                       setFormData({ 
                         ...formData, 
                         reseller_office: value,
-                        reseller_id: selectedOption?.resellerId || null
+                        reseller_id: null
                       });
                     }}
                     disabled={!isAdmin}
                   >
                     <SelectTrigger className={!isAdmin ? 'opacity-60' : ''}>
-                      <SelectValue placeholder="Select reseller or branch" />
+                      <SelectValue placeholder="Select branch" />
                     </SelectTrigger>
                     <SelectContent>
-                      {resellerBranchOptions.map((option) => (
+                      {branchOptions.map((option) => (
                         <SelectItem key={option.id} value={option.name}>
                           {option.name} ({option.type})
                         </SelectItem>
