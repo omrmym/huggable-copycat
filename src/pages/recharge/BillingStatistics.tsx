@@ -101,13 +101,18 @@ export default function BillingStatistics() {
   const stats = useMemo(() => {
     const activeUsers = users.filter(u => u.status === 'active');
     const expiredUsers = users.filter(u => u.status === 'expired');
+    const alreadyPaidBill = monthlyPaidTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
+    const paidUserIds = new Set(monthlyPaidTransactions.map(t => t.radius_user_id).filter(Boolean));
+    const alreadyPaidUsers = users.filter(u => paidUserIds.has(u.id)).length;
 
     return {
       totalBill: users.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
       activeUsersBill: activeUsers.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
       expiredUsersBill: expiredUsers.reduce((sum, u) => sum + (u.monthly_bill || 0), 0),
+      alreadyPaidBill,
+      alreadyPaidUsers,
     };
-  }, [users]);
+  }, [users, monthlyPaidTransactions]);
 
   // Filter users
   const filteredUsers = useMemo(() => {
