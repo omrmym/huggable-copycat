@@ -15,9 +15,9 @@ import { SalaryPayment } from '@/hooks/useSalaryPayments';
 interface PayrollTableProps {
   payments: SalaryPayment[];
   isLoading: boolean;
-  onEdit: (payment: SalaryPayment) => void;
-  onDelete: (payment: SalaryPayment) => void;
-  onMarkPaid: (id: string) => void;
+  onEdit?: (payment: SalaryPayment) => void;
+  onDelete?: (payment: SalaryPayment) => void;
+  onMarkPaid?: (id: string) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -87,7 +87,7 @@ export function PayrollTable({ payments, isLoading, onEdit, onDelete, onMarkPaid
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  {payment.status === 'pending' && (
+                  {payment.status === 'pending' && onMarkPaid && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -97,17 +97,21 @@ export function PayrollTable({ payments, isLoading, onEdit, onDelete, onMarkPaid
                       <CheckCircle className="h-4 w-4 text-green-400" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(payment)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(payment)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {onEdit && (
+                    <Button variant="ghost" size="icon" onClick={() => onEdit(payment)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDelete(payment)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>

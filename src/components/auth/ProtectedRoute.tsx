@@ -82,28 +82,14 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     }
   }
 
-  // Check route-level permissions (skip for admin users and user profile routes)
+  // Check route-level permissions
   const routePath = location.pathname;
+  
+  // Find matching permission - check exact match first, then prefix matches
   const requiredPermissions = ROUTE_PERMISSIONS[routePath];
   
-  if (requiredPermissions && !routePath.startsWith('/users/') || (requiredPermissions && routePath === '/users')) {
+  if (requiredPermissions && !routePath.match(/^\/users\/[0-9a-f-]+$/)) {
     if (!hasAnyPermission(requiredPermissions)) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center">
-            <ShieldX className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-destructive mb-2">Permission Denied</h1>
-            <p className="text-muted-foreground">Your role does not have permission to access this page.</p>
-          </div>
-        </div>
-      );
-    }
-  }
-
-  // For user sub-routes (area, district, etc.) check permissions
-  if (routePath !== '/users' && routePath.startsWith('/users/') && !routePath.match(/^\/users\/[0-9a-f-]+$/)) {
-    const subRoutePerms = ROUTE_PERMISSIONS[routePath];
-    if (subRoutePerms && !hasAnyPermission(subRoutePerms)) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center">

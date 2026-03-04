@@ -56,8 +56,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function HRAdmin() {
+  const { hasPermission } = useHasPermission();
   // Data hooks
   const { data: employees = [], isLoading: employeesLoading } = useEmployees();
   const { data: departments = [], isLoading: departmentsLoading } = useDepartments();
@@ -302,32 +304,32 @@ export default function HRAdmin() {
         <CardHeader>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <TabsList>
-                <TabsTrigger value="employees">Employees</TabsTrigger>
-                <TabsTrigger value="departments">Departments</TabsTrigger>
-                <TabsTrigger value="leave">Leave Requests</TabsTrigger>
-                <TabsTrigger value="payroll">Payroll</TabsTrigger>
+            <TabsList>
+                {hasPermission('hr.employees.view') && <TabsTrigger value="employees">Employees</TabsTrigger>}
+                {hasPermission('hr.departments.view') && <TabsTrigger value="departments">Departments</TabsTrigger>}
+                {hasPermission('hr.leave.view') && <TabsTrigger value="leave">Leave Requests</TabsTrigger>}
+                {hasPermission('hr.payroll.view') && <TabsTrigger value="payroll">Payroll</TabsTrigger>}
               </TabsList>
               <div className="flex gap-2">
-                {activeTab === 'employees' && (
+                {activeTab === 'employees' && hasPermission('hr.employees.add') && (
                   <Button onClick={handleCreateEmployee}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Employee
                   </Button>
                 )}
-                {activeTab === 'departments' && (
+                {activeTab === 'departments' && hasPermission('hr.departments.add') && (
                   <Button onClick={handleCreateDepartment}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Department
                   </Button>
                 )}
-                {activeTab === 'leave' && (
+                {activeTab === 'leave' && hasPermission('hr.leave.add') && (
                   <Button onClick={handleCreateLeaveRequest}>
                     <Plus className="h-4 w-4 mr-2" />
                     New Request
                   </Button>
                 )}
-                {activeTab === 'payroll' && (
+                {activeTab === 'payroll' && hasPermission('hr.payroll.add') && (
                   <Button onClick={handleCreatePayment}>
                     <Plus className="h-4 w-4 mr-2" />
                     New Payment
@@ -355,8 +357,8 @@ export default function HRAdmin() {
               <EmployeeTable
                 employees={filteredEmployees}
                 isLoading={employeesLoading}
-                onEdit={handleEditEmployee}
-                onDelete={setDeletingEmployee}
+                onEdit={hasPermission('hr.employees.edit') ? handleEditEmployee : undefined}
+                onDelete={hasPermission('hr.employees.delete') ? setDeletingEmployee : undefined}
               />
             </TabsContent>
 
@@ -364,8 +366,8 @@ export default function HRAdmin() {
               <DepartmentTable
                 departments={filteredDepartments}
                 isLoading={departmentsLoading}
-                onEdit={handleEditDepartment}
-                onDelete={setDeletingDepartment}
+                onEdit={hasPermission('hr.departments.edit') ? handleEditDepartment : undefined}
+                onDelete={hasPermission('hr.departments.delete') ? setDeletingDepartment : undefined}
               />
             </TabsContent>
 
@@ -373,9 +375,9 @@ export default function HRAdmin() {
               <LeaveRequestTable
                 requests={filteredLeaveRequests}
                 isLoading={leaveRequestsLoading}
-                onApprove={handleApproveLeave}
-                onReject={handleRejectLeave}
-                onDelete={setDeletingLeaveRequest}
+                onApprove={hasPermission('hr.leave.approve') ? handleApproveLeave : undefined}
+                onReject={hasPermission('hr.leave.reject') ? handleRejectLeave : undefined}
+                onDelete={hasPermission('hr.leave.delete') ? setDeletingLeaveRequest : undefined}
               />
             </TabsContent>
 
@@ -383,9 +385,9 @@ export default function HRAdmin() {
               <PayrollTable
                 payments={filteredPayments}
                 isLoading={paymentsLoading}
-                onEdit={handleEditPayment}
-                onDelete={setDeletingPayment}
-                onMarkPaid={handleMarkPaid}
+                onEdit={hasPermission('hr.payroll.edit') ? handleEditPayment : undefined}
+                onDelete={hasPermission('hr.payroll.delete') ? setDeletingPayment : undefined}
+                onMarkPaid={hasPermission('hr.payroll.mark_paid') ? handleMarkPaid : undefined}
               />
             </TabsContent>
           </Tabs>

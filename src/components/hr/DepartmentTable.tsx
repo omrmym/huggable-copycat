@@ -8,8 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface DepartmentTableProps {
   departments: Department[];
   isLoading: boolean;
-  onEdit: (department: Department) => void;
-  onDelete: (department: Department) => void;
+  onEdit?: (department: Department) => void;
+  onDelete?: (department: Department) => void;
 }
 
 export function DepartmentTable({ departments, isLoading, onEdit, onDelete }: DepartmentTableProps) {
@@ -58,17 +58,21 @@ export function DepartmentTable({ departments, isLoading, onEdit, onDelete }: De
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(dept)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => onDelete(dept)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {onEdit && (
+                    <Button variant="ghost" size="icon" onClick={() => onEdit(dept)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => onDelete(dept)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </TableCell>
             </TableRow>

@@ -40,6 +40,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Tables } from '@/integrations/supabase/types';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 type BillingPlan = Tables<'billing_plans'>;
 
@@ -48,6 +49,7 @@ export default function PlansPage() {
   const createPlan = useCreateBillingPlan();
   const deletePlan = useDeleteBillingPlan();
   const updatePlan = useUpdateBillingPlan();
+  const { hasPermission } = useHasPermission();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<BillingPlan | null>(null);
@@ -212,30 +214,36 @@ export default function PlansPage() {
         </div>
 
         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 border-border"
-            onClick={() => handleToggleActive(plan)}
-          >
-            {plan.is_active ? 'Deactivate' : 'Activate'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-primary/50 text-primary hover:bg-primary/10"
-            onClick={() => openEditDialog(plan)}
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-destructive/50 text-destructive hover:bg-destructive/10"
-            onClick={() => handleDeletePlan(plan.id)}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          {hasPermission('plans.edit') && (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1 border-border"
+                onClick={() => handleToggleActive(plan)}
+              >
+                {plan.is_active ? 'Deactivate' : 'Activate'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary/50 text-primary hover:bg-primary/10"
+                onClick={() => openEditDialog(plan)}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+            </>
+          )}
+          {hasPermission('plans.delete') && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-destructive/50 text-destructive hover:bg-destructive/10"
+              onClick={() => handleDeletePlan(plan.id)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -271,12 +279,14 @@ export default function PlansPage() {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-primary text-primary-foreground">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Plan
-              </Button>
-            </DialogTrigger>
+            {hasPermission('plans.create') && (
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-primary text-primary-foreground">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Plan
+                </Button>
+              </DialogTrigger>
+            )}
             <DialogContent className="bg-card border-border max-w-lg">
               <DialogHeader>
                 <DialogTitle>{editingPlan ? 'Edit Plan' : 'Create New Plan'}</DialogTitle>
