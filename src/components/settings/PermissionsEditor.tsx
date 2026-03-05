@@ -553,9 +553,10 @@ export function PermissionsEditor({
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id={`category-${categoryKey}`}
-                    checked={menuSelected}
+                    checked={menuSelected && allChildSelected}
+                    data-state={menuSelected && someChildSelected && !allChildSelected ? 'indeterminate' : undefined}
                     onCheckedChange={() => {
-                      if (menuKey) handleToggle(menuKey);
+                      handleToggleCategory(categoryKey);
                     }}
                     disabled={disabled}
                     className="h-5 w-5"
