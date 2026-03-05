@@ -34,6 +34,7 @@ import { formatDate, formatDistanceToNowTz } from '@/lib/dateUtils';
 import { useLoginActivity, LoginActivity, useClearLoginActivity } from '@/hooks/useLoginActivity';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 function getActionBadge(action: LoginActivity['action'], success: boolean) {
   if (!success) {
