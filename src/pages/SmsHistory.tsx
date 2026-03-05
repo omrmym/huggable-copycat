@@ -119,6 +119,12 @@ export default function SmsHistory() {
               History & Analytics
             </TabsTrigger>
           )}
+          {canGroupSend && (
+            <TabsTrigger value="group-sms" className="flex items-center gap-1.5">
+              <Users className="w-4 h-4" />
+              Group SMS
+            </TabsTrigger>
+          )}
           {canManageTemplates && (
             <TabsTrigger value="templates" className="flex items-center gap-1.5">
               <FileText className="w-4 h-4" />
