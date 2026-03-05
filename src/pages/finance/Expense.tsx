@@ -223,7 +223,7 @@ export default function Expense() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
+          )}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
