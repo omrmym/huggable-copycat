@@ -180,18 +180,6 @@ export default function PendingBillCollection() {
     await approveTransaction.mutateAsync({
       transactionId: tx.id,
     });
-
-    // Send payment confirmation SMS after approval
-    if (tx.radius_user?.phone) {
-      const smsMessage = `Payment of ৳${Number(tx.amount).toLocaleString()} approved. Thank you!`;
-      sendSms({
-        phone: tx.radius_user.phone,
-        message: smsMessage,
-        automationType: 'payment_confirmation',
-        recipientName: tx.radius_user.full_name || tx.radius_user.username,
-        radiusUserId: tx.radius_user.id,
-      }).catch(() => {});
-    }
   };
 
   const handleBulkApprove = async () => {
