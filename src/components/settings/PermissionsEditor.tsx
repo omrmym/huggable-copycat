@@ -528,9 +528,11 @@ export function PermissionsEditor({
               {/* Subcategories */}
               {'subcategories' in category && category.subcategories && (
                 <div className="space-y-4 mb-4">
-                  {Object.entries(category.subcategories).map(([subKey, subcategory]) => {
-                    const subPermissions = subcategory.permissions.map(p => p.key);
-                    const subSelectedCount = subPermissions.filter(p => selectedPermissions.includes(p)).length;
+                  {Object.entries(category.subcategories).map(([subKey, subcategory]: [string, any]) => {
+                    const subPermissions = subcategory.permissions.map((p: any) => p.key);
+                    const subSelectedCount = subPermissions.filter((p: string) => selectedPermissions.includes(p)).length;
+                    const hasSubKey = !!subcategory.subKey;
+                    const subKeySelected = hasSubKey ? selectedPermissions.includes(subcategory.subKey) : false;
                     const subAllSelected = subSelectedCount === subPermissions.length;
                     const subSomeSelected = subSelectedCount > 0 && !subAllSelected;
 
@@ -540,11 +542,17 @@ export function PermissionsEditor({
                         <div className="flex items-center gap-2 mb-3">
                           <Checkbox
                             id={`sub-${categoryKey}-${subKey}`}
-                            checked={subAllSelected}
-                            data-state={subSomeSelected ? 'indeterminate' : subAllSelected ? 'checked' : 'unchecked'}
-                            onCheckedChange={() => handleToggleSubcategory(subPermissions)}
+                            checked={hasSubKey ? subKeySelected : subAllSelected}
+                            data-state={!hasSubKey && subSomeSelected ? 'indeterminate' : undefined}
+                            onCheckedChange={() => {
+                              if (hasSubKey) {
+                                handleToggle(subcategory.subKey);
+                              } else {
+                                handleToggleSubcategory(subPermissions);
+                              }
+                            }}
                             disabled={disabled}
-                            className={cn("h-4 w-4", subSomeSelected && "opacity-70")}
+                            className={cn("h-4 w-4", !hasSubKey && subSomeSelected && "opacity-70")}
                           />
                           <Label
                             htmlFor={`sub-${categoryKey}-${subKey}`}
