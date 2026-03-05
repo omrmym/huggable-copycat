@@ -145,7 +145,7 @@ export default function AreaPage() {
                   <tr className="border-b border-border">
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Name</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>
+                    {canManage && <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
