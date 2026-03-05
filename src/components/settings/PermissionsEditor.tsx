@@ -22,6 +22,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       user_statistics: {
         label: 'User Statistics',
+        subKey: 'sub.dashboard.user_statistics',
         permissions: [
           { key: 'dashboard.total_users', label: 'Total Users' },
           { key: 'dashboard.active_users', label: 'Active Users' },
