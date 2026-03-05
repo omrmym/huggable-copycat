@@ -18,6 +18,8 @@ import { NagadPaymentButton } from '@/components/payment/NagadPaymentButton';
 import { PaymentRequestDialog } from '@/components/portal/PaymentRequestDialog';
 import { CustomerActivityLog } from '@/components/portal/CustomerActivityLog';
 import { DataUsageTab } from '@/components/users/profile/DataUsageTab';
+import { BandwidthLiveChart } from '@/components/users/profile/BandwidthLiveChart';
+import { BandwidthHistoryChart } from '@/components/users/profile/BandwidthHistoryChart';
 import {
   Network,
   LogOut,
