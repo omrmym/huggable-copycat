@@ -14,6 +14,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import SmsTemplates from '@/components/sms/SmsTemplates';
 import { useSmsHistory, useClearSmsHistory, type SmsHistoryRecord } from '@/hooks/useSmsHistory';
 import { useQueryClient } from '@tanstack/react-query';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 const typeColors: Record<string, string> = {
   'Bill Reminder': 'hsl(var(--primary))',
