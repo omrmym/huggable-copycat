@@ -34,6 +34,7 @@ import { formatDate, formatDistanceToNowTz } from '@/lib/dateUtils';
 import { useSystemActivity, useClearSystemActivity, getActionLabel, getEntityLabel } from '@/hooks/useSystemActivity';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 function getActionBadge(action: string) {
   switch (action) {
