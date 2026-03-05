@@ -137,6 +137,29 @@ export function CustomerPortalSettings() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const saveNoticeMutation = useMutation({
+    mutationFn: async () => {
+      const value = { enabled: noticeEnabled, message: noticeMessage };
+      if (noticeSettings?.id) {
+        const { error } = await supabase
+          .from("app_settings")
+          .update({ value: value as any, updated_at: new Date().toISOString() })
+          .eq("id", noticeSettings.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("app_settings")
+          .insert({ key: "portal_notice", value: value as any });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["app-settings", "portal_notice"] });
+      toast.success("Portal notice saved!");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const [copiedLogin, setCopiedLogin] = useState(false);
   const [copiedRequest, setCopiedRequest] = useState(false);
   const portalLoginUrl = `${window.location.origin}/portal/login`;
