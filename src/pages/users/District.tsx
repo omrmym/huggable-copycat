@@ -102,10 +102,12 @@ export default function DistrictPage() {
               Define and manage district coverage areas.
             </CardDescription>
           </div>
-          <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add District
-          </Button>
+          {canManage && (
+            <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add District
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {isLoading ? (
