@@ -729,6 +729,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
               </div>
             </TabsContent>
           </Tabs>
+            );
+          })()}
 
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
