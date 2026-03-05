@@ -17,12 +17,12 @@ const userSubItems: SidebarSubItem[] = [
   { icon: Map, label: 'District', path: '/users/district', subKey: 'sub.users.location', permissions: ['users.district.manage'] },
 ];
 
-const rechargeSubItems = [
-  { icon: PieChart, label: 'Billing Statistics', path: '/recharge/statistics', permissions: ['recharge.statistics'] },
-  { icon: Wallet, label: 'Customer Recharge', path: '/recharge/customer', permissions: ['recharge.customer'] },
-  { icon: Ticket, label: 'Manage Recharge', path: '/recharge/manage', permissions: ['recharge.manage'] },
-  { icon: Clock, label: 'Pending Bill Collection', path: '/recharge/pending', permissions: ['recharge.pending'] },
-  { icon: CheckCircle, label: 'Approved Bill Collection', path: '/recharge/approved', permissions: ['recharge.approved'] },
+const rechargeSubItems: SidebarSubItem[] = [
+  { icon: PieChart, label: 'Billing Statistics', path: '/recharge/statistics', subKey: 'sub.recharge.statistics', permissions: ['recharge.statistics'] },
+  { icon: Wallet, label: 'Customer Recharge', path: '/recharge/customer', subKey: 'sub.recharge.customer', permissions: ['recharge.customer', 'recharge.customer.recharge'] },
+  { icon: Ticket, label: 'Manage Recharge', path: '/recharge/manage', subKey: 'sub.recharge.manage', permissions: ['recharge.manage', 'recharge.manage.delete', 'recharge.manage.invoice'] },
+  { icon: Clock, label: 'Pending Bill Collection', path: '/recharge/pending', subKey: 'sub.recharge.pending', permissions: ['recharge.pending', 'recharge.pending.approve', 'recharge.pending.reject'] },
+  { icon: CheckCircle, label: 'Approved Bill Collection', path: '/recharge/approved', subKey: 'sub.recharge.approved', permissions: ['recharge.approved', 'recharge.approved.delete', 'recharge.approved.invoice'] },
 ];
 
 const financeSubItems = [

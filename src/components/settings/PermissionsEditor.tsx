@@ -207,13 +207,51 @@ export const PERMISSION_DEFINITIONS = {
     label: 'Recharge & Billing',
     icon: DollarSign,
     menuKey: 'menu.recharge',
-    permissions: [
-      { key: 'recharge.customer', label: 'Customer Recharge' },
-      { key: 'recharge.manage', label: 'Manage Recharge' },
-      { key: 'recharge.pending', label: 'View Pending Bills' },
-      { key: 'recharge.approved', label: 'View Approved Bills' },
-      { key: 'recharge.statistics', label: 'View Billing Statistics' },
-    ],
+    subcategories: {
+      statistics: {
+        label: 'Billing Statistics',
+        subKey: 'sub.recharge.statistics',
+        permissions: [
+          { key: 'recharge.statistics', label: 'View' },
+        ],
+      },
+      customer: {
+        label: 'Customer Recharge',
+        subKey: 'sub.recharge.customer',
+        permissions: [
+          { key: 'recharge.customer', label: 'View' },
+          { key: 'recharge.customer.recharge', label: 'Recharge' },
+        ],
+      },
+      manage: {
+        label: 'Manage Recharge',
+        subKey: 'sub.recharge.manage',
+        permissions: [
+          { key: 'recharge.manage', label: 'View' },
+          { key: 'recharge.manage.delete', label: 'Delete' },
+          { key: 'recharge.manage.invoice', label: 'Invoice' },
+        ],
+      },
+      pending: {
+        label: 'Pending Bill Collection',
+        subKey: 'sub.recharge.pending',
+        permissions: [
+          { key: 'recharge.pending', label: 'View' },
+          { key: 'recharge.pending.approve', label: 'Approve' },
+          { key: 'recharge.pending.reject', label: 'Reject' },
+        ],
+      },
+      approved: {
+        label: 'Approved Bill Collection',
+        subKey: 'sub.recharge.approved',
+        permissions: [
+          { key: 'recharge.approved', label: 'View' },
+          { key: 'recharge.approved.delete', label: 'Delete' },
+          { key: 'recharge.approved.invoice', label: 'Invoice' },
+        ],
+      },
+    },
+    permissions: [],
   },
   finance: {
     label: 'Finance',
