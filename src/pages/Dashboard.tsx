@@ -46,7 +46,7 @@ export default function Dashboard() {
     'dashboard.already_paid_bill',
     'dashboard.connection_fee',
     'dashboard.extra_income',
-    'recharge.statistics',
+    'dashboard.auto_renew_bill',
   ];
 
   const canViewUserStats = hasAnyPermission(userStatsPermissions);
@@ -135,7 +135,7 @@ export default function Dashboard() {
                 {hasPermission('dashboard.already_paid_bill') && <StatCard title="Already Paid Bill" value={formatBDT(stats?.alreadyPaidBill || 0)} icon={CreditCard} variant="success" href="/recharge/manage" />}
                 {hasPermission('dashboard.connection_fee') && <StatCard title="Connection Fee" value={formatBDT(stats?.totalConnectionFee || 0)} icon={Cable} variant="primary" href="/users" />}
                 {hasPermission('dashboard.extra_income') && <StatCard title="Extra Income" value={formatBDT(stats?.totalExtraIncome || 0)} icon={PlusCircle} variant="success" href="/finance/income" />}
-                {hasPermission('recharge.statistics') && <StatCard title="Auto Renew Bill" value={formatBDT(stats?.autoRenewBill || 0)} icon={RefreshCw} variant="success" href="/recharge/statistics?billing=auto_renew" />}
+                {hasPermission('dashboard.auto_renew_bill') && <StatCard title="Auto Renew Bill" value={formatBDT(stats?.autoRenewBill || 0)} icon={RefreshCw} variant="success" href="/recharge/statistics?billing=auto_renew" />}
               </>
             )}
           </div>
