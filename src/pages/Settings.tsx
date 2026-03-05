@@ -916,6 +916,7 @@ export default function SettingsPage() {
           {hasPermission('settings.categories') && <ExpenseCategoryManagement />}
           {hasPermission('settings.payment') && <PaymentMethodManagement />}
           {hasPermission('settings.payment_gateway') && <PaymentGatewaySettings />}
+          {hasPermission('settings.shareholders') && <ShareholderManagement />}
         </TabsContent>
 
         {/* SMS Management Settings */}
