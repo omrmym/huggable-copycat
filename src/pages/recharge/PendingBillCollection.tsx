@@ -365,7 +365,7 @@ export default function PendingBillCollection() {
                 Clear Filters
               </Button>
             )}
-            {isSomeSelected && (
+            {isSomeSelected && hasPermission('recharge.pending.approve') && (
               <Button
                 className="bg-success text-success-foreground ml-auto"
                 onClick={handleBulkApprove}
