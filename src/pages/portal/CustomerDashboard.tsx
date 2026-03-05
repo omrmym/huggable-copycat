@@ -41,6 +41,7 @@ import {
 
 export default function CustomerDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { customer, logout, isLoading, refreshCustomer } = useCustomerAuth();
   const { data: plans = [] } = useBillingPlans();
   const { data: transactions = [], isLoading: transactionsLoading } = useUserTransactions(customer?.id);
