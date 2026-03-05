@@ -333,8 +333,30 @@ export const PERMISSION_DEFINITIONS = {
   },
 };
 
-// Helper to get all permissions from a category (including subcategories)
+// Helper to get all permissions from a category (including subcategories and menuKey)
 function getAllCategoryPermissions(category: typeof PERMISSION_DEFINITIONS[keyof typeof PERMISSION_DEFINITIONS]): string[] {
+  const permissions: string[] = [];
+  
+  // Include the menuKey as a permission
+  if ('menuKey' in category && category.menuKey) {
+    permissions.push(category.menuKey);
+  }
+  
+  if (category.permissions) {
+    permissions.push(...category.permissions.map(p => p.key));
+  }
+  
+  if ('subcategories' in category && category.subcategories) {
+    Object.values(category.subcategories).forEach(sub => {
+      permissions.push(...sub.permissions.map(p => p.key));
+    });
+  }
+  
+  return permissions;
+}
+
+// Get only child permissions (excluding menuKey) for count display
+function getChildPermissions(category: typeof PERMISSION_DEFINITIONS[keyof typeof PERMISSION_DEFINITIONS]): string[] {
   const permissions: string[] = [];
   
   if (category.permissions) {
