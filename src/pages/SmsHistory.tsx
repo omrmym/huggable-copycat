@@ -365,10 +365,13 @@ export default function SmsHistory() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
+        {canManageTemplates && (
         <TabsContent value="templates">
           <SmsTemplates />
         </TabsContent>
+        )}
       </Tabs>
     </DashboardLayout>
   );
