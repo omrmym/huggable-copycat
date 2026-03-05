@@ -117,11 +117,8 @@ export default function CustomerLogin() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center space-y-2">
+          <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">Need help? Contact your ISP administrator.</p>
-            <a href="/login" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium">
-              Admin Login →
-            </a>
           </div>
         </CardContent>
       </Card>
