@@ -57,6 +57,7 @@ import { BrandingSettings } from '@/components/settings/BrandingSettings';
 import { ThemeSettings } from '@/components/settings/ThemeSettings';
 import { SmsGatewaySettings } from '@/components/settings/SmsGatewaySettings';
 import { ShareholderManagement } from '@/components/settings/ShareholderManagement';
+import { CustomerPortalSettings } from '@/components/settings/CustomerPortalSettings';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface ConnectionStatus {
