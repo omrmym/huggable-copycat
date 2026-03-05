@@ -18,6 +18,8 @@ import { NagadPaymentButton } from '@/components/payment/NagadPaymentButton';
 import { PaymentRequestDialog } from '@/components/portal/PaymentRequestDialog';
 import { CustomerActivityLog } from '@/components/portal/CustomerActivityLog';
 import { DataUsageTab } from '@/components/users/profile/DataUsageTab';
+import { BandwidthLiveChart } from '@/components/users/profile/BandwidthLiveChart';
+import { BandwidthHistoryChart } from '@/components/users/profile/BandwidthHistoryChart';
 import {
   Network,
   LogOut,
@@ -205,7 +207,7 @@ export default function CustomerDashboard() {
         )}
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -217,6 +219,10 @@ export default function CustomerDashboard() {
             <TabsTrigger value="usage" className="flex items-center gap-2">
               <HardDrive className="w-4 h-4" />
               <span className="hidden sm:inline">Data Usage</span>
+            </TabsTrigger>
+            <TabsTrigger value="bandwidth" className="flex items-center gap-2">
+              <Wifi className="w-4 h-4" />
+              <span className="hidden sm:inline">Bandwidth</span>
             </TabsTrigger>
             <TabsTrigger value="activity" className="flex items-center gap-2">
               <Activity className="w-4 h-4" />
@@ -492,6 +498,22 @@ export default function CustomerDashboard() {
               updated_at: new Date().toISOString(),
               reseller_office: null,
             }} />
+          </TabsContent>
+
+          {/* Bandwidth Tab */}
+          <TabsContent value="bandwidth">
+            <div className="space-y-6">
+              <BandwidthLiveChart
+                userId={customer.id}
+                username={customer.username}
+                serviceType={customer.service_type}
+                routerId={customer.mikrotik_router_id}
+              />
+              <BandwidthHistoryChart
+                userId={customer.id}
+                username={customer.username}
+              />
+            </div>
           </TabsContent>
 
           {/* Activity Tab */}
