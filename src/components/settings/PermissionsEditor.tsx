@@ -131,6 +131,7 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.all.change_expire', label: 'Change Expire' },
           { key: 'users.all.edit', label: 'Edit User' },
           { key: 'users.all.delete', label: 'Delete User' },
+          { key: 'users.all.recharge', label: 'Recharge' },
         ],
       },
       user_profile: {
