@@ -203,6 +203,12 @@ export function useToggleSoftwareUserStatus() {
 
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      // Protect master account
+      const { data: target } = await supabase.from('software_users').select('email').eq('id', id).maybeSingle();
+      if (target?.email === MASTER_ACCOUNT_EMAIL) {
+        throw new Error('This account cannot be modified.');
+      }
+
       const { data, error } = await supabase
         .from('software_users')
         .update({ is_active })
