@@ -55,6 +55,8 @@ export function TransactionHistoryTab({
 }: TransactionHistoryTabProps) {
   const [selectedInvoice, setSelectedInvoice] = useState<Transaction | null>(null);
   const [invoicePreviewOpen, setInvoicePreviewOpen] = useState(false);
+  const { hasPermission } = useHasPermission();
+  const canDeleteTransaction = hasPermission('users.profile.delete_transaction');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<Transaction | null>(null);
 
