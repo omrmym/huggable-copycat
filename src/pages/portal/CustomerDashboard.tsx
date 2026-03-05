@@ -59,6 +59,19 @@ export default function CustomerDashboard() {
     },
   });
 
+  // Fetch portal notice
+  const { data: portalNotice } = useQuery({
+    queryKey: ['portal-notice'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'portal_notice')
+        .maybeSingle();
+      return (data?.value as { enabled?: boolean; message?: string }) || null;
+    },
+  });
+
   const bkashEnabled = paymentConfig?.bkash_enabled === true;
   const nagadEnabled = paymentConfig?.nagad_enabled === true;
 
