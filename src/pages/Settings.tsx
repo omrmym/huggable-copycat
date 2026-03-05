@@ -31,6 +31,7 @@ import {
   Package,
   Download,
   Upload,
+  Globe,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
