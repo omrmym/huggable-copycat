@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BulkUserImport } from "@/components/users/BulkUserImport";
+import { useHasPermission } from "@/hooks/useHasPermission";
 
 export default function CreateUserPage() {
   const navigate = useNavigate();
