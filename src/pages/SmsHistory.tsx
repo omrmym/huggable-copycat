@@ -376,6 +376,12 @@ export default function SmsHistory() {
         </TabsContent>
         )}
 
+        {canGroupSend && (
+        <TabsContent value="group-sms">
+          <GroupSmsSend />
+        </TabsContent>
+        )}
+
         {canManageTemplates && (
         <TabsContent value="templates">
           <SmsTemplates />
