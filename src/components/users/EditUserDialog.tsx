@@ -631,13 +631,18 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="connection_fee">Connection Fee (৳)</Label>
+                  <Label htmlFor="connection_fee" className="flex items-center gap-1">
+                    Connection Fee (৳)
+                    {!hasPermission('users.edit.connection_fee') && <Lock className="h-3 w-3 text-muted-foreground" />}
+                  </Label>
                   <Input
                     id="connection_fee"
                     type="number"
                     value={formData.connection_fee}
                     onChange={(e) => setFormData({ ...formData, connection_fee: e.target.value })}
                     placeholder="Enter connection fee"
+                    disabled={!hasPermission('users.edit.connection_fee')}
+                    className={!hasPermission('users.edit.connection_fee') ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="col-span-2 space-y-2">
