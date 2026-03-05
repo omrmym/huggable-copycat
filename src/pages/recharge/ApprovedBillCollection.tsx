@@ -405,18 +405,32 @@ export default function ApprovedBillCollection() {
                           </span>
                         </TableCell>
                         <TableCell>
-                          {hasPermission('recharge.approved.delete') && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-warning/30 text-warning hover:bg-warning/10"
-                              onClick={() => handleReject(tx.id)}
-                              disabled={rejectingId === tx.id}
-                            >
-                              <RotateCcw className="w-4 h-4 mr-1" />
-                              {rejectingId === tx.id ? 'Moving...' : 'Reject'}
-                            </Button>
-                          )}
+                          <div className="flex gap-2">
+                            {hasPermission('recharge.approved.delete') && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-warning/30 text-warning hover:bg-warning/10"
+                                onClick={() => handleReject(tx.id)}
+                                disabled={rejectingId === tx.id}
+                              >
+                                <RotateCcw className="w-4 h-4 mr-1" />
+                                {rejectingId === tx.id ? 'Moving...' : 'Reject'}
+                              </Button>
+                            )}
+                            {hasPermission('recharge.approved.delete_transaction') && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                                onClick={() => handleDelete(tx.id)}
+                                disabled={deletingId === tx.id}
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                {deletingId === tx.id ? 'Deleting...' : 'Delete'}
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
