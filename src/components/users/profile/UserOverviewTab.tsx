@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MacLockControl } from './MacLockControl';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useUserBandwidth } from '@/hooks/useUserBandwidth';
 import { 
   User, 
@@ -61,6 +62,8 @@ export function UserOverviewTab({
     user.service_type,
     user.mikrotik_router_id
   );
+
+  const { hasPermission } = useHasPermission();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -153,17 +156,19 @@ export function UserOverviewTab({
         </CardContent>
       </Card>
 
-      {/* MAC Lock Control */}
-      <MacLockControl
-        userId={user.id}
-        username={user.username}
-        macAddress={user.mac_address}
-        macLocked={user.mac_locked}
-        serviceType={user.service_type}
-        routerId={user.mikrotik_router_id}
-        detectedMac={bandwidthData?.callerId}
-        isOnline={bandwidthData?.isOnline}
-      />
+      {/* MAC Lock Control - permission gated */}
+      {hasPermission('users.profile.mac_lock') && (
+        <MacLockControl
+          userId={user.id}
+          username={user.username}
+          macAddress={user.mac_address}
+          macLocked={user.mac_locked}
+          serviceType={user.service_type}
+          routerId={user.mikrotik_router_id}
+          detectedMac={bandwidthData?.callerId}
+          isOnline={bandwidthData?.isOnline}
+        />
+      )}
     </div>
   );
 }
