@@ -109,16 +109,20 @@ export default function SmsHistory() {
 
   return (
     <DashboardLayout title="SMS Management" subtitle="SMS history, analytics and templates">
-      <Tabs defaultValue="history" className="space-y-6">
+      <Tabs defaultValue={defaultTab} className="space-y-6">
         <TabsList className="bg-muted/50">
-          <TabsTrigger value="history" className="flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4" />
-            History & Analytics
-          </TabsTrigger>
-          <TabsTrigger value="templates" className="flex items-center gap-1.5">
-            <FileText className="w-4 h-4" />
-            Templates
-          </TabsTrigger>
+          {canViewHistory && (
+            <TabsTrigger value="history" className="flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4" />
+              History & Analytics
+            </TabsTrigger>
+          )}
+          {canManageTemplates && (
+            <TabsTrigger value="templates" className="flex items-center gap-1.5">
+              <FileText className="w-4 h-4" />
+              Templates
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="history" className="space-y-6">
