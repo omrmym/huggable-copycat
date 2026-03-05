@@ -461,12 +461,14 @@ export function PermissionsEditor({
       {/* Permission Categories Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {Object.entries(PERMISSION_DEFINITIONS).map(([categoryKey, category]) => {
-          const categoryPermissions = getAllCategoryPermissions(category);
-          const selectedCount = categoryPermissions.filter((p) =>
+          const childPermissions = getChildPermissions(category);
+          const selectedChildCount = childPermissions.filter((p) =>
             selectedPermissions.includes(p)
           ).length;
-          const allSelected = selectedCount === categoryPermissions.length;
-          const someSelected = selectedCount > 0 && !allSelected;
+          const menuKey = 'menuKey' in category ? category.menuKey : undefined;
+          const menuSelected = menuKey ? selectedPermissions.includes(menuKey) : false;
+          const allChildSelected = childPermissions.length > 0 && selectedChildCount === childPermissions.length;
+          const someChildSelected = selectedChildCount > 0;
           const IconComponent = category.icon;
 
           return (
@@ -474,29 +476,30 @@ export function PermissionsEditor({
               key={categoryKey}
               className={cn(
                 "rounded-xl border bg-card p-5 transition-all",
-                allSelected ? "border-primary/50 bg-primary/5" : "border-border",
-                someSelected && "border-primary/30"
+                menuSelected && allChildSelected ? "border-primary/50 bg-primary/5" : "border-border",
+                menuSelected && someChildSelected && !allChildSelected && "border-primary/30"
               )}
             >
-              {/* Category Header */}
+              {/* Category Header - toggles menu visibility independently */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id={`category-${categoryKey}`}
-                    checked={allSelected}
-                    data-state={someSelected ? 'indeterminate' : allSelected ? 'checked' : 'unchecked'}
-                    onCheckedChange={() => handleToggleCategory(categoryKey)}
+                    checked={menuSelected}
+                    onCheckedChange={() => {
+                      if (menuKey) handleToggle(menuKey);
+                    }}
                     disabled={disabled}
-                    className={cn("h-5 w-5", someSelected && "opacity-70")}
+                    className="h-5 w-5"
                   />
                   <div className="flex items-center gap-2">
                     <div className={cn(
                       "p-2 rounded-lg",
-                      allSelected ? "bg-primary/20" : "bg-muted"
+                      menuSelected ? "bg-primary/20" : "bg-muted"
                     )}>
                       <IconComponent className={cn(
                         "h-4 w-4",
-                        allSelected ? "text-primary" : "text-muted-foreground"
+                        menuSelected ? "text-primary" : "text-muted-foreground"
                       )} />
                     </div>
                     <Label
@@ -507,8 +510,8 @@ export function PermissionsEditor({
                     </Label>
                   </div>
                 </div>
-                <Badge variant={allSelected ? "default" : "secondary"} className="text-xs">
-                  {selectedCount}/{categoryPermissions.length}
+                <Badge variant={allChildSelected ? "default" : "secondary"} className="text-xs">
+                  {selectedChildCount}/{childPermissions.length}
                 </Badge>
               </div>
 
