@@ -72,6 +72,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       departments: {
         label: 'Department',
+        subKey: 'sub.hr.departments',
         permissions: [
           { key: 'hr.departments.view', label: 'View' },
           { key: 'hr.departments.add', label: 'Add Department' },
