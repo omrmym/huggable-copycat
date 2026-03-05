@@ -1238,11 +1238,12 @@ export default function SettingsPage() {
 
                       setIsResetting(true);
                       try {
-                        // Delete in reverse dependency order
+                        // Delete ALL tables in reverse dependency order (including settings data)
                         const deleteOrder = [
                           'bandwidth_history', 'mikrotik_sync_log', 'device_change_requests',
                           'reseller_user_recharges', 'reseller_plan_commissions', 'reseller_credits',
                           'reseller_users',
+                          'sms_history',
                           'transactions', 'vouchers',
                           'salary_payments', 'leave_requests',
                           'login_activity', 'system_activity',
@@ -1255,7 +1256,12 @@ export default function SettingsPage() {
                           'positions', 'departments',
                           'connectivity_types', 'payment_methods',
                           'expense_categories', 'income_categories',
+                          'shareholders',
                           'user_requests',
+                          'app_settings',
+                          'role_definitions',
+                          'software_users',
+                          'admin_users',
                         ];
 
                         let deleted = 0;
@@ -1268,8 +1274,20 @@ export default function SettingsPage() {
                           else console.error(`Reset ${table}:`, error.message);
                         }
 
+                        // Re-provision default admin and master accounts
+                        const { error: provisionError } = await supabase.functions.invoke('create-admin-user');
+                        if (provisionError) {
+                          console.error('Error provisioning accounts:', provisionError);
+                        }
+
                         queryClient.invalidateQueries();
-                        toast.success(`Factory reset complete! ${deleted} tables cleared.`);
+                        toast.success('Factory reset complete! All data cleared and default admin account restored.');
+                        
+                        // Sign out so user can log in with fresh credentials
+                        setTimeout(async () => {
+                          await supabase.auth.signOut();
+                          window.location.href = '/login';
+                        }, 2000);
                       } catch (err: any) {
                         toast.error(`Reset failed: ${err.message}`);
                       } finally {
