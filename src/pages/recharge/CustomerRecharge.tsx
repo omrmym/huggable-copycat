@@ -202,14 +202,16 @@ export default function CustomerRecharge() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            className="bg-gradient-primary text-primary-foreground"
-                            onClick={() => handleSelectUser(user)}
-                          >
-                            <Wallet className="w-4 h-4 mr-1" />
-                            Recharge
-                          </Button>
+                          {hasPermission('recharge.customer.recharge') && (
+                            <Button
+                              size="sm"
+                              className="bg-gradient-primary text-primary-foreground"
+                              onClick={() => handleSelectUser(user)}
+                            >
+                              <Wallet className="w-4 h-4 mr-1" />
+                              Recharge
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );

@@ -54,6 +54,7 @@ const typeConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function ApprovedBillCollection() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   const [collectedByFilter, setCollectedByFilter] = useState<string>('all');
   const [methodFilter, setMethodFilter] = useState<string>('all');

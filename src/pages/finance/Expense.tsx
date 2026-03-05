@@ -17,6 +17,7 @@ import { format, parseISO, isWithinInterval, startOfDay, endOfDay, startOfMonth 
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Expense() {
+  const { hasPermission } = useHasPermission();
   const { user } = useAuth();
   const { data: expenseList = [], isLoading } = useExpenses();
   const { data: expenseCategories = [] } = useExpenseCategories();

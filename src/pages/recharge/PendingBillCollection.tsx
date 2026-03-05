@@ -79,6 +79,7 @@ const typeConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function PendingBillCollection() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   
   const [collectedByFilter, setCollectedByFilter] = useState<string>('all');

@@ -17,6 +17,7 @@ import { format, parseISO, isWithinInterval, startOfDay, endOfDay, startOfMonth 
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Income() {
+  const { hasPermission } = useHasPermission();
   const { user } = useAuth();
   const { data: incomeList = [], isLoading } = useIncome();
   const { data: incomeCategories = [] } = useIncomeCategories();
