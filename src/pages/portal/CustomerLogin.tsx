@@ -13,6 +13,7 @@ import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 export default function CustomerLogin() {
   const navigate = useNavigate();
   const { login, isLoading: authLoading } = useCustomerAuth();
+  const { data: branding } = useBrandingSettings();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
