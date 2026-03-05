@@ -126,6 +126,7 @@ export default function SmsHistory() {
         </TabsList>
 
         {canViewHistory && (
+        <TabsContent value="history" className="space-y-6">
           {/* Date Filter */}
           <div className="flex flex-wrap items-center gap-4">
             <DateRangeFilter
