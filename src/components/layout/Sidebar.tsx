@@ -74,7 +74,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
 
   // Filter sub-items by feature permission only
   const filterItems = (items: typeof userSubItems) =>
-    items.filter(item => hasAnyPermission(item.permissions));
+    items.filter(item => hasAnyPermission(item.permissions) || ('subKey' in item && item.subKey && hasPermission(item.subKey)));
 
   const filteredUserItems = filterItems(userSubItems);
   const filteredRechargeItems = filterItems(rechargeSubItems);
