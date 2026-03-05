@@ -92,6 +92,26 @@ export function UserActivityLogGlobal() {
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { hasPermission } = useHasPermission();
+  const canClearLogs = hasPermission('activity.clear_user');
+
+  const clearLogs = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('mikrotik_sync_log')
+        .delete()
+        .in('action', ['connect', 'disconnect']);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['global-user-activity'] });
+      toast({ title: 'Logs Cleared', description: 'All user activity logs have been deleted.' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message || 'Failed to clear logs.', variant: 'destructive' });
+    },
+  });
 
   const { data: activities, isLoading, isFetching } = useGlobalUserActivity(200);
 
