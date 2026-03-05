@@ -278,6 +278,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       regulatory: {
         label: 'Regulatory Reports',
+        subKey: 'sub.reports.regulatory',
         permissions: [
           { key: 'reports.btrc', label: 'BTRC Report' },
         ],
