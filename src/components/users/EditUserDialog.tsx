@@ -388,14 +388,20 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
             {/* Address Tab */}
             <TabsContent value="address" className="space-y-4 mt-4">
+              {!canEditAddress && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 border border-border rounded-md px-3 py-2">
+                  <Lock className="h-3 w-3" /> Read-only mode. You need edit permission to modify address information.
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="district">District</Label>
                   <Select
                     value={formData.district_id}
                     onValueChange={(value) => setFormData({ ...formData, district_id: value })}
+                    disabled={!canEditAddress}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={!canEditAddress ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select district" />
                     </SelectTrigger>
                     <SelectContent>
@@ -412,8 +418,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                   <Select
                     value={formData.police_station_id}
                     onValueChange={(value) => setFormData({ ...formData, police_station_id: value })}
+                    disabled={!canEditAddress}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={!canEditAddress ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select police station" />
                     </SelectTrigger>
                     <SelectContent>
@@ -430,8 +437,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                   <Select
                     value={formData.area_id}
                     onValueChange={(value) => setFormData({ ...formData, area_id: value })}
+                    disabled={!canEditAddress}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={!canEditAddress ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select area" />
                     </SelectTrigger>
                     <SelectContent>
@@ -451,6 +459,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     onChange={(e) => setFormData({ ...formData, address_details: e.target.value })}
                     placeholder="Enter detailed address"
                     rows={3}
+                    disabled={!canEditAddress}
+                    className={!canEditAddress ? 'opacity-60' : ''}
                   />
                 </div>
               </div>
