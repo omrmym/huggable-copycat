@@ -76,7 +76,7 @@ export default function SmsHistory() {
   const { hasPermission } = useHasPermission();
 
   const canViewHistory = hasPermission('sms.history');
-  const canSendSms = hasPermission('sms.send');
+  const canClearHistory = hasPermission('sms.clear_history');
   const canGroupSend = hasPermission('sms.group_send');
   const canManageTemplates = hasPermission('sms.templates');
 
@@ -259,6 +259,7 @@ export default function SmsHistory() {
                     <RefreshCw className="w-4 h-4" />
                     Refresh
                   </Button>
+                  {canClearHistory && (
                   <Button
                     variant="destructive"
                     size="sm"
@@ -269,6 +270,7 @@ export default function SmsHistory() {
                     <Trash2 className="w-4 h-4" />
                     Clear History
                   </Button>
+                  )}
                 </div>
               </div>
             </CardHeader>

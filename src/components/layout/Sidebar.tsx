@@ -97,7 +97,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const showFinance = hasPermission('menu.finance') && filteredFinanceItems.length > 0;
   const showReports = hasPermission('menu.reports') && filteredReportItems.length > 0;
   const showPlans = hasPermission('menu.plans') && hasPermission('plans.view');
-  const showSMS = hasPermission('menu.sms') && hasAnyPermission(['sms.send', 'sms.group_send', 'sms.history', 'sms.templates']);
+  const showSMS = hasPermission('menu.sms') && hasAnyPermission(['sms.group_send', 'sms.history', 'sms.clear_history', 'sms.templates']);
   const showActivity = hasPermission('menu.activity') && hasAnyPermission(['activity.system', 'activity.login', 'activity.user']);
   const showSettings = hasPermission('menu.settings') && hasAnyPermission(['settings.users', 'settings.roles', 'settings.branding', 'settings.mikrotik', 'settings.connectivity_types', 'settings.categories', 'settings.payment', 'settings.payment_gateway', 'settings.shareholders', 'settings.sms_gateway', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.activity', 'settings.customer_portal']);
 
