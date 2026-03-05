@@ -321,6 +321,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       network: {
         label: 'Network & Connectivity',
+        subKey: 'sub.settings.network',
         permissions: [
           { key: 'settings.mikrotik', label: 'Manage MikroTik Routers' },
           { key: 'settings.connectivity_types', label: 'Manage Connectivity Types' },
