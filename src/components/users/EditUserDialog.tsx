@@ -569,10 +569,10 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
             {/* Billing Tab */}
             <TabsContent value="billing" className="space-y-4 mt-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="space-y-2">
                   <Label htmlFor="plan" className="flex items-center gap-1">
                     Billing Plan
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {!hasPermission('users.edit.billing_plan') && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Select
                     value={formData.plan_id}
@@ -584,9 +584,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         monthly_bill: selectedPlan?.price?.toString() || formData.monthly_bill
                       });
                     }}
-                    disabled={!isAdmin}
+                    disabled={!hasPermission('users.edit.billing_plan')}
                   >
-                    <SelectTrigger className={!isAdmin ? 'opacity-60' : ''}>
+                    <SelectTrigger className={!hasPermission('users.edit.billing_plan') ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select plan" />
                     </SelectTrigger>
                     <SelectContent>
@@ -618,7 +618,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                 <div className="space-y-2">
                   <Label htmlFor="monthly_bill" className="flex items-center gap-1">
                     Monthly Bill (৳)
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {!hasPermission('users.edit.billing') && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Input
                     id="monthly_bill"
@@ -626,34 +626,39 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.monthly_bill}
                     onChange={(e) => setFormData({ ...formData, monthly_bill: e.target.value })}
                     placeholder="Enter monthly bill"
-                    disabled={!isAdmin}
-                    className={!isAdmin ? 'opacity-60' : ''}
+                    disabled={!hasPermission('users.edit.billing')}
+                    className={!hasPermission('users.edit.billing') ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="connection_fee">Connection Fee (৳)</Label>
+                  <Label htmlFor="connection_fee" className="flex items-center gap-1">
+                    Connection Fee (৳)
+                    {!hasPermission('users.edit.connection_fee') && <Lock className="h-3 w-3 text-muted-foreground" />}
+                  </Label>
                   <Input
                     id="connection_fee"
                     type="number"
                     value={formData.connection_fee}
                     onChange={(e) => setFormData({ ...formData, connection_fee: e.target.value })}
                     placeholder="Enter connection fee"
+                    disabled={!hasPermission('users.edit.connection_fee')}
+                    className={!hasPermission('users.edit.connection_fee') ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="col-span-2 space-y-2">
                   <Label className="flex items-center gap-1">
                     Expiration Date
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {!hasPermission('users.edit.expiration_date') && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        disabled={!isAdmin}
+                        disabled={!hasPermission('users.edit.expiration_date')}
                         className={cn(
                           "w-full justify-start text-left font-normal",
                           !formData.expires_at && "text-muted-foreground",
-                          !isAdmin && "opacity-60"
+                          !hasPermission('users.edit.expiration_date') && "opacity-60"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
