@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2, FileText, RefreshCw, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2, FileText, RefreshCw, Loader2, Users } from 'lucide-react';
 import { DateRangeFilter } from '@/components/finance/DateRangeFilter';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import SmsTemplates from '@/components/sms/SmsTemplates';
