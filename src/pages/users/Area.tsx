@@ -107,10 +107,12 @@ export default function AreaPage() {
               Define and manage service coverage areas.
             </CardDescription>
           </div>
-          <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Area
-          </Button>
+          {canManage && (
+            <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Area
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {/* Search Bar */}
