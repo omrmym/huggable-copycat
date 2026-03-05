@@ -80,6 +80,22 @@ export default function CustomerDashboard() {
   const nagadEnabled = paymentConfig?.nagad_enabled === true;
 
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshData = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshCustomer();
+      await queryClient.invalidateQueries();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshCustomer, queryClient]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/portal/login');
+  };
 
   if (isLoading) {
     return (
@@ -113,23 +129,6 @@ export default function CustomerDashboard() {
     if (mbps >= 1) return `${mbps.toFixed(1)} Mbps`;
     const kbps = bps / 1024;
     return `${kbps.toFixed(0)} Kbps`;
-  };
-
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleRefreshData = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      await refreshCustomer();
-      await queryClient.invalidateQueries();
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [refreshCustomer, queryClient]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/portal/login');
   };
 
   return (
