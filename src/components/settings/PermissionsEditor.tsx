@@ -245,7 +245,8 @@ export const PERMISSION_DEFINITIONS = {
         subKey: 'sub.recharge.approved',
         permissions: [
           { key: 'recharge.approved', label: 'View' },
-          { key: 'recharge.approved.delete', label: 'Delete' },
+          { key: 'recharge.approved.delete', label: 'Reject' },
+          { key: 'recharge.approved.delete_transaction', label: 'Delete Transaction' },
           { key: 'recharge.approved.invoice', label: 'Invoice' },
         ],
       },
