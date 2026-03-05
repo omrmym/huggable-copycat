@@ -9,12 +9,12 @@ import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
 const userSubItems = [
-  { icon: UserPlus, label: 'Create User', path: '/users/create', permissions: ['users.create.service_type', 'users.create.connection_date', 'users.create.expire_date', 'users.create.monthly_bill'] },
-  { icon: UserCheck, label: 'All Users', path: '/users', permissions: ['users.all.view'] },
-  { icon: ClipboardCheck, label: 'Requests', path: '/users/requests', permissions: ['users.requests.view'] },
-  { icon: MapPin, label: 'Area', path: '/users/area', permissions: ['users.area.manage'] },
-  { icon: Building2, label: 'Police Station', path: '/users/police-station', permissions: ['users.police_station.manage'] },
-  { icon: Map, label: 'District', path: '/users/district', permissions: ['users.district.manage'] },
+  { icon: UserPlus, label: 'Create User', path: '/users/create', subKey: 'sub.users.create', permissions: ['users.create.service_type', 'users.create.connection_date', 'users.create.expire_date', 'users.create.monthly_bill'] },
+  { icon: UserCheck, label: 'All Users', path: '/users', subKey: 'sub.users.all', permissions: ['users.all.view'] },
+  { icon: ClipboardCheck, label: 'Requests', path: '/users/requests', subKey: 'sub.users.requests', permissions: ['users.requests.view'] },
+  { icon: MapPin, label: 'Area', path: '/users/area', subKey: 'sub.users.location', permissions: ['users.area.manage'] },
+  { icon: Building2, label: 'Police Station', path: '/users/police-station', subKey: 'sub.users.location', permissions: ['users.police_station.manage'] },
+  { icon: Map, label: 'District', path: '/users/district', subKey: 'sub.users.location', permissions: ['users.district.manage'] },
 ];
 
 const rechargeSubItems = [
