@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BulkUserImport } from "@/components/users/BulkUserImport";
+import { useHasPermission } from "@/hooks/useHasPermission";
 
 export default function CreateUserPage() {
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ export default function CreateUserPage() {
   const { data: areas = [] } = useAreas();
   const { data: routers = [] } = useMikrotikRouters();
   const createUser = useCreateRadiusUser();
+  const { hasPermission } = useHasPermission();
+  const canEditMonthlyBill = hasPermission('users.create.monthly_bill');
 
   // reseller_office will be set to "Main-User" for admin panel users
 
@@ -515,14 +518,14 @@ export default function CreateUserPage() {
                 <Input
                   type="number"
                   placeholder="0.00"
-                  className={cn(formData.plan_id ? "bg-muted border-border cursor-not-allowed" : "bg-secondary border-border")}
+                  className={cn((!canEditMonthlyBill || formData.plan_id) ? "bg-muted border-border cursor-not-allowed" : "bg-secondary border-border")}
                   value={formData.monthly_bill}
                   onChange={(e) => {
-                    if (!formData.plan_id) {
+                    if (canEditMonthlyBill && !formData.plan_id) {
                       setFormData({ ...formData, monthly_bill: e.target.value });
                     }
                   }}
-                  readOnly={!!formData.plan_id}
+                  readOnly={!canEditMonthlyBill || !!formData.plan_id}
                 />
               </div>
               <div className="space-y-2">
