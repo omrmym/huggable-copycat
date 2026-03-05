@@ -18,11 +18,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Users, Search, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Loader2, Users, Search, RefreshCw, Wifi, WifiOff, Trash2 } from 'lucide-react';
 import { formatDate, formatDistanceToNowTz } from '@/lib/dateUtils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
+import { useHasPermission } from '@/hooks/useHasPermission';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface GlobalUserActivity {
   id: string;
