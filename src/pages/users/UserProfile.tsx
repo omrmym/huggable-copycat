@@ -241,7 +241,7 @@ export default function UserProfile() {
               Quick Recharge
             </Button>
           )}
-          {user.phone && (
+          {user.phone && hasPermission('users.profile.send_sms') && (
             <Button
               variant="outline"
               onClick={() => setSmsDialogOpen(true)}

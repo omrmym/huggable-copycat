@@ -145,6 +145,7 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.profile.edit', label: 'Edit User' },
           { key: 'users.profile.grace', label: 'Grace Activation' },
           { key: 'users.profile.mac_lock', label: 'MAC Lock Control' },
+          { key: 'users.profile.send_sms', label: 'Send SMS' },
         ],
       },
       edit_user: {
