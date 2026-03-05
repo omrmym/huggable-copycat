@@ -102,10 +102,12 @@ export default function PoliceStationPage() {
               Define and manage police station coverage areas.
             </CardDescription>
           </div>
-          <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Police Station
-          </Button>
+          {canManage && (
+            <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Police Station
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {isLoading ? (
