@@ -256,11 +256,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Link>
         )}
 
-        {/* Temporary link - DELETE LATER */}
-        <Link to="/settings/roles/7d87d93b-d72e-4b29-b574-046450a7a71a" className={`nav-link ${location.pathname.includes('/settings/roles/') ? 'active' : ''}`}>
-          <Settings className="w-5 h-5" />
-          <span>Edit Rule</span>
-        </Link>
 
         {showSettings && (
           <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>
