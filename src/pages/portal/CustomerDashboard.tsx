@@ -500,6 +500,22 @@ export default function CustomerDashboard() {
             }} />
           </TabsContent>
 
+          {/* Bandwidth Tab */}
+          <TabsContent value="bandwidth">
+            <div className="space-y-6">
+              <BandwidthLiveChart
+                userId={customer.id}
+                username={customer.username}
+                serviceType={customer.service_type}
+                routerId={customer.mikrotik_router_id}
+              />
+              <BandwidthHistoryChart
+                userId={customer.id}
+                username={customer.username}
+              />
+            </div>
+          </TabsContent>
+
           {/* Activity Tab */}
           <TabsContent value="activity">
             <CustomerActivityLog userId={customer.id} username={customer.username} />
