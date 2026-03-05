@@ -250,6 +250,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       billing: {
         label: 'Billing Reports',
+        subKey: 'sub.reports.billing',
         permissions: [
           { key: 'reports.billing', label: 'Billing Report' },
           { key: 'reports.connection', label: 'Connection Fee Report' },
