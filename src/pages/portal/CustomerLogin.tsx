@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Network, User, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { GalaxyBackground } from '@/components/auth/GalaxyBackground';
+import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 
 export default function CustomerLogin() {
   const navigate = useNavigate();
