@@ -108,6 +108,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       create_user: {
         label: 'Create User',
+        subKey: 'sub.users.create',
         permissions: [
           { key: 'users.create.service_type', label: 'Service Type' },
           { key: 'users.create.connection_date', label: 'Connection Date' },
@@ -117,6 +118,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       all_user: {
         label: 'All User',
+        subKey: 'sub.users.all',
         permissions: [
           { key: 'users.all.view', label: 'View' },
           { key: 'users.all.change_status', label: 'Change Status' },
@@ -127,6 +129,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       user_profile: {
         label: 'User Profile',
+        subKey: 'sub.users.profile',
         permissions: [
           { key: 'users.profile.view', label: 'View' },
           { key: 'users.profile.quick_recharge', label: 'Quick Recharge' },
@@ -139,6 +142,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       edit_user: {
         label: 'Edit User',
+        subKey: 'sub.users.edit',
         permissions: [
           { key: 'users.edit.personal', label: 'Personal' },
           { key: 'users.edit.address', label: 'Address' },
@@ -148,12 +152,14 @@ export const PERMISSION_DEFINITIONS = {
       },
       auto_renew: {
         label: 'Auto Renew',
+        subKey: 'sub.users.auto_renew',
         permissions: [
           { key: 'users.auto_renew.toggle', label: 'Toggle Auto Renew' },
         ],
       },
       requests: {
         label: 'User Requests',
+        subKey: 'sub.users.requests',
         permissions: [
           { key: 'users.requests.view', label: 'View Requests' },
           { key: 'users.requests.approve', label: 'Approve Request' },
@@ -163,6 +169,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       location: {
         label: 'Location Management',
+        subKey: 'sub.users.location',
         permissions: [
           { key: 'users.area.manage', label: 'Manage Areas' },
           { key: 'users.district.manage', label: 'Manage Districts' },
@@ -171,6 +178,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       online_offline: {
         label: 'Online/Offline',
+        subKey: 'sub.users.online_offline',
         permissions: [
           { key: 'users.online_offline.view', label: 'View Online/Offline Users' },
         ],
