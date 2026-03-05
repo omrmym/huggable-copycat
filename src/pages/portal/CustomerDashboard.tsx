@@ -482,88 +482,15 @@ export default function CustomerDashboard() {
 
           {/* Data Usage Tab */}
           <TabsContent value="usage">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle>Data Usage This Month</CardTitle>
-                  <CardDescription>
-                    {currentPlan?.data_limit_mb 
-                      ? 'Your monthly data allocation'
-                      : 'You have unlimited data'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-end justify-between">
-                      <div>
-                        <p className="text-4xl font-bold text-foreground">
-                          {formatDataSize(customer.data_used_mb)}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {currentPlan?.data_limit_mb
-                            ? `of ${formatDataSize(currentPlan.data_limit_mb)}`
-                            : 'used this month'}
-                        </p>
-                      </div>
-                      {currentPlan?.data_limit_mb && (
-                        <p className="text-lg font-semibold text-primary">
-                          {((customer.data_used_mb / currentPlan.data_limit_mb) * 100).toFixed(0)}%
-                        </p>
-                      )}
-                    </div>
-                    {currentPlan?.data_limit_mb && (
-                      <Progress 
-                        value={(customer.data_used_mb / currentPlan.data_limit_mb) * 100} 
-                        className="h-3" 
-                      />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle>Current Session</CardTitle>
-                  <CardDescription>Real-time connection statistics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {bandwidthData?.isOnline ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-secondary rounded-lg text-center">
-                          <ArrowDown className="w-6 h-6 text-primary mx-auto mb-2" />
-                          <p className="text-xl font-bold text-foreground">
-                            {formatDataSize(bandwidthData.bytesIn / 1024 / 1024)}
-                          </p>
-                          <p className="text-sm text-muted-foreground">Downloaded</p>
-                        </div>
-                        <div className="p-4 bg-secondary rounded-lg text-center">
-                          <ArrowUp className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                          <p className="text-xl font-bold text-foreground">
-                            {formatDataSize(bandwidthData.bytesOut / 1024 / 1024)}
-                          </p>
-                          <p className="text-sm text-muted-foreground">Uploaded</p>
-                        </div>
-                      </div>
-                      <div className="p-4 bg-secondary rounded-lg">
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Session Duration</span>
-                          <span className="font-mono text-foreground">{bandwidthData.uptime || '-'}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Wifi className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-                      <p className="text-muted-foreground">You are currently offline</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Connect to see real-time statistics
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <DataUsageTab user={{
+              id: customer.id,
+              data_used_mb: customer.data_used_mb ?? 0,
+              plan: currentPlan ? { data_limit_mb: currentPlan.data_limit_mb ?? null } : null,
+              last_login_at: customer.last_login_at ?? null,
+              created_at: customer.created_at,
+              updated_at: customer.updated_at,
+              reseller_office: customer.reseller_office ?? null,
+            }} />
           </TabsContent>
 
           {/* Activity Tab */}
