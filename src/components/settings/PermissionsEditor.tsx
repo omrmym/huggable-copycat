@@ -534,7 +534,7 @@ export function PermissionsEditor({
                             data-state={subSomeSelected ? 'indeterminate' : subAllSelected ? 'checked' : 'unchecked'}
                             onCheckedChange={() => handleToggleSubcategory(subPermissions)}
                             disabled={disabled}
-                            className={cn("h-4 w-4", subSomeSelected && "opacity-70")}
+                            className={cn("h-4 w-4")}
                           />
                           <Label
                             htmlFor={`sub-${categoryKey}-${subKey}`}
