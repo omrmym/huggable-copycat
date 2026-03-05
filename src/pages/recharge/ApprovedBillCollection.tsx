@@ -166,6 +166,44 @@ export default function ApprovedBillCollection() {
     }
   };
 
+  // Bulk delete transactions
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .in('id', Array.from(selectedIds));
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      toast.success(`${selectedIds.size} transaction(s) deleted successfully`);
+      setSelectedIds(new Set());
+    } catch (error: any) {
+      toast.error(`Failed to delete transactions: ${error.message}`);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredTransactions.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredTransactions.map(tx => tx.id)));
+    }
+  };
+
   const clearFilters = () => {
     setSearchQuery('');
     setCollectedByFilter('all');
