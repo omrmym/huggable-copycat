@@ -62,6 +62,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       employees: {
         label: 'Employee',
+        subKey: 'sub.hr.employees',
         permissions: [
           { key: 'hr.employees.view', label: 'View' },
           { key: 'hr.employees.add', label: 'Add Employee' },
