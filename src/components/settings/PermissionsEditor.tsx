@@ -341,11 +341,10 @@ export const PERMISSION_DEFINITIONS = {
   },
 };
 
-// Helper to get all permissions from a category (including subcategories and menuKey)
+// Helper to get all permissions from a category (including subcategories, menuKey, and subKeys)
 function getAllCategoryPermissions(category: typeof PERMISSION_DEFINITIONS[keyof typeof PERMISSION_DEFINITIONS]): string[] {
   const permissions: string[] = [];
   
-  // Include the menuKey as a permission
   if ('menuKey' in category && category.menuKey) {
     permissions.push(category.menuKey);
   }
@@ -355,8 +354,11 @@ function getAllCategoryPermissions(category: typeof PERMISSION_DEFINITIONS[keyof
   }
   
   if ('subcategories' in category && category.subcategories) {
-    Object.values(category.subcategories).forEach(sub => {
-      permissions.push(...sub.permissions.map(p => p.key));
+    Object.values(category.subcategories).forEach((sub: any) => {
+      if (sub.subKey) {
+        permissions.push(sub.subKey);
+      }
+      permissions.push(...sub.permissions.map((p: any) => p.key));
     });
   }
   
