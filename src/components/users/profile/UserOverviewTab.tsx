@@ -63,6 +63,8 @@ export function UserOverviewTab({
     user.mikrotik_router_id
   );
 
+  const { hasPermission } = useHasPermission();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Personal Information */}
