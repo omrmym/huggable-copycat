@@ -26,6 +26,10 @@ export function CustomerPortalSettings() {
   const [portalEnabled, setPortalEnabled] = useState(true);
   const [autoLoginEnabled, setAutoLoginEnabled] = useState(true);
 
+  // Portal Notice/Message state
+  const [noticeEnabled, setNoticeEnabled] = useState(false);
+  const [noticeMessage, setNoticeMessage] = useState("");
+
   const { data: noteSettings } = useQuery({
     queryKey: ["app-settings", "request_success_note"],
     queryFn: async () => {
