@@ -403,12 +403,11 @@ export default function SettingsPage() {
     { value: 'admin-user', label: 'Software User', icon: Users, permission: 'settings.users' },
     { value: 'roles', label: 'Rule Manage', icon: Shield, permission: 'settings.roles' },
     { value: 'mikrotik', label: 'MikroTik Manage', icon: Server, permission: 'settings.mikrotik' },
-    { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories'] },
+    { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories', 'settings.shareholders'] },
     { value: 'sms', label: 'SMS Manage', icon: MessageSquare, permission: 'settings.sms_gateway' },
     { value: 'notifications', label: 'Notifications', icon: Bell, permission: 'settings.branding' },
     { value: 'data', label: 'Data', icon: Database, permission: 'settings.activity' },
     { value: 'system', label: 'System', icon: Server, permissions: ['settings.branding', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.customer_portal'] },
-    { value: 'shareholders', label: 'Shareholders', icon: Users, permission: 'settings.shareholders' },
   ];
 
   const visibleTabs = settingsTabs.filter(tab => {
@@ -912,7 +911,11 @@ export default function SettingsPage() {
 
         {/* Payment Management Settings */}
         <TabsContent value="payment" className="space-y-6">
-          <PaymentGatewaySettings />
+          {hasPermission('settings.categories') && <IncomeCategoryManagement />}
+          {hasPermission('settings.categories') && <ExpenseCategoryManagement />}
+          {hasPermission('settings.payment') && <PaymentMethodManagement />}
+          {hasPermission('settings.payment_gateway') && <PaymentGatewaySettings />}
+          {hasPermission('settings.shareholders') && <ShareholderManagement />}
         </TabsContent>
 
         {/* SMS Management Settings */}
@@ -998,16 +1001,16 @@ export default function SettingsPage() {
           <PositionManagement />
 
           {/* Income Category Management */}
-          <IncomeCategoryManagement />
+          {hasPermission('settings.categories') && <IncomeCategoryManagement />}
 
           {/* Expense Category Management */}
-          <ExpenseCategoryManagement />
+          {hasPermission('settings.categories') && <ExpenseCategoryManagement />}
 
           {/* Connectivity Type Management */}
-          <ConnectivityTypeManagement />
+          {hasPermission('settings.connectivity_types') && <ConnectivityTypeManagement />}
 
           {/* Payment Method Management */}
-          <PaymentMethodManagement />
+          {hasPermission('settings.payment') && <PaymentMethodManagement />}
 
           {/* Request Success Note Settings */}
           <RequestNoteSettings />
@@ -1285,11 +1288,6 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Shareholders */}
-        <TabsContent value="shareholders" className="space-y-6">
-          <ShareholderManagement />
         </TabsContent>
       </Tabs>
     </DashboardLayout>

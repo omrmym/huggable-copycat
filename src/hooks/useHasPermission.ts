@@ -53,5 +53,5 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
   '/reports/btrc': ['reports.btrc'],
   '/sms-history': ['sms.group_send', 'sms.history', 'sms.clear_history', 'sms.templates'],
   '/activity': ['activity.system', 'activity.clear_system', 'activity.login', 'activity.clear_login', 'activity.user', 'activity.clear_user'],
-  '/settings': ['settings.users', 'settings.roles', 'settings.branding', 'settings.mikrotik'],
+  '/settings': ['settings.users', 'settings.roles', 'settings.branding', 'settings.mikrotik', 'settings.connectivity_types', 'settings.categories', 'settings.payment', 'settings.payment_gateway', 'settings.shareholders', 'settings.sms_gateway', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.activity', 'settings.customer_portal'],
 };
