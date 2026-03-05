@@ -18,6 +18,7 @@ export const PERMISSION_DEFINITIONS = {
   dashboard: {
     label: 'Dashboard',
     icon: LayoutDashboard,
+    menuKey: 'menu.dashboard',
     subcategories: {
       user_statistics: {
         label: 'User Statistics',
@@ -57,6 +58,7 @@ export const PERMISSION_DEFINITIONS = {
   hr: {
     label: 'HR Administration',
     icon: UserCheck,
+    menuKey: 'menu.hr_admin',
     subcategories: {
       employees: {
         label: 'Employee',
@@ -102,6 +104,7 @@ export const PERMISSION_DEFINITIONS = {
   users: {
     label: 'User Management',
     icon: Users,
+    menuKey: 'menu.users',
     subcategories: {
       create_user: {
         label: 'Create User',
@@ -178,6 +181,7 @@ export const PERMISSION_DEFINITIONS = {
   plans: {
     label: 'Billing Plans',
     icon: CreditCard,
+    menuKey: 'menu.plans',
     permissions: [
       { key: 'plans.view', label: 'View Plans' },
       { key: 'plans.create', label: 'Create Plans' },
@@ -188,6 +192,7 @@ export const PERMISSION_DEFINITIONS = {
   recharge: {
     label: 'Recharge & Billing',
     icon: DollarSign,
+    menuKey: 'menu.recharge',
     permissions: [
       { key: 'recharge.customer', label: 'Customer Recharge' },
       { key: 'recharge.manage', label: 'Manage Recharge' },
@@ -199,6 +204,7 @@ export const PERMISSION_DEFINITIONS = {
   finance: {
     label: 'Finance',
     icon: BarChart3,
+    menuKey: 'menu.finance',
     subcategories: {
       income: {
         label: 'Income',
@@ -226,6 +232,7 @@ export const PERMISSION_DEFINITIONS = {
   reports: {
     label: 'Reports',
     icon: FileText,
+    menuKey: 'menu.reports',
     subcategories: {
       billing: {
         label: 'Billing Reports',
@@ -264,6 +271,7 @@ export const PERMISSION_DEFINITIONS = {
   sms: {
     label: 'SMS',
     icon: FileText,
+    menuKey: 'menu.sms',
     permissions: [
       { key: 'sms.send', label: 'Send SMS' },
       { key: 'sms.history', label: 'View SMS History' },
@@ -273,6 +281,7 @@ export const PERMISSION_DEFINITIONS = {
   activity: {
     label: 'Activity & Logs',
     icon: FileText,
+    menuKey: 'menu.activity',
     permissions: [
       { key: 'activity.system', label: 'View System Activity' },
       { key: 'activity.login', label: 'View Login Activity' },
@@ -282,6 +291,7 @@ export const PERMISSION_DEFINITIONS = {
   settings: {
     label: 'Settings',
     icon: Settings,
+    menuKey: 'menu.settings',
     subcategories: {
       user_management: {
         label: 'User & Rule Management',
