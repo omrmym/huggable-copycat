@@ -27,8 +27,11 @@ import {
   useDeleteDistrict,
   District,
 } from '@/hooks/useDistricts';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function DistrictPage() {
+  const { hasPermission } = useHasPermission();
+  const canManage = hasPermission('users.district.manage');
   const { data: districts = [], isLoading } = useDistricts();
   const createDistrict = useCreateDistrict();
   const updateDistrict = useUpdateDistrict();
