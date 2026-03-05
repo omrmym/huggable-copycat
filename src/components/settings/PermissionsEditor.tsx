@@ -162,13 +162,6 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.edit.auto_renew', label: 'Auto Renew' },
         ],
       },
-      auto_renew: {
-        label: 'Auto Renew',
-        subKey: 'sub.users.auto_renew',
-        permissions: [
-          { key: 'users.auto_renew.toggle', label: 'Toggle Auto Renew' },
-        ],
-      },
       requests: {
         label: 'User Requests',
         subKey: 'sub.users.requests',
