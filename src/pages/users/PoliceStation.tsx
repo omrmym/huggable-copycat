@@ -27,8 +27,11 @@ import {
   useDeletePoliceStation,
   PoliceStation,
 } from '@/hooks/usePoliceStations';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function PoliceStationPage() {
+  const { hasPermission } = useHasPermission();
+  const canManage = hasPermission('users.police_station.manage');
   const { data: stations = [], isLoading } = usePoliceStations();
   const createStation = useCreatePoliceStation();
   const updateStation = useUpdatePoliceStation();
