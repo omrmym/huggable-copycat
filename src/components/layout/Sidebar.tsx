@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils';
 import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
-const userSubItems = [
-  { icon: UserPlus, label: 'Create User', path: '/users/create', permissions: ['users.create.service_type', 'users.create.connection_date', 'users.create.expire_date', 'users.create.monthly_bill'] },
-  { icon: UserCheck, label: 'All Users', path: '/users', permissions: ['users.all.view'] },
-  { icon: ClipboardCheck, label: 'Requests', path: '/users/requests', permissions: ['users.requests.view'] },
-  { icon: MapPin, label: 'Area', path: '/users/area', permissions: ['users.area.manage'] },
-  { icon: Building2, label: 'Police Station', path: '/users/police-station', permissions: ['users.police_station.manage'] },
-  { icon: Map, label: 'District', path: '/users/district', permissions: ['users.district.manage'] },
+const userSubItems: SidebarSubItem[] = [
+  { icon: UserPlus, label: 'Create User', path: '/users/create', subKey: 'sub.users.create', permissions: ['users.create.service_type', 'users.create.connection_date', 'users.create.expire_date', 'users.create.monthly_bill'] },
+  { icon: UserCheck, label: 'All Users', path: '/users', subKey: 'sub.users.all', permissions: ['users.all.view'] },
+  { icon: ClipboardCheck, label: 'Requests', path: '/users/requests', subKey: 'sub.users.requests', permissions: ['users.requests.view'] },
+  { icon: MapPin, label: 'Area', path: '/users/area', subKey: 'sub.users.location', permissions: ['users.area.manage'] },
+  { icon: Building2, label: 'Police Station', path: '/users/police-station', subKey: 'sub.users.location', permissions: ['users.police_station.manage'] },
+  { icon: Map, label: 'District', path: '/users/district', subKey: 'sub.users.location', permissions: ['users.district.manage'] },
 ];
 
 const rechargeSubItems = [
@@ -45,6 +45,14 @@ const reportSubItems = [
   { icon: Building2, label: 'BTRC Report', path: '/reports/btrc', permissions: ['reports.btrc'] },
 ];
 
+type SidebarSubItem = {
+  icon: any;
+  label: string;
+  path: string;
+  subKey?: string;
+  permissions: string[];
+};
+
 interface SidebarProps {
   isCollapsed?: boolean;
 }
@@ -72,9 +80,9 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
     navigate('/login');
   };
 
-  // Filter sub-items by feature permission only
-  const filterItems = (items: typeof userSubItems) =>
-    items.filter(item => hasAnyPermission(item.permissions));
+  // Filter sub-items by feature permission or subKey permission
+  const filterItems = (items: SidebarSubItem[]) =>
+    items.filter(item => hasAnyPermission(item.permissions) || (item.subKey && hasPermission(item.subKey)));
 
   const filteredUserItems = filterItems(userSubItems);
   const filteredRechargeItems = filterItems(rechargeSubItems);
