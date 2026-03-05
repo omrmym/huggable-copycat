@@ -261,6 +261,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       financial: {
         label: 'Financial Reports',
+        subKey: 'sub.reports.financial',
         permissions: [
           { key: 'reports.expense', label: 'Expense Report' },
           { key: 'reports.income', label: 'Extra Income Report' },
