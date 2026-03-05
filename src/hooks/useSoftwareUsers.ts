@@ -170,6 +170,12 @@ export function useDeleteSoftwareUser() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Protect master account from deletion
+      const { data: target } = await supabase.from('software_users').select('email').eq('id', id).maybeSingle();
+      if (target?.email === MASTER_ACCOUNT_EMAIL) {
+        throw new Error('This account cannot be deleted.');
+      }
+
       const { error } = await supabase
         .from('software_users')
         .delete()
