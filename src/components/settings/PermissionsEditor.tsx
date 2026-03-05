@@ -339,6 +339,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       system: {
         label: 'System Settings',
+        subKey: 'sub.settings.system',
         permissions: [
           { key: 'settings.branding', label: 'Branding & Theme' },
           { key: 'settings.sms_gateway', label: 'SMS Gateway Settings' },
