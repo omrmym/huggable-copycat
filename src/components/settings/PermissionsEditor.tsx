@@ -270,6 +270,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       hr: {
         label: 'HR Reports',
+        subKey: 'sub.reports.hr',
         permissions: [
           { key: 'reports.salary', label: 'Employee Salary Report' },
           { key: 'reports.leave', label: 'Leave Report' },
