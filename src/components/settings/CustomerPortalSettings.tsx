@@ -83,6 +83,14 @@ export function CustomerPortalSettings() {
     }
   }, [portalSettings]);
 
+  useEffect(() => {
+    if (noticeSettings?.value) {
+      const val = noticeSettings.value as any;
+      if (typeof val.enabled === 'boolean') setNoticeEnabled(val.enabled);
+      if (val.message) setNoticeMessage(val.message);
+    }
+  }, [noticeSettings]);
+
   const saveNoteMutation = useMutation({
     mutationFn: async () => {
       const value = { title, message, note };
