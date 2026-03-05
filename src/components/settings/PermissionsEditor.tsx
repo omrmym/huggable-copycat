@@ -28,6 +28,8 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'dashboard.expired_users', label: 'Expired Users' },
           { key: 'dashboard.disabled_users', label: 'Disabled Users' },
           { key: 'dashboard.already_paid', label: 'Already Paid' },
+          { key: 'dashboard.auto_renew_users', label: 'Auto Renew Users' },
+          { key: 'dashboard.pending_requests', label: 'Pending Requests' },
         ],
       },
       billing_statistics: {
