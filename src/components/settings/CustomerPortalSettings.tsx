@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Save, Loader2, Globe, Link2, Copy, Check, FileText } from "lucide-react";
+import { Save, Loader2, Globe, Link2, Copy, Check, FileText, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -25,6 +25,10 @@ export function CustomerPortalSettings() {
   // Portal Settings state
   const [portalEnabled, setPortalEnabled] = useState(true);
   const [autoLoginEnabled, setAutoLoginEnabled] = useState(true);
+
+  // Portal Notice/Message state
+  const [noticeEnabled, setNoticeEnabled] = useState(false);
+  const [noticeMessage, setNoticeMessage] = useState("");
 
   const { data: noteSettings } = useQuery({
     queryKey: ["app-settings", "request_success_note"],
@@ -50,6 +54,18 @@ export function CustomerPortalSettings() {
     },
   });
 
+  const { data: noticeSettings } = useQuery({
+    queryKey: ["app-settings", "portal_notice"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("*")
+        .eq("key", "portal_notice")
+        .maybeSingle();
+      return data;
+    },
+  });
+
   useEffect(() => {
     if (noteSettings?.value) {
       const val = noteSettings.value as any;
@@ -66,6 +82,14 @@ export function CustomerPortalSettings() {
       if (typeof val.auto_login_enabled === 'boolean') setAutoLoginEnabled(val.auto_login_enabled);
     }
   }, [portalSettings]);
+
+  useEffect(() => {
+    if (noticeSettings?.value) {
+      const val = noticeSettings.value as any;
+      if (typeof val.enabled === 'boolean') setNoticeEnabled(val.enabled);
+      if (val.message) setNoticeMessage(val.message);
+    }
+  }, [noticeSettings]);
 
   const saveNoteMutation = useMutation({
     mutationFn: async () => {
@@ -109,6 +133,29 @@ export function CustomerPortalSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["app-settings", "customer_portal"] });
       toast.success("Portal settings saved!");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const saveNoticeMutation = useMutation({
+    mutationFn: async () => {
+      const value = { enabled: noticeEnabled, message: noticeMessage };
+      if (noticeSettings?.id) {
+        const { error } = await supabase
+          .from("app_settings")
+          .update({ value: value as any, updated_at: new Date().toISOString() })
+          .eq("id", noticeSettings.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("app_settings")
+          .insert({ key: "portal_notice", value: value as any });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["app-settings", "portal_notice"] });
+      toast.success("Portal notice saved!");
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -204,6 +251,45 @@ export function CustomerPortalSettings() {
                 {copiedRequest ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
               </Button>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Portal Notice Message */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            Portal Notice Message
+          </CardTitle>
+          <CardDescription>
+            Write a notice or announcement that will be displayed on the customer portal dashboard.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-border p-4 bg-muted/30">
+            <div className="space-y-0.5">
+              <Label className="font-medium">Enable Notice</Label>
+              <p className="text-sm text-muted-foreground">
+                Show this notice on the customer portal.
+              </p>
+            </div>
+            <Switch checked={noticeEnabled} onCheckedChange={setNoticeEnabled} />
+          </div>
+          <div className="space-y-2">
+            <Label>Notice Message</Label>
+            <Textarea
+              value={noticeMessage}
+              onChange={(e) => setNoticeMessage(e.target.value)}
+              placeholder="Write a message for your customers..."
+              className="bg-secondary border-border min-h-[100px]"
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => saveNoticeMutation.mutate()} disabled={saveNoticeMutation.isPending}>
+              {saveNoticeMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Save Notice
+            </Button>
           </div>
         </CardContent>
       </Card>

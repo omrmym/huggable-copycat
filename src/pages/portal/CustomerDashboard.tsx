@@ -33,6 +33,7 @@ import {
   Clock,
   AlertCircle,
   Loader2,
+  MessageSquare,
 } from 'lucide-react';
 
 export default function CustomerDashboard() {
@@ -55,6 +56,19 @@ export default function CustomerDashboard() {
         .eq('key', 'payment_gateway')
         .maybeSingle();
       return (data?.value as Record<string, any>) || {};
+    },
+  });
+
+  // Fetch portal notice
+  const { data: portalNotice } = useQuery({
+    queryKey: ['portal-notice'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'portal_notice')
+        .maybeSingle();
+      return (data?.value as { enabled?: boolean; message?: string }) || null;
     },
   });
 
@@ -168,6 +182,21 @@ export default function CustomerDashboard() {
                       ? 'Your subscription has expired. Please recharge to continue using the service.'
                       : 'Your account needs attention.'}
                   </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Admin Notice */}
+        {portalNotice?.enabled && portalNotice?.message && (
+          <Card className="mb-6 border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-start gap-3">
+                <MessageSquare className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-foreground mb-1">Notice from Admin</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{portalNotice.message}</p>
                 </div>
               </div>
             </CardContent>
