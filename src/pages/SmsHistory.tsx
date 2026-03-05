@@ -12,6 +12,7 @@ import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Tr
 import { DateRangeFilter } from '@/components/finance/DateRangeFilter';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import SmsTemplates from '@/components/sms/SmsTemplates';
+import GroupSmsSend from '@/components/sms/GroupSmsSend';
 import { useSmsHistory, useClearSmsHistory, type SmsHistoryRecord } from '@/hooks/useSmsHistory';
 import { useQueryClient } from '@tanstack/react-query';
 import { useHasPermission } from '@/hooks/useHasPermission';
