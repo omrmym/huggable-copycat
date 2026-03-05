@@ -224,25 +224,27 @@ export default function RequestManagement() {
           <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="w-5 h-5 text-success" />
                 Processed Requests ({processedRequests.length})
               </CardTitle>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={async () => {
-                  const ids = processedRequests.map((r: any) => r.id);
-                  const { error } = await supabase.from('user_requests').delete().in('id', ids);
-                  if (error) {
-                    toast({ title: "Error", description: error.message, variant: "destructive" });
-                  } else {
-                    queryClient.invalidateQueries({ queryKey: ['user-requests'] });
-                    toast({ title: "Cleared", description: "All processed requests removed." });
-                  }
-                }}
-              >
-                <Trash2 className="w-4 h-4 mr-1" /> Clear All
-              </Button>
+              {hasPermission('users.requests.delete') && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={async () => {
+                    const ids = processedRequests.map((r: any) => r.id);
+                    const { error } = await supabase.from('user_requests').delete().in('id', ids);
+                    if (error) {
+                      toast({ title: "Error", description: error.message, variant: "destructive" });
+                    } else {
+                      queryClient.invalidateQueries({ queryKey: ['user-requests'] });
+                      toast({ title: "Cleared", description: "All processed requests removed." });
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" /> Clear All
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">

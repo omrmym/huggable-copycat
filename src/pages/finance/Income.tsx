@@ -268,12 +268,16 @@ export default function Income() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(income)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost" onClick={() => handleDelete(income.id)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
+                          {hasPermission('finance.income.edit') && (
+                            <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(income)}>
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {hasPermission('finance.income.delete') && (
+                            <Button size="icon" variant="ghost" onClick={() => handleDelete(income.id)}>
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

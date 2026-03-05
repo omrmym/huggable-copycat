@@ -483,15 +483,17 @@ export default function PendingBillCollection() {
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-success text-success hover:bg-success hover:text-success-foreground"
-                            onClick={() => handleApprove(tx)}
-                            disabled={approveTransaction.isPending || !tx.radius_user_id}
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </Button>
+                          {hasPermission('recharge.pending.approve') && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-success text-success hover:bg-success hover:text-success-foreground"
+                              onClick={() => handleApprove(tx)}
+                              disabled={approveTransaction.isPending || !tx.radius_user_id}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
