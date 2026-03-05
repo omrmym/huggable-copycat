@@ -98,15 +98,15 @@ export function useAggregatedBandwidthHistory(userId: string | undefined, hours:
 
     // Calculate averages for each hour
     hourlyGroups.forEach((entries, hourKey) => {
-      // Use the stored rates from database
-      const avgDownloadBps = entries.reduce((sum, e) => sum + e.download_rate_bps, 0) / entries.length;
-      const avgUploadBps = entries.reduce((sum, e) => sum + e.upload_rate_bps, 0) / entries.length;
+      // MikroTik bytes-in = user upload, bytes-out = user download, so swap
+      const avgDownloadBps = entries.reduce((sum, e) => sum + e.upload_rate_bps, 0) / entries.length;
+      const avgUploadBps = entries.reduce((sum, e) => sum + e.download_rate_bps, 0) / entries.length;
       
       // Get the last record's bytes for that hour (cumulative traffic)
       const lastEntry = entries[entries.length - 1];
       const firstEntry = entries[0];
-      const hourlyBytesIn = lastEntry.bytes_in - firstEntry.bytes_in;
-      const hourlyBytesOut = lastEntry.bytes_out - firstEntry.bytes_out;
+      const hourlyBytesIn = lastEntry.bytes_out - firstEntry.bytes_out;
+      const hourlyBytesOut = lastEntry.bytes_in - firstEntry.bytes_in;
 
       const date = new Date(hourKey);
       const label = date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
