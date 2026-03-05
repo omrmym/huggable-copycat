@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useUpdateRadiusUser } from '@/hooks/useRadiusUsers';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
 import { useAreas } from '@/hooks/useAreas';
