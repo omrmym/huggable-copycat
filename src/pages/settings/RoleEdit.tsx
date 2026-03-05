@@ -221,11 +221,30 @@ export default function RoleEdit() {
 
           {/* Permissions */}
           <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle>Permissions</CardTitle>
-              <CardDescription>
-                Select which features this role can access
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Permissions</CardTitle>
+                <CardDescription>
+                  Select which features this role can access
+                </CardDescription>
+              </div>
+              {!isSystemRole && (
+                <Button
+                  type="button"
+                  variant={formData.permissions.length === ALL_PERMISSIONS.length ? "outline" : "default"}
+                  size="sm"
+                  onClick={() => {
+                    if (formData.permissions.length === ALL_PERMISSIONS.length) {
+                      setFormData({ ...formData, permissions: [] });
+                    } else {
+                      setFormData({ ...formData, permissions: [...ALL_PERMISSIONS] });
+                    }
+                  }}
+                  disabled={isPending}
+                >
+                  {formData.permissions.length === ALL_PERMISSIONS.length ? 'Deselect All' : 'Activate All Permissions'}
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               {isSystemRole ? (
