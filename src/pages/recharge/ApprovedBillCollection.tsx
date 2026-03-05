@@ -414,6 +414,14 @@ export default function ApprovedBillCollection() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
+                    {hasPermission('recharge.approved.delete_transaction') && (
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={filteredTransactions.length > 0 && selectedIds.size === filteredTransactions.length}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                      </TableHead>
+                    )}
                     <TableHead>Date</TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>Collected By</TableHead>
