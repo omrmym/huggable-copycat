@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Popover,
   PopoverContent,
@@ -63,6 +64,8 @@ export default function ApprovedBillCollection() {
   const [endDate, setEndDate] = useState<Date | undefined>(endOfMonth(new Date()));
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const queryClient = useQueryClient();
   const { data: transactions = [], isLoading } = useCompletedTransactions();
@@ -160,6 +163,44 @@ export default function ApprovedBillCollection() {
       toast.error(`Failed to delete transaction: ${error.message}`);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  // Bulk delete transactions
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .in('id', Array.from(selectedIds));
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      toast.success(`${selectedIds.size} transaction(s) deleted successfully`);
+      setSelectedIds(new Set());
+    } catch (error: any) {
+      toast.error(`Failed to delete transactions: ${error.message}`);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredTransactions.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredTransactions.map(tx => tx.id)));
     }
   };
 
@@ -333,10 +374,23 @@ export default function ApprovedBillCollection() {
       {/* Transactions Table */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-success" />
-            Approved Transactions ({filteredTransactions.length})
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-success" />
+              Approved Transactions ({filteredTransactions.length})
+            </CardTitle>
+            {hasPermission('recharge.approved.delete_transaction') && selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedIds.size})`}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -360,6 +414,14 @@ export default function ApprovedBillCollection() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
+                    {hasPermission('recharge.approved.delete_transaction') && (
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={filteredTransactions.length > 0 && selectedIds.size === filteredTransactions.length}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                      </TableHead>
+                    )}
                     <TableHead>Date</TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>Collected By</TableHead>
@@ -371,7 +433,15 @@ export default function ApprovedBillCollection() {
                 <TableBody>
                   {filteredTransactions.map((tx) => {
                     return (
-                      <TableRow key={tx.id} className="hover:bg-muted/30">
+                      <TableRow key={tx.id} className={cn("hover:bg-muted/30", selectedIds.has(tx.id) && "bg-muted/20")}>
+                        {hasPermission('recharge.approved.delete_transaction') && (
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedIds.has(tx.id)}
+                              onCheckedChange={() => toggleSelect(tx.id)}
+                            />
+                          </TableCell>
+                        )}
                         <TableCell className="text-muted-foreground">
                           {format(parseISO(tx.created_at), 'MMM dd, yyyy')}
                           <br />
