@@ -175,11 +175,13 @@ export default function CustomerDashboard() {
             </div>
           </div>
           <Button 
-            onClick={() => refreshCustomer()} 
+            onClick={handleRefreshData} 
             variant="outline" 
             size="sm"
             className="border-border"
+            disabled={isRefreshing}
           >
+            {isRefreshing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Refresh Data
           </Button>
         </div>
