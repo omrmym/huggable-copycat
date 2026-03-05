@@ -216,7 +216,7 @@ export default function UserProfile() {
           Back to Users
         </Button>
         <div className="flex flex-wrap gap-2">
-          {user.status === 'expired' && (
+          {hasPermission('users.profile.grace') && user.status === 'expired' && (
             <Button 
               variant="outline"
               className="border-warning text-warning hover:bg-warning/10"
@@ -231,14 +231,16 @@ export default function UserProfile() {
               )}
             </Button>
           )}
-          <Button 
-            variant="outline"
-            className="border-primary text-primary hover:bg-primary/10"
-            onClick={() => setRechargeDialogOpen(true)}
-          >
-            <Banknote className="w-4 h-4 mr-2" />
-            Quick Recharge
-          </Button>
+          {hasPermission('users.profile.quick_recharge') && (
+            <Button 
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary/10"
+              onClick={() => setRechargeDialogOpen(true)}
+            >
+              <Banknote className="w-4 h-4 mr-2" />
+              Quick Recharge
+            </Button>
+          )}
           {user.phone && (
             <Button
               variant="outline"
@@ -248,27 +250,33 @@ export default function UserProfile() {
               Send SMS
             </Button>
           )}
-          <Button
-            variant="outline"
-            onClick={() => setPasswordDialogOpen(true)}
-          >
-            <Key className="w-4 h-4 mr-2" />
-            Change Password
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => setPlanDialogOpen(true)}
-          >
-            <Package className="w-4 h-4 mr-2" />
-            Change Plan
-          </Button>
-          <Button 
-            className="bg-gradient-primary text-primary-foreground"
-            onClick={() => setEditDialogOpen(true)}
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit User
-          </Button>
+          {hasPermission('users.profile.change_password') && (
+            <Button
+              variant="outline"
+              onClick={() => setPasswordDialogOpen(true)}
+            >
+              <Key className="w-4 h-4 mr-2" />
+              Change Password
+            </Button>
+          )}
+          {hasPermission('users.profile.change_plan') && (
+            <Button 
+              variant="outline"
+              onClick={() => setPlanDialogOpen(true)}
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Change Plan
+            </Button>
+          )}
+          {hasPermission('users.profile.edit') && (
+            <Button 
+              className="bg-gradient-primary text-primary-foreground"
+              onClick={() => setEditDialogOpen(true)}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit User
+            </Button>
+          )}
         </div>
       </div>
 

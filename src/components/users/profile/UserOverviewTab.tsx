@@ -155,7 +155,7 @@ export function UserOverviewTab({
       </Card>
 
       {/* MAC Lock Control */}
-      <MacLockControl
+      <MacLockControlWithPermission
         userId={user.id}
         username={user.username}
         macAddress={user.mac_address}
