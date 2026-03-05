@@ -255,6 +255,45 @@ export function CustomerPortalSettings() {
         </CardContent>
       </Card>
 
+      {/* Portal Notice Message */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            Portal Notice Message
+          </CardTitle>
+          <CardDescription>
+            Write a notice or announcement that will be displayed on the customer portal dashboard.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-border p-4 bg-muted/30">
+            <div className="space-y-0.5">
+              <Label className="font-medium">Enable Notice</Label>
+              <p className="text-sm text-muted-foreground">
+                Show this notice on the customer portal.
+              </p>
+            </div>
+            <Switch checked={noticeEnabled} onCheckedChange={setNoticeEnabled} />
+          </div>
+          <div className="space-y-2">
+            <Label>Notice Message</Label>
+            <Textarea
+              value={noticeMessage}
+              onChange={(e) => setNoticeMessage(e.target.value)}
+              placeholder="Write a message for your customers..."
+              className="bg-secondary border-border min-h-[100px]"
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => saveNoticeMutation.mutate()} disabled={saveNoticeMutation.isPending}>
+              {saveNoticeMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Save Notice
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Request Success Note */}
       <Card className="bg-card border-border">
         <CardHeader>
