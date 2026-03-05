@@ -273,11 +273,12 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
         <form onSubmit={handleSubmit}>
           {(() => {
+            const hasBillingAccess = hasAnyPermission(['users.edit.billing', 'users.edit.billing_plan', 'users.edit.connection_fee', 'users.edit.expiration_date', 'users.edit.auto_renew']);
             const availableTabs = [
               hasPermission('users.edit.personal') && 'personal',
               hasPermission('users.edit.address') && 'address',
               hasPermission('users.edit.connection') && 'connection',
-              hasPermission('users.edit.billing') && 'billing',
+              hasBillingAccess && 'billing',
             ].filter(Boolean) as string[];
             const tabCount = availableTabs.length || 1;
             const defaultTab = availableTabs[0] || 'personal';
@@ -287,7 +288,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
               {hasPermission('users.edit.personal') && <TabsTrigger value="personal">Personal</TabsTrigger>}
               {hasPermission('users.edit.address') && <TabsTrigger value="address">Address</TabsTrigger>}
               {hasPermission('users.edit.connection') && <TabsTrigger value="connection">Connection</TabsTrigger>}
-              {hasPermission('users.edit.billing') && <TabsTrigger value="billing">Billing</TabsTrigger>}
+              {hasBillingAccess && <TabsTrigger value="billing">Billing</TabsTrigger>}
             </TabsList>
 
             {/* Personal Information Tab */}
