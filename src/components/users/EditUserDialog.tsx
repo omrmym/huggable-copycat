@@ -648,17 +648,17 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                 <div className="col-span-2 space-y-2">
                   <Label className="flex items-center gap-1">
                     Expiration Date
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {!hasPermission('users.edit.expiration_date') && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        disabled={!isAdmin}
+                        disabled={!hasPermission('users.edit.expiration_date')}
                         className={cn(
                           "w-full justify-start text-left font-normal",
                           !formData.expires_at && "text-muted-foreground",
-                          !isAdmin && "opacity-60"
+                          !hasPermission('users.edit.expiration_date') && "opacity-60"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
