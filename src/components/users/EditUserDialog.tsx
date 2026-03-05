@@ -79,6 +79,7 @@ interface EditUserDialogProps {
 
 export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps) {
   const { isAdmin } = useAuth();
+  const { hasPermission } = useHasPermission();
   const updateUser = useUpdateRadiusUser();
   const { data: plans = [] } = useBillingPlans();
   const { data: areas = [] } = useAreas();
