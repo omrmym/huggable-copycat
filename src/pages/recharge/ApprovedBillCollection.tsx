@@ -142,6 +142,26 @@ export default function ApprovedBillCollection() {
     }
   };
 
+  // Delete transaction permanently
+  const handleDelete = async (transactionId: string) => {
+    setDeletingId(transactionId);
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', transactionId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      toast.success('Transaction deleted successfully');
+    } catch (error: any) {
+      toast.error(`Failed to delete transaction: ${error.message}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const clearFilters = () => {
     setSearchQuery('');
     setCollectedByFilter('all');
