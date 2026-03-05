@@ -35,8 +35,8 @@ export default function Dashboard() {
     'dashboard.expired_users',
     'dashboard.disabled_users',
     'dashboard.already_paid',
-    'users.all.view',
-    'users.requests.view',
+    'dashboard.auto_renew_users',
+    'dashboard.pending_requests',
   ];
 
   const billingStatsPermissions = [
@@ -107,8 +107,8 @@ export default function Dashboard() {
                 {hasPermission('dashboard.expired_users') && <StatCard title="Expired Users" value={stats?.expiredUsers || 0} icon={UserX} href="/users?status=expired" />}
                 {hasPermission('dashboard.disabled_users') && <StatCard title="Disabled Users" value={stats?.disabledUsers || 0} icon={UserMinus} href="/users?status=disabled" />}
                 {hasPermission('dashboard.already_paid') && <StatCard title="Already Paid" value={stats?.alreadyPaidUsers || 0} icon={UserCheck} variant="success" href="/users?billing=paid" />}
-                {hasPermission('users.all.view') && <StatCard title="Auto Renew Users" value={stats?.autoRenewUsers || 0} icon={RefreshCw} variant="primary" href="/users?billing=auto_renew" />}
-                {hasPermission('users.requests.view') && <StatCard title="Pending Requests" value={stats?.pendingRequests || 0} icon={ClipboardList} variant="warning" href="/users/requests" />}
+                {hasPermission('dashboard.auto_renew_users') && <StatCard title="Auto Renew Users" value={stats?.autoRenewUsers || 0} icon={RefreshCw} variant="primary" href="/users?billing=auto_renew" />}
+                {hasPermission('dashboard.pending_requests') && <StatCard title="Pending Requests" value={stats?.pendingRequests || 0} icon={ClipboardList} variant="warning" href="/users/requests" />}
               </>
             )}
           </div>
