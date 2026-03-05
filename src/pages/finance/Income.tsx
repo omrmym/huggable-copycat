@@ -224,6 +224,7 @@ export default function Income() {
             </DialogContent>
           </Dialog>
           )}
+        </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
