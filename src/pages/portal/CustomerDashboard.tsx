@@ -115,6 +115,18 @@ export default function CustomerDashboard() {
     return `${kbps.toFixed(0)} Kbps`;
   };
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshData = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshCustomer();
+      await queryClient.invalidateQueries();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshCustomer, queryClient]);
+
   const handleLogout = () => {
     logout();
     navigate('/portal/login');
