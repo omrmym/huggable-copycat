@@ -33,6 +33,7 @@ import {
   Clock,
   AlertCircle,
   Loader2,
+  MessageSquare,
 } from 'lucide-react';
 
 export default function CustomerDashboard() {
