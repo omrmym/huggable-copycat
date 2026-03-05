@@ -618,7 +618,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                 <div className="space-y-2">
                   <Label htmlFor="monthly_bill" className="flex items-center gap-1">
                     Monthly Bill (৳)
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {!hasPermission('users.edit.billing') && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Input
                     id="monthly_bill"
@@ -626,8 +626,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.monthly_bill}
                     onChange={(e) => setFormData({ ...formData, monthly_bill: e.target.value })}
                     placeholder="Enter monthly bill"
-                    disabled={!isAdmin}
-                    className={!isAdmin ? 'opacity-60' : ''}
+                    disabled={!hasPermission('users.edit.billing')}
+                    className={!hasPermission('users.edit.billing') ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="space-y-2">
