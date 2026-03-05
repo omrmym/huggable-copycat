@@ -110,8 +110,8 @@ export function useUserBandwidth(
       return {
         isOnline: true,
         uptime: session.uptime || undefined,
-        bytesIn: parseInt(session['bytes-in'] || '0', 10),
-        bytesOut: parseInt(session['bytes-out'] || '0', 10),
+        bytesIn: parseInt(session['bytes-out'] || '0', 10),
+        bytesOut: parseInt(session['bytes-in'] || '0', 10),
         address: session.address || undefined,
         callerId: session['mac-address'] || undefined,
         lastUpdated: new Date(),
