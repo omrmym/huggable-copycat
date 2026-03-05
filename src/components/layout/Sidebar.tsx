@@ -81,17 +81,17 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const filteredFinanceItems = filterItems(financeSubItems);
   const filteredReportItems = filterItems(reportSubItems);
 
-  // Menu-level visibility based on feature permissions only
-  const showDashboard = hasAnyPermission(['dashboard.total_users', 'dashboard.active_users', 'dashboard.free_users', 'dashboard.expired_users', 'dashboard.disabled_users', 'dashboard.already_paid', 'dashboard.auto_renew_users', 'dashboard.pending_requests', 'dashboard.total_bill', 'dashboard.active_users_bill', 'dashboard.expired_users_bill', 'dashboard.already_paid_bill', 'dashboard.connection_fee', 'dashboard.extra_income', 'dashboard.auto_renew_bill', 'dashboard.monthly_bill_collection', 'dashboard.daily_bill_collection', 'dashboard.monthly_paid_users', 'dashboard.day_wise_new_line', 'dashboard.online_offline_status', 'dashboard.recent_users']);
-  const showHR = hasAnyPermission(['hr.employees.view', 'hr.departments.view', 'hr.leave.view', 'hr.payroll.view']);
-  const showUsers = filteredUserItems.length > 0;
-  const showRecharge = filteredRechargeItems.length > 0;
-  const showFinance = filteredFinanceItems.length > 0;
-  const showReports = filteredReportItems.length > 0;
-  const showPlans = hasPermission('plans.view');
-  const showSMS = hasAnyPermission(['sms.send', 'sms.history', 'sms.templates']);
-  const showActivity = hasAnyPermission(['activity.system', 'activity.login', 'activity.user']);
-  const showSettings = hasAnyPermission(['settings.users', 'settings.roles', 'settings.branding', 'settings.mikrotik', 'settings.connectivity_types', 'settings.categories', 'settings.payment', 'settings.payment_gateway', 'settings.shareholders', 'settings.sms_gateway', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.activity', 'settings.customer_portal']);
+  // Menu-level visibility: requires menu.* permission + at least one feature permission
+  const showDashboard = hasPermission('menu.dashboard');
+  const showHR = hasPermission('menu.hr_admin') && hasAnyPermission(['hr.employees.view', 'hr.departments.view', 'hr.leave.view', 'hr.payroll.view']);
+  const showUsers = hasPermission('menu.users') && filteredUserItems.length > 0;
+  const showRecharge = hasPermission('menu.recharge') && filteredRechargeItems.length > 0;
+  const showFinance = hasPermission('menu.finance') && filteredFinanceItems.length > 0;
+  const showReports = hasPermission('menu.reports') && filteredReportItems.length > 0;
+  const showPlans = hasPermission('menu.plans') && hasPermission('plans.view');
+  const showSMS = hasPermission('menu.sms') && hasAnyPermission(['sms.send', 'sms.history', 'sms.templates']);
+  const showActivity = hasPermission('menu.activity') && hasAnyPermission(['activity.system', 'activity.login', 'activity.user']);
+  const showSettings = hasPermission('menu.settings') && hasAnyPermission(['settings.users', 'settings.roles', 'settings.branding', 'settings.mikrotik', 'settings.connectivity_types', 'settings.categories', 'settings.payment', 'settings.payment_gateway', 'settings.shareholders', 'settings.sms_gateway', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.activity', 'settings.customer_portal']);
 
   return (
     <aside
