@@ -528,8 +528,17 @@ export function PermissionsEditor({
                       <div key={subKey} className="rounded-lg bg-muted/50 p-4">
                         {/* Subcategory Header */}
                         <div className="flex items-center gap-2 mb-3">
+                          <Checkbox
+                            id={`sub-${categoryKey}-${subKey}`}
+                            checked={subAllSelected}
+                            data-state={subSomeSelected ? 'indeterminate' : subAllSelected ? 'checked' : 'unchecked'}
+                            onCheckedChange={() => handleToggleSubcategory(subPermissions)}
+                            disabled={disabled}
+                            className={cn("h-4 w-4", subSomeSelected && "opacity-70")}
+                          />
                           <Label
-                            className="text-sm font-medium cursor-default"
+                            htmlFor={`sub-${categoryKey}-${subKey}`}
+                            className="text-sm font-medium cursor-pointer"
                           >
                             {subcategory.label}
                           </Label>
