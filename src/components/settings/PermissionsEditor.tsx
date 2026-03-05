@@ -82,6 +82,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       leave_requests: {
         label: 'Leave Request',
+        subKey: 'sub.hr.leave',
         permissions: [
           { key: 'hr.leave.view', label: 'View' },
           { key: 'hr.leave.add', label: 'Add Request' },
