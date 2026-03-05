@@ -14,6 +14,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import SmsTemplates from '@/components/sms/SmsTemplates';
 import { useSmsHistory, useClearSmsHistory, type SmsHistoryRecord } from '@/hooks/useSmsHistory';
 import { useQueryClient } from '@tanstack/react-query';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 const typeColors: Record<string, string> = {
   'Bill Reminder': 'hsl(var(--primary))',
@@ -71,6 +72,13 @@ export default function SmsHistory() {
   const { data: smsData = [], isLoading } = useSmsHistory();
   const clearHistory = useClearSmsHistory();
   const queryClient = useQueryClient();
+  const { hasPermission } = useHasPermission();
+
+  const canViewHistory = hasPermission('sms.history');
+  const canSendSms = hasPermission('sms.send');
+  const canManageTemplates = hasPermission('sms.templates');
+
+  const defaultTab = canViewHistory ? 'history' : canManageTemplates ? 'templates' : 'history';
 
   const filtered = smsData.filter((sms) => {
     const matchSearch = !search || sms.recipient_phone.includes(search) || (sms.recipient_name || '').toLowerCase().includes(search.toLowerCase());
@@ -101,18 +109,23 @@ export default function SmsHistory() {
 
   return (
     <DashboardLayout title="SMS Management" subtitle="SMS history, analytics and templates">
-      <Tabs defaultValue="history" className="space-y-6">
+      <Tabs defaultValue={defaultTab} className="space-y-6">
         <TabsList className="bg-muted/50">
-          <TabsTrigger value="history" className="flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4" />
-            History & Analytics
-          </TabsTrigger>
-          <TabsTrigger value="templates" className="flex items-center gap-1.5">
-            <FileText className="w-4 h-4" />
-            Templates
-          </TabsTrigger>
+          {canViewHistory && (
+            <TabsTrigger value="history" className="flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4" />
+              History & Analytics
+            </TabsTrigger>
+          )}
+          {canManageTemplates && (
+            <TabsTrigger value="templates" className="flex items-center gap-1.5">
+              <FileText className="w-4 h-4" />
+              Templates
+            </TabsTrigger>
+          )}
         </TabsList>
 
+        {canViewHistory && (
         <TabsContent value="history" className="space-y-6">
           {/* Date Filter */}
           <div className="flex flex-wrap items-center gap-4">
@@ -353,10 +366,13 @@ export default function SmsHistory() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
+        {canManageTemplates && (
         <TabsContent value="templates">
           <SmsTemplates />
         </TabsContent>
+        )}
       </Tabs>
     </DashboardLayout>
   );
