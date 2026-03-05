@@ -64,6 +64,8 @@ export default function ApprovedBillCollection() {
   const [endDate, setEndDate] = useState<Date | undefined>(endOfMonth(new Date()));
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const queryClient = useQueryClient();
   const { data: transactions = [], isLoading } = useCompletedTransactions();
