@@ -556,13 +556,15 @@ export default function UsersPage() {
                               Edit User
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem
-                            className="text-primary"
-                            onClick={() => handleRechargeClick(user)}
-                          >
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            Recharge
-                          </DropdownMenuItem>
+                          {hasPermission('users.all.recharge') && (
+                            <DropdownMenuItem
+                              className="text-primary"
+                              onClick={() => handleRechargeClick(user)}
+                            >
+                              <CreditCard className="w-4 h-4 mr-2" />
+                              Recharge
+                            </DropdownMenuItem>
+                          )}
                           {hasPermission('users.all.change_expire') && (
                             <DropdownMenuItem onClick={() => handleExpireDateClick(user)}>
                               <Calendar className="w-4 h-4 mr-2" />
