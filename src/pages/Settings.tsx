@@ -1014,9 +1014,6 @@ export default function SettingsPage() {
 
           {/* Payment Method Management */}
           {hasPermission('settings.payment') && <PaymentMethodManagement />}
-
-          {/* Request Success Note Settings */}
-          <RequestNoteSettings />
         </TabsContent>
 
         {/* System Settings */}
