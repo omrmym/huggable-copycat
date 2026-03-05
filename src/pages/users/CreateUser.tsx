@@ -408,12 +408,23 @@ export default function CreateUserPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Service Type</Label>
-                <Input
-                  className="bg-muted border-border cursor-not-allowed"
-                  value="Hotspot"
-                  disabled
-                  readOnly
-                />
+                {canEditServiceType ? (
+                  <Select value={formData.service_type} onValueChange={(value: "hotspot") => setFormData({ ...formData, service_type: value })}>
+                    <SelectTrigger className="bg-secondary border-border">
+                      <SelectValue placeholder="Select service type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hotspot">Hotspot</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    className="bg-muted border-border cursor-not-allowed"
+                    value="Hotspot"
+                    disabled
+                    readOnly
+                  />
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Connection Type</Label>
