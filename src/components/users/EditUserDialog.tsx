@@ -287,11 +287,6 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
             {/* Personal Information Tab */}
             <TabsContent value="personal" className="space-y-4 mt-4">
-              {!canEditPersonal && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 border border-border rounded-md px-3 py-2">
-                  <Lock className="h-3 w-3" /> Read-only mode. You need edit permission to modify personal information.
-                </div>
-              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name</Label>
