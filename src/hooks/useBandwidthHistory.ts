@@ -77,8 +77,9 @@ export function useAggregatedBandwidthHistory(userId: string | undefined, hours:
       
       // Accumulate rates for overall average
       if (entry.download_rate_bps > 0 || entry.upload_rate_bps > 0) {
-        overallTotalDownloadRate += entry.download_rate_bps;
-        overallTotalUploadRate += entry.upload_rate_bps;
+        // MikroTik bytes-in = user upload, bytes-out = user download, so swap
+        overallTotalDownloadRate += entry.upload_rate_bps;
+        overallTotalUploadRate += entry.download_rate_bps;
         rateDataPoints++;
       }
     });
