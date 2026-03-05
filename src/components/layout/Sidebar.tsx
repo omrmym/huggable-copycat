@@ -80,9 +80,9 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
     navigate('/login');
   };
 
-  // Filter sub-items by feature permission only
-  const filterItems = (items: typeof userSubItems) =>
-    items.filter(item => hasAnyPermission(item.permissions) || ('subKey' in item && item.subKey && hasPermission(item.subKey)));
+  // Filter sub-items by feature permission or subKey permission
+  const filterItems = (items: SidebarSubItem[]) =>
+    items.filter(item => hasAnyPermission(item.permissions) || (item.subKey && hasPermission(item.subKey)));
 
   const filteredUserItems = filterItems(userSubItems);
   const filteredRechargeItems = filterItems(rechargeSubItems);
