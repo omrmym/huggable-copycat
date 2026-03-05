@@ -27,8 +27,11 @@ import {
   useDeleteDistrict,
   District,
 } from '@/hooks/useDistricts';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function DistrictPage() {
+  const { hasPermission } = useHasPermission();
+  const canManage = hasPermission('users.district.manage');
   const { data: districts = [], isLoading } = useDistricts();
   const createDistrict = useCreateDistrict();
   const updateDistrict = useUpdateDistrict();
@@ -99,10 +102,12 @@ export default function DistrictPage() {
               Define and manage district coverage areas.
             </CardDescription>
           </div>
-          <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add District
-          </Button>
+          {canManage && (
+            <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add District
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -124,7 +129,7 @@ export default function DistrictPage() {
                   <tr className="border-b border-border">
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Name</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>
+                    {canManage && <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -138,26 +143,28 @@ export default function DistrictPage() {
                           {district.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditDialog(district)}>
-                              <Edit className="w-4 h-4 mr-2" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(district)}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
+                      {canManage && (
+                        <td className="px-4 py-3">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openEditDialog(district)}>
+                                <Edit className="w-4 h-4 mr-2" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDelete(district)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

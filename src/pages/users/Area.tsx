@@ -27,8 +27,11 @@ import {
   useDeleteArea,
   Area,
 } from '@/hooks/useAreas';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function AreaPage() {
+  const { hasPermission } = useHasPermission();
+  const canManage = hasPermission('users.area.manage');
   const { data: areas = [], isLoading } = useAreas();
   const createArea = useCreateArea();
   const updateArea = useUpdateArea();
@@ -104,10 +107,12 @@ export default function AreaPage() {
               Define and manage service coverage areas.
             </CardDescription>
           </div>
-          <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Area
-          </Button>
+          {canManage && (
+            <Button className="bg-gradient-primary text-primary-foreground" onClick={openCreateDialog}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Area
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {/* Search Bar */}
@@ -140,7 +145,7 @@ export default function AreaPage() {
                   <tr className="border-b border-border">
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Name</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>
+                    {canManage && <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -154,26 +159,28 @@ export default function AreaPage() {
                           {area.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditDialog(area)}>
-                              <Edit className="w-4 h-4 mr-2" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(area)}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
+                      {canManage && (
+                        <td className="px-4 py-3">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openEditDialog(area)}>
+                                <Edit className="w-4 h-4 mr-2" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDelete(area)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
