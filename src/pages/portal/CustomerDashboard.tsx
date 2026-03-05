@@ -188,6 +188,21 @@ export default function CustomerDashboard() {
           </Card>
         )}
 
+        {/* Admin Notice */}
+        {portalNotice?.enabled && portalNotice?.message && (
+          <Card className="mb-6 border-primary/30 bg-primary/5">
+            <CardContent className="py-4">
+              <div className="flex items-start gap-3">
+                <MessageSquare className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-foreground mb-1">Notice from Admin</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{portalNotice.message}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="overview" className="flex items-center gap-2">
