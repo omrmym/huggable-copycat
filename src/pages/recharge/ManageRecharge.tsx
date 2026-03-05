@@ -167,6 +167,7 @@ export default function ManageRecharge() {
   };
 
   const handleRowClick = (tx: TransactionWithUser) => {
+    if (!hasPermission('recharge.manage.invoice')) return;
     setSelectedInvoice(tx);
     setInvoicePreviewOpen(true);
   };
