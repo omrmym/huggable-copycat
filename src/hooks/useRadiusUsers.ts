@@ -437,7 +437,7 @@ export function useRechargeUser() {
           amount,
           type: 'payment',
           description: txDescription,
-          status: 'completed',
+          status: 'pending',
           payment_method: paymentMethod,
           collected_by: collectedBy,
         });
