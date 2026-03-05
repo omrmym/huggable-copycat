@@ -207,7 +207,7 @@ export default function CustomerDashboard() {
         )}
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -219,6 +219,10 @@ export default function CustomerDashboard() {
             <TabsTrigger value="usage" className="flex items-center gap-2">
               <HardDrive className="w-4 h-4" />
               <span className="hidden sm:inline">Data Usage</span>
+            </TabsTrigger>
+            <TabsTrigger value="bandwidth" className="flex items-center gap-2">
+              <Wifi className="w-4 h-4" />
+              <span className="hidden sm:inline">Bandwidth</span>
             </TabsTrigger>
             <TabsTrigger value="activity" className="flex items-center gap-2">
               <Activity className="w-4 h-4" />
