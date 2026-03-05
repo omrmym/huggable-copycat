@@ -912,7 +912,10 @@ export default function SettingsPage() {
 
         {/* Payment Management Settings */}
         <TabsContent value="payment" className="space-y-6">
-          <PaymentGatewaySettings />
+          {hasPermission('settings.categories') && <IncomeCategoryManagement />}
+          {hasPermission('settings.categories') && <ExpenseCategoryManagement />}
+          {hasPermission('settings.payment') && <PaymentMethodManagement />}
+          {hasPermission('settings.payment_gateway') && <PaymentGatewaySettings />}
         </TabsContent>
 
         {/* SMS Management Settings */}
