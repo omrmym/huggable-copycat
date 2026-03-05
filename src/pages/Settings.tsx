@@ -31,6 +31,7 @@ import {
   Package,
   Download,
   Upload,
+  Globe,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -57,6 +58,7 @@ import { BrandingSettings } from '@/components/settings/BrandingSettings';
 import { ThemeSettings } from '@/components/settings/ThemeSettings';
 import { SmsGatewaySettings } from '@/components/settings/SmsGatewaySettings';
 import { ShareholderManagement } from '@/components/settings/ShareholderManagement';
+import { CustomerPortalSettings } from '@/components/settings/CustomerPortalSettings';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface ConnectionStatus {
@@ -407,7 +409,8 @@ export default function SettingsPage() {
     { value: 'sms', label: 'SMS Manage', icon: MessageSquare, permission: 'settings.sms_gateway' },
     { value: 'notifications', label: 'Notifications', icon: Bell, permission: 'settings.branding' },
     { value: 'data', label: 'Data', icon: Database, permission: 'settings.activity' },
-    { value: 'system', label: 'System', icon: Server, permissions: ['settings.branding', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.customer_portal'] },
+    { value: 'system', label: 'System', icon: Server, permissions: ['settings.branding', 'settings.session', 'settings.timezone', 'settings.super_admin'] },
+    { value: 'customer-portal', label: 'Customer Portal', icon: Globe, permission: 'settings.customer_portal' },
   ];
 
   const visibleTabs = settingsTabs.filter(tab => {
@@ -1011,9 +1014,6 @@ export default function SettingsPage() {
 
           {/* Payment Method Management */}
           {hasPermission('settings.payment') && <PaymentMethodManagement />}
-
-          {/* Request Success Note Settings */}
-          <RequestNoteSettings />
         </TabsContent>
 
         {/* System Settings */}
@@ -1288,6 +1288,11 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Customer Portal Settings */}
+        <TabsContent value="customer-portal" className="space-y-6">
+          <CustomerPortalSettings />
         </TabsContent>
       </Tabs>
     </DashboardLayout>
