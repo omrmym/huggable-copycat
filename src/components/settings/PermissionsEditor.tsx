@@ -313,6 +313,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       user_management: {
         label: 'User & Rule Management',
+        subKey: 'sub.settings.user_management',
         permissions: [
           { key: 'settings.users', label: 'Manage Software Users' },
           { key: 'settings.roles', label: 'Manage Rules' },
