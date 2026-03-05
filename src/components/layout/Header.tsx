@@ -54,6 +54,21 @@ export function Header({ title, subtitle, isSidebarCollapsed, onToggleSidebar }:
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [displayName, setDisplayName] = useState('');
+
+  // Fetch logged-in user's login_user_id from software_users
+  useEffect(() => {
+    const fetchDisplayName = async () => {
+      if (!user?.id) return;
+      const { data } = await supabase
+        .from('software_users')
+        .select('login_user_id, full_name')
+        .eq('user_id', user.id)
+        .single();
+      setDisplayName(data?.login_user_id || data?.full_name || user.email || 'User');
+    };
+    fetchDisplayName();
+  }, [user?.id]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -284,7 +299,7 @@ export function Header({ title, subtitle, isSidebarCollapsed, onToggleSidebar }:
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                 <User className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="text-sm">Admin</span>
+              <span className="text-sm">{displayName}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-card border-border">
