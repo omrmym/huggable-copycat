@@ -518,14 +518,14 @@ export default function CreateUserPage() {
                 <Input
                   type="number"
                   placeholder="0.00"
-                  className={cn(formData.plan_id ? "bg-muted border-border cursor-not-allowed" : "bg-secondary border-border")}
+                  className={cn((!canEditMonthlyBill || formData.plan_id) ? "bg-muted border-border cursor-not-allowed" : "bg-secondary border-border")}
                   value={formData.monthly_bill}
                   onChange={(e) => {
-                    if (!formData.plan_id) {
+                    if (canEditMonthlyBill && !formData.plan_id) {
                       setFormData({ ...formData, monthly_bill: e.target.value });
                     }
                   }}
-                  readOnly={!!formData.plan_id}
+                  readOnly={!canEditMonthlyBill || !!formData.plan_id}
                 />
               </div>
               <div className="space-y-2">
