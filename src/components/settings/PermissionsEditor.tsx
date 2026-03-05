@@ -347,6 +347,7 @@ export const PERMISSION_DEFINITIONS = {
       { key: 'activity.login', label: 'View Login Activity' },
       { key: 'activity.clear_login', label: 'Clear Login Activity' },
       { key: 'activity.user', label: 'View User Activity' },
+      { key: 'activity.clear_user', label: 'Clear User Activity' },
     ],
   },
   settings: {

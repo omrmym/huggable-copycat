@@ -18,11 +18,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Users, Search, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Loader2, Users, Search, RefreshCw, Wifi, WifiOff, Trash2 } from 'lucide-react';
 import { formatDate, formatDistanceToNowTz } from '@/lib/dateUtils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
+import { useHasPermission } from '@/hooks/useHasPermission';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface GlobalUserActivity {
   id: string;
@@ -80,6 +92,26 @@ export function UserActivityLogGlobal() {
   const [searchTerm, setSearchTerm] = useState('');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { hasPermission } = useHasPermission();
+  const canClearLogs = hasPermission('activity.clear_user');
+
+  const clearLogs = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('mikrotik_sync_log')
+        .delete()
+        .in('action', ['connect', 'disconnect']);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['global-user-activity'] });
+      toast({ title: 'Logs Cleared', description: 'All user activity logs have been deleted.' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message || 'Failed to clear logs.', variant: 'destructive' });
+    },
+  });
 
   const { data: activities, isLoading, isFetching } = useGlobalUserActivity(200);
 
@@ -114,15 +146,55 @@ export function UserActivityLogGlobal() {
               </CardDescription>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isFetching}
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            {canClearLogs && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={!activities || activities.length === 0 || clearLogs.isPending}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Clear Logs
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Clear All User Activity Logs?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete all {activities?.length || 0} user activity records. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => clearLogs.mutate()}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {clearLogs.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Clearing...
+                        </>
+                      ) : (
+                        'Clear All'
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isFetching}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
