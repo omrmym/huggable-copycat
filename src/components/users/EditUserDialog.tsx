@@ -569,10 +569,10 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
             {/* Billing Tab */}
             <TabsContent value="billing" className="space-y-4 mt-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="space-y-2">
                   <Label htmlFor="plan" className="flex items-center gap-1">
                     Billing Plan
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {!hasPermission('users.edit.billing_plan') && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Select
                     value={formData.plan_id}
@@ -584,9 +584,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         monthly_bill: selectedPlan?.price?.toString() || formData.monthly_bill
                       });
                     }}
-                    disabled={!isAdmin}
+                    disabled={!hasPermission('users.edit.billing_plan')}
                   >
-                    <SelectTrigger className={!isAdmin ? 'opacity-60' : ''}>
+                    <SelectTrigger className={!hasPermission('users.edit.billing_plan') ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select plan" />
                     </SelectTrigger>
                     <SelectContent>
