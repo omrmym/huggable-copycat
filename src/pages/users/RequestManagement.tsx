@@ -198,12 +198,16 @@ export default function RequestManagement() {
                             <Button size="sm" variant="ghost" onClick={() => { setSelectedRequest(req); setViewDialogOpen(true); }}>
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700" onClick={() => approveMutation.mutate(req)} disabled={approveMutation.isPending}>
-                              {approveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => rejectMutation.mutate(req)} disabled={rejectMutation.isPending}>
-                              {rejectMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                            </Button>
+                            {hasPermission('users.requests.approve') && (
+                              <Button size="sm" variant="default" className="bg-success hover:bg-success/90 text-success-foreground" onClick={() => approveMutation.mutate(req)} disabled={approveMutation.isPending}>
+                                {approveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                              </Button>
+                            )}
+                            {hasPermission('users.requests.reject') && (
+                              <Button size="sm" variant="destructive" onClick={() => rejectMutation.mutate(req)} disabled={rejectMutation.isPending}>
+                                {rejectMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
