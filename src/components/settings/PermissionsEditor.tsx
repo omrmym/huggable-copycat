@@ -230,6 +230,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       expense: {
         label: 'Expense',
+        subKey: 'sub.finance.expense',
         permissions: [
           { key: 'finance.expense.view', label: 'View' },
           { key: 'finance.expense.add', label: 'Add Expense' },
