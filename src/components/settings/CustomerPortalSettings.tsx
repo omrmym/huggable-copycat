@@ -54,6 +54,18 @@ export function CustomerPortalSettings() {
     },
   });
 
+  const { data: noticeSettings } = useQuery({
+    queryKey: ["app-settings", "portal_notice"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("*")
+        .eq("key", "portal_notice")
+        .maybeSingle();
+      return data;
+    },
+  });
+
   useEffect(() => {
     if (noteSettings?.value) {
       const val = noteSettings.value as any;
