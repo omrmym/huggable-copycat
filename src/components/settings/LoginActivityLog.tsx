@@ -91,6 +91,8 @@ export function LoginActivityLog() {
   const [actionFilter, setActionFilter] = useState<string>('all');
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { hasPermission } = useHasPermission();
+  const canClearLogs = hasPermission('activity.clear_login');
   
   const { data: activities, isLoading, isFetching } = useLoginActivity(100);
   const clearLogs = useClearLoginActivity();
