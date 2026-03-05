@@ -91,8 +91,9 @@ export function useAggregatedBandwidthHistory(userId: string | undefined, hours:
       
       // Total is the difference between last and first record for the period
       // If there's only one record, use its values directly
-      overallTotalBytesIn = lastRecord.bytes_in;
-      overallTotalBytesOut = lastRecord.bytes_out;
+      // MikroTik bytes-in = user upload, bytes-out = user download, so swap
+      overallTotalBytesIn = lastRecord.bytes_out;
+      overallTotalBytesOut = lastRecord.bytes_in;
     }
 
     // Calculate averages for each hour
