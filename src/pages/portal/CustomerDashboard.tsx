@@ -16,7 +16,7 @@ import { UserStatusBadge } from '@/components/dashboard/UserStatusBadge';
 import { BkashPaymentButton } from '@/components/payment/BkashPaymentButton';
 import { NagadPaymentButton } from '@/components/payment/NagadPaymentButton';
 import { PaymentRequestDialog } from '@/components/portal/PaymentRequestDialog';
-import { CustomerActivityLog } from '@/components/portal/CustomerActivityLog';
+import { DataUsageTab } from '@/components/users/profile/DataUsageTab';
 import {
   Network,
   LogOut,
