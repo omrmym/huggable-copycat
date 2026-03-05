@@ -76,7 +76,7 @@ export default function SmsHistory() {
   const { hasPermission } = useHasPermission();
 
   const canViewHistory = hasPermission('sms.history');
-  const canSendSms = hasPermission('sms.send');
+  const canClearHistory = hasPermission('sms.clear_history');
   const canGroupSend = hasPermission('sms.group_send');
   const canManageTemplates = hasPermission('sms.templates');
 

@@ -331,9 +331,9 @@ export const PERMISSION_DEFINITIONS = {
     icon: FileText,
     menuKey: 'menu.sms',
     permissions: [
-      { key: 'sms.send', label: 'Send SMS' },
       { key: 'sms.group_send', label: 'Group SMS Send' },
       { key: 'sms.history', label: 'View SMS History' },
+      { key: 'sms.clear_history', label: 'Clear SMS History' },
       { key: 'sms.templates', label: 'Manage Templates' },
     ],
   },
