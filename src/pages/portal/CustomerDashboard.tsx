@@ -487,10 +487,10 @@ export default function CustomerDashboard() {
               id: customer.id,
               data_used_mb: customer.data_used_mb ?? 0,
               plan: currentPlan ? { data_limit_mb: currentPlan.data_limit_mb ?? null } : null,
-              last_login_at: customer.last_login_at ?? null,
-              created_at: customer.created_at,
-              updated_at: customer.updated_at,
-              reseller_office: customer.reseller_office ?? null,
+              last_login_at: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              reseller_office: null,
             }} />
           </TabsContent>
 
