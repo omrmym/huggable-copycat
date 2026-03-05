@@ -329,6 +329,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       finance_settings: {
         label: 'Finance Settings',
+        subKey: 'sub.settings.finance',
         permissions: [
           { key: 'settings.categories', label: 'Manage Expense/Income Categories' },
           { key: 'settings.payment', label: 'Manage Payment Methods' },
