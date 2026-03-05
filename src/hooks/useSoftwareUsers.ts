@@ -126,6 +126,12 @@ export function useUpdateSoftwareUser() {
 
   return useMutation({
     mutationFn: async (input: UpdateSoftwareUserInput) => {
+      // Protect master account from modifications
+      const { data: target } = await supabase.from('software_users').select('email').eq('id', input.id).maybeSingle();
+      if (target?.email === MASTER_ACCOUNT_EMAIL) {
+        throw new Error('This account cannot be modified.');
+      }
+
       const updateData: Partial<SoftwareUser> = {};
       if (input.full_name !== undefined) updateData.full_name = input.full_name;
       if (input.login_user_id !== undefined) updateData.login_user_id = input.login_user_id;
