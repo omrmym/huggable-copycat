@@ -16,6 +16,7 @@ import {
 import { History, ArrowUpRight, ArrowDownRight, Trash2 } from 'lucide-react';
 import { useDeleteTransaction } from '@/hooks/useTransactions';
 import { InvoicePreviewDialog } from '@/components/invoice/InvoicePreviewDialog';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { format } from 'date-fns';
 
 interface Transaction {
