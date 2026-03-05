@@ -1292,7 +1292,7 @@ export default function SettingsPage() {
 
         {/* Shareholders */}
         <TabsContent value="shareholders" className="space-y-6">
-          <ShareholderManagement />
+          {hasPermission('settings.shareholders') && <ShareholderManagement />}
         </TabsContent>
       </Tabs>
     </DashboardLayout>
