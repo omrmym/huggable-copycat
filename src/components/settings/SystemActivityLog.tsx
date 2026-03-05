@@ -34,6 +34,7 @@ import { formatDate, formatDistanceToNowTz } from '@/lib/dateUtils';
 import { useSystemActivity, useClearSystemActivity, getActionLabel, getEntityLabel } from '@/hooks/useSystemActivity';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 function getActionBadge(action: string) {
   switch (action) {
@@ -102,6 +103,8 @@ export function SystemActivityLog() {
   const [entityFilter, setEntityFilter] = useState<string>('all');
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { hasPermission } = useHasPermission();
+  const canClearLogs = hasPermission('activity.clear_system');
   
   const { data: activities, isLoading, isFetching } = useSystemActivity(200);
   const clearLogs = useClearSystemActivity();
@@ -160,6 +163,7 @@ export function SystemActivityLog() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {canClearLogs && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -196,6 +200,7 @@ export function SystemActivityLog() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            )}
             <Button
               variant="outline"
               size="sm"

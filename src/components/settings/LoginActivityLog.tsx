@@ -34,6 +34,7 @@ import { formatDate, formatDistanceToNowTz } from '@/lib/dateUtils';
 import { useLoginActivity, LoginActivity, useClearLoginActivity } from '@/hooks/useLoginActivity';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 function getActionBadge(action: LoginActivity['action'], success: boolean) {
   if (!success) {
@@ -90,6 +91,8 @@ export function LoginActivityLog() {
   const [actionFilter, setActionFilter] = useState<string>('all');
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { hasPermission } = useHasPermission();
+  const canClearLogs = hasPermission('activity.clear_login');
   
   const { data: activities, isLoading, isFetching } = useLoginActivity(100);
   const clearLogs = useClearLoginActivity();
@@ -146,6 +149,7 @@ export function LoginActivityLog() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {canClearLogs && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -182,6 +186,7 @@ export function LoginActivityLog() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            )}
             <Button
               variant="outline"
               size="sm"
