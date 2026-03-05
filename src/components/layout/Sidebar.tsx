@@ -45,6 +45,14 @@ const reportSubItems = [
   { icon: Building2, label: 'BTRC Report', path: '/reports/btrc', permissions: ['reports.btrc'] },
 ];
 
+type SidebarSubItem = {
+  icon: any;
+  label: string;
+  path: string;
+  subKey?: string;
+  permissions: string[];
+};
+
 interface SidebarProps {
   isCollapsed?: boolean;
 }
