@@ -154,17 +154,23 @@ export function UserOverviewTab({
         </CardContent>
       </Card>
 
-      {/* MAC Lock Control */}
-      <MacLockControlWithPermission
-        userId={user.id}
-        username={user.username}
-        macAddress={user.mac_address}
-        macLocked={user.mac_locked}
-        serviceType={user.service_type}
-        routerId={user.mikrotik_router_id}
-        detectedMac={bandwidthData?.callerId}
-        isOnline={bandwidthData?.isOnline}
-      />
+      {/* MAC Lock Control - permission gated */}
+      {(() => {
+        const { hasPermission: hasPerm } = useHasPermission();
+        if (!hasPerm('users.profile.mac_lock')) return null;
+        return (
+          <MacLockControl
+            userId={user.id}
+            username={user.username}
+            macAddress={user.mac_address}
+            macLocked={user.mac_locked}
+            serviceType={user.service_type}
+            routerId={user.mikrotik_router_id}
+            detectedMac={bandwidthData?.callerId}
+            isOnline={bandwidthData?.isOnline}
+          />
+        );
+      })()}
     </div>
   );
 }
