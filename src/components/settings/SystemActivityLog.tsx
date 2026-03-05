@@ -103,6 +103,8 @@ export function SystemActivityLog() {
   const [entityFilter, setEntityFilter] = useState<string>('all');
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { hasPermission } = useHasPermission();
+  const canClearLogs = hasPermission('activity.clear_system');
   
   const { data: activities, isLoading, isFetching } = useSystemActivity(200);
   const clearLogs = useClearSystemActivity();
