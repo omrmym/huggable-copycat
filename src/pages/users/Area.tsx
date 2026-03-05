@@ -27,8 +27,11 @@ import {
   useDeleteArea,
   Area,
 } from '@/hooks/useAreas';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function AreaPage() {
+  const { hasPermission } = useHasPermission();
+  const canManage = hasPermission('users.area.manage');
   const { data: areas = [], isLoading } = useAreas();
   const createArea = useCreateArea();
   const updateArea = useUpdateArea();
