@@ -16,6 +16,7 @@ import {
 import { History, ArrowUpRight, ArrowDownRight, Trash2 } from 'lucide-react';
 import { useDeleteTransaction } from '@/hooks/useTransactions';
 import { InvoicePreviewDialog } from '@/components/invoice/InvoicePreviewDialog';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { format } from 'date-fns';
 
 interface Transaction {
@@ -54,6 +55,8 @@ export function TransactionHistoryTab({
 }: TransactionHistoryTabProps) {
   const [selectedInvoice, setSelectedInvoice] = useState<Transaction | null>(null);
   const [invoicePreviewOpen, setInvoicePreviewOpen] = useState(false);
+  const { hasPermission } = useHasPermission();
+  const canDeleteTransaction = hasPermission('users.profile.delete_transaction');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<Transaction | null>(null);
 
@@ -171,14 +174,16 @@ export function TransactionHistoryTab({
                         {tx.status}
                       </Badge>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={(e) => handleDeleteClick(e, tx)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {canDeleteTransaction && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={(e) => handleDeleteClick(e, tx)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
