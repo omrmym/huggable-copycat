@@ -9,40 +9,40 @@ import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
 const userSubItems = [
-  { icon: UserPlus, label: 'Create User', path: '/users/create', permissions: ['users.create.service_type', 'users.create.connection_date', 'users.create.expire_date', 'users.create.monthly_bill'], menuKey: 'menu.users.create_user' },
-  { icon: UserCheck, label: 'All Users', path: '/users', permissions: ['users.all.view'], menuKey: 'menu.users.all_users' },
-  { icon: ClipboardCheck, label: 'Requests', path: '/users/requests', permissions: ['users.requests.view'], menuKey: 'menu.users.requests' },
-  { icon: MapPin, label: 'Area', path: '/users/area', permissions: ['users.area.manage'], menuKey: 'menu.users.area' },
-  { icon: Building2, label: 'Police Station', path: '/users/police-station', permissions: ['users.police_station.manage'], menuKey: 'menu.users.police_station' },
-  { icon: Map, label: 'District', path: '/users/district', permissions: ['users.district.manage'], menuKey: 'menu.users.district' },
+  { icon: UserPlus, label: 'Create User', path: '/users/create', permissions: ['users.create.service_type', 'users.create.connection_date', 'users.create.expire_date', 'users.create.monthly_bill'] },
+  { icon: UserCheck, label: 'All Users', path: '/users', permissions: ['users.all.view'] },
+  { icon: ClipboardCheck, label: 'Requests', path: '/users/requests', permissions: ['users.requests.view'] },
+  { icon: MapPin, label: 'Area', path: '/users/area', permissions: ['users.area.manage'] },
+  { icon: Building2, label: 'Police Station', path: '/users/police-station', permissions: ['users.police_station.manage'] },
+  { icon: Map, label: 'District', path: '/users/district', permissions: ['users.district.manage'] },
 ];
 
 const rechargeSubItems = [
-  { icon: PieChart, label: 'Billing Statistics', path: '/recharge/statistics', permissions: ['recharge.statistics'], menuKey: 'menu.recharge.statistics' },
-  { icon: Wallet, label: 'Customer Recharge', path: '/recharge/customer', permissions: ['recharge.customer'], menuKey: 'menu.recharge.customer' },
-  { icon: Ticket, label: 'Manage Recharge', path: '/recharge/manage', permissions: ['recharge.manage'], menuKey: 'menu.recharge.manage' },
-  { icon: Clock, label: 'Pending Bill Collection', path: '/recharge/pending', permissions: ['recharge.pending'], menuKey: 'menu.recharge.pending' },
-  { icon: CheckCircle, label: 'Approved Bill Collection', path: '/recharge/approved', permissions: ['recharge.approved'], menuKey: 'menu.recharge.approved' },
+  { icon: PieChart, label: 'Billing Statistics', path: '/recharge/statistics', permissions: ['recharge.statistics'] },
+  { icon: Wallet, label: 'Customer Recharge', path: '/recharge/customer', permissions: ['recharge.customer'] },
+  { icon: Ticket, label: 'Manage Recharge', path: '/recharge/manage', permissions: ['recharge.manage'] },
+  { icon: Clock, label: 'Pending Bill Collection', path: '/recharge/pending', permissions: ['recharge.pending'] },
+  { icon: CheckCircle, label: 'Approved Bill Collection', path: '/recharge/approved', permissions: ['recharge.approved'] },
 ];
 
 const financeSubItems = [
-  { icon: DollarSign, label: 'Overview', path: '/finance/overview', permissions: ['finance.overview'], menuKey: 'menu.finance.overview' },
-  { icon: TrendingUp, label: 'Income', path: '/finance/income', permissions: ['finance.income.view'], menuKey: 'menu.finance.income' },
-  { icon: TrendingDown, label: 'Expense', path: '/finance/expense', permissions: ['finance.expense.view'], menuKey: 'menu.finance.expense' },
+  { icon: DollarSign, label: 'Overview', path: '/finance/overview', permissions: ['finance.overview'] },
+  { icon: TrendingUp, label: 'Income', path: '/finance/income', permissions: ['finance.income.view'] },
+  { icon: TrendingDown, label: 'Expense', path: '/finance/expense', permissions: ['finance.expense.view'] },
 ];
 
 const reportSubItems = [
-  { icon: BarChart3, label: 'Billing Report', path: '/reports/billing', permissions: ['reports.billing'], menuKey: 'menu.reports.billing' },
-  { icon: Wallet, label: 'Connection Fee', path: '/reports/connection-fee', permissions: ['reports.connection'], menuKey: 'menu.reports.connection_fee' },
-  { icon: TrendingUp, label: 'Extra Income', path: '/reports/extra-income', permissions: ['reports.income'], menuKey: 'menu.reports.extra_income' },
-  { icon: TrendingDown, label: 'Expense', path: '/reports/expense', permissions: ['reports.expense'], menuKey: 'menu.reports.expense' },
-  { icon: UserCog, label: 'Employee Salary', path: '/reports/employee-salary', permissions: ['reports.salary'], menuKey: 'menu.reports.employee_salary' },
-  { icon: Calendar, label: 'Leave Report', path: '/reports/leave', permissions: ['reports.leave'], menuKey: 'menu.reports.leave' },
-  { icon: DollarSign, label: 'Final Report', path: '/reports/final', permissions: ['reports.final'], menuKey: 'menu.reports.final' },
-  { icon: Users, label: 'Man Wise Bill Collection', path: '/reports/man-wise-collection', permissions: ['reports.manwise'], menuKey: 'menu.reports.manwise' },
-  { icon: UserPlus, label: 'Monthly New Line', path: '/reports/monthly-new-line', permissions: ['reports.newline'], menuKey: 'menu.reports.new_line' },
-  { icon: Clock, label: 'Monthly Expire User', path: '/reports/monthly-expire', permissions: ['reports.expire'], menuKey: 'menu.reports.expire' },
-  { icon: Building2, label: 'BTRC Report', path: '/reports/btrc', permissions: ['reports.btrc'], menuKey: 'menu.reports.btrc' },
+  { icon: BarChart3, label: 'Billing Report', path: '/reports/billing', permissions: ['reports.billing'] },
+  { icon: Wallet, label: 'Connection Fee', path: '/reports/connection-fee', permissions: ['reports.connection'] },
+  { icon: TrendingUp, label: 'Extra Income', path: '/reports/extra-income', permissions: ['reports.income'] },
+  { icon: TrendingDown, label: 'Expense', path: '/reports/expense', permissions: ['reports.expense'] },
+  { icon: UserCog, label: 'Employee Salary', path: '/reports/employee-salary', permissions: ['reports.salary'] },
+  { icon: Calendar, label: 'Leave Report', path: '/reports/leave', permissions: ['reports.leave'] },
+  { icon: DollarSign, label: 'Final Report', path: '/reports/final', permissions: ['reports.final'] },
+  { icon: Users, label: 'Man Wise Bill Collection', path: '/reports/man-wise-collection', permissions: ['reports.manwise'] },
+  { icon: UserPlus, label: 'Monthly New Line', path: '/reports/monthly-new-line', permissions: ['reports.newline'] },
+  { icon: Clock, label: 'Monthly Expire User', path: '/reports/monthly-expire', permissions: ['reports.expire'] },
+  { icon: Building2, label: 'BTRC Report', path: '/reports/btrc', permissions: ['reports.btrc'] },
 ];
 
 interface SidebarProps {
@@ -72,26 +72,26 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
     navigate('/login');
   };
 
-  // Filter sub-items by both feature permission AND menu visibility permission
+  // Filter sub-items by feature permission only
   const filterItems = (items: typeof userSubItems) =>
-    items.filter(item => hasAnyPermission(item.permissions) && hasPermission(item.menuKey));
+    items.filter(item => hasAnyPermission(item.permissions));
 
   const filteredUserItems = filterItems(userSubItems);
   const filteredRechargeItems = filterItems(rechargeSubItems);
   const filteredFinanceItems = filterItems(financeSubItems);
   const filteredReportItems = filterItems(reportSubItems);
 
-  // Menu-level visibility: parent menu permission + at least one visible sub-item or feature permission
-  const showDashboard = hasPermission('menu.dashboard');
-  const showHR = hasPermission('menu.hr_admin') && hasAnyPermission(['hr.employees.view', 'hr.departments.view', 'hr.leave.view', 'hr.payroll.view']);
-  const showUsers = hasPermission('menu.users') && filteredUserItems.length > 0;
-  const showRecharge = hasPermission('menu.recharge') && filteredRechargeItems.length > 0;
-  const showFinance = hasPermission('menu.finance') && filteredFinanceItems.length > 0;
-  const showReports = hasPermission('menu.reports') && filteredReportItems.length > 0;
-  const showPlans = hasPermission('menu.plans') && hasPermission('plans.view');
-  const showSMS = hasPermission('menu.sms') && hasAnyPermission(['sms.send', 'sms.history', 'sms.templates']);
-  const showActivity = hasPermission('menu.activity') && hasAnyPermission(['activity.system', 'activity.login', 'activity.user']);
-  const showSettings = hasPermission('menu.settings') && hasAnyPermission(['settings.users', 'settings.roles', 'settings.branding', 'settings.mikrotik', 'settings.connectivity_types', 'settings.categories', 'settings.payment', 'settings.payment_gateway', 'settings.shareholders', 'settings.sms_gateway', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.activity', 'settings.customer_portal']);
+  // Menu-level visibility based on feature permissions only
+  const showDashboard = hasAnyPermission(['dashboard.total_users', 'dashboard.active_users', 'dashboard.free_users', 'dashboard.expired_users', 'dashboard.disabled_users', 'dashboard.already_paid', 'dashboard.auto_renew_users', 'dashboard.pending_requests', 'dashboard.total_bill', 'dashboard.active_users_bill', 'dashboard.expired_users_bill', 'dashboard.already_paid_bill', 'dashboard.connection_fee', 'dashboard.extra_income', 'dashboard.auto_renew_bill', 'dashboard.monthly_bill_collection', 'dashboard.daily_bill_collection', 'dashboard.monthly_paid_users', 'dashboard.day_wise_new_line', 'dashboard.online_offline_status', 'dashboard.recent_users']);
+  const showHR = hasAnyPermission(['hr.employees.view', 'hr.departments.view', 'hr.leave.view', 'hr.payroll.view']);
+  const showUsers = filteredUserItems.length > 0;
+  const showRecharge = filteredRechargeItems.length > 0;
+  const showFinance = filteredFinanceItems.length > 0;
+  const showReports = filteredReportItems.length > 0;
+  const showPlans = hasPermission('plans.view');
+  const showSMS = hasAnyPermission(['sms.send', 'sms.history', 'sms.templates']);
+  const showActivity = hasAnyPermission(['activity.system', 'activity.login', 'activity.user']);
+  const showSettings = hasAnyPermission(['settings.users', 'settings.roles', 'settings.branding', 'settings.mikrotik', 'settings.connectivity_types', 'settings.categories', 'settings.payment', 'settings.payment_gateway', 'settings.shareholders', 'settings.sms_gateway', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.activity', 'settings.customer_portal']);
 
   return (
     <aside
@@ -121,7 +121,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {/* Dashboard */}
         {showDashboard && (
           <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
             <LayoutDashboard className="w-5 h-5" />
@@ -129,7 +128,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Link>
         )}
 
-        {/* HR Admin */}
         {showHR && (
           <Link to="/hr-admin" className={`nav-link ${location.pathname === '/hr-admin' ? 'active' : ''}`}>
             <UserCog className="w-5 h-5" />
@@ -137,7 +135,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Link>
         )}
 
-        {/* Users with Submenu */}
         {showUsers && (
           <Collapsible open={isUsersOpen} onOpenChange={setIsUsersOpen}>
             <CollapsibleTrigger className="nav-link w-full justify-between">
@@ -161,7 +158,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Collapsible>
         )}
 
-        {/* Recharge with Submenu */}
         {showRecharge && (
           <Collapsible open={isRechargeOpen} onOpenChange={setIsRechargeOpen}>
             <CollapsibleTrigger className="nav-link w-full justify-between">
@@ -185,7 +181,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Collapsible>
         )}
 
-        {/* Finance with Submenu */}
         {showFinance && (
           <Collapsible open={isFinanceOpen} onOpenChange={setIsFinanceOpen}>
             <CollapsibleTrigger className="nav-link w-full justify-between">
@@ -209,7 +204,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Collapsible>
         )}
 
-        {/* Reports with Submenu */}
         {showReports && (
           <Collapsible open={isReportsOpen} onOpenChange={setIsReportsOpen}>
             <CollapsibleTrigger className="nav-link w-full justify-between">
@@ -233,7 +227,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Collapsible>
         )}
 
-        {/* Plans */}
         {showPlans && (
           <Link to="/plans" className={`nav-link ${location.pathname === '/plans' ? 'active' : ''}`}>
             <CreditCard className="w-5 h-5" />
@@ -241,7 +234,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Link>
         )}
 
-        {/* SMS History */}
         {showSMS && (
           <Link to="/sms-history" className={`nav-link ${location.pathname === '/sms-history' ? 'active' : ''}`}>
             <MessageSquare className="w-5 h-5" />
@@ -249,7 +241,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Link>
         )}
 
-        {/* Activity */}
         {showActivity && (
           <Link to="/activity" className={`nav-link ${location.pathname === '/activity' ? 'active' : ''}`}>
             <Activity className="w-5 h-5" />
@@ -257,7 +248,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           </Link>
         )}
 
-        {/* Settings */}
         {showSettings && (
           <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>
             <Settings className="w-5 h-5" />
