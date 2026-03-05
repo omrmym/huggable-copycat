@@ -22,7 +22,7 @@ export function useHasPermission() {
 
 // Map routes to required permissions
 export const ROUTE_PERMISSIONS: Record<string, string[]> = {
-  '/': ['dashboard.total_users'], // Dashboard - at least one dashboard permission
+  '/': ['dashboard.total_users', 'dashboard.active_users', 'dashboard.free_users', 'dashboard.expired_users', 'dashboard.disabled_users', 'dashboard.already_paid', 'dashboard.total_bill', 'dashboard.active_users_bill', 'dashboard.expired_users_bill', 'dashboard.already_paid_bill', 'dashboard.connection_fee', 'dashboard.extra_income', 'dashboard.monthly_bill_collection', 'dashboard.daily_bill_collection', 'dashboard.monthly_paid_users', 'dashboard.day_wise_new_line', 'dashboard.online_offline_status', 'dashboard.recent_users'], // Dashboard accessible if user has any dashboard widget permission
   '/hr-admin': ['hr.employees.view', 'hr.departments.view', 'hr.leave.view', 'hr.payroll.view'],
   '/users': ['users.all.view'],
   '/users/create': ['users.create.service_type'],

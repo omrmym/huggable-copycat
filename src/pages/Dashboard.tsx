@@ -14,7 +14,7 @@ import { formatBDT } from '@/lib/utils';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
 export default function Dashboard() {
-  const { hasPermission } = useHasPermission();
+  const { hasPermission, hasAnyPermission, isLoading: permissionsLoading } = useHasPermission();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: users = [], isLoading: usersLoading } = useRadiusUsers();
 
@@ -27,6 +27,30 @@ export default function Dashboard() {
     }
     return `${mb} MB`;
   };
+
+  const userStatsPermissions = [
+    'dashboard.total_users',
+    'dashboard.active_users',
+    'dashboard.free_users',
+    'dashboard.expired_users',
+    'dashboard.disabled_users',
+    'dashboard.already_paid',
+    'users.all.view',
+    'users.requests.view',
+  ];
+
+  const billingStatsPermissions = [
+    'dashboard.total_bill',
+    'dashboard.active_users_bill',
+    'dashboard.expired_users_bill',
+    'dashboard.already_paid_bill',
+    'dashboard.connection_fee',
+    'dashboard.extra_income',
+    'recharge.statistics',
+  ];
+
+  const canViewUserStats = hasAnyPermission(userStatsPermissions);
+  const canViewBillingStats = hasAnyPermission(billingStatsPermissions);
 
   // Get users created today
   const today = new Date();
@@ -46,10 +70,25 @@ export default function Dashboard() {
     dataLimit: user.plan?.data_limit_mb ?? null,
   }));
 
+  if (permissionsLoading) {
+    return (
+      <DashboardLayout title="Dashboard" subtitle="Overview of your network">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="bg-card border border-border rounded-xl p-4">
+              <Skeleton className="h-4 w-24 mb-2" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+          ))}
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout title="Dashboard" subtitle="Overview of your network">
       {/* User Stats Grid */}
-      {hasPermission('dashboard.total_users') && (
+      {canViewUserStats && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">User Statistics</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
@@ -68,8 +107,8 @@ export default function Dashboard() {
                 {hasPermission('dashboard.expired_users') && <StatCard title="Expired Users" value={stats?.expiredUsers || 0} icon={UserX} href="/users?status=expired" />}
                 {hasPermission('dashboard.disabled_users') && <StatCard title="Disabled Users" value={stats?.disabledUsers || 0} icon={UserMinus} href="/users?status=disabled" />}
                 {hasPermission('dashboard.already_paid') && <StatCard title="Already Paid" value={stats?.alreadyPaidUsers || 0} icon={UserCheck} variant="success" href="/users?billing=paid" />}
-                <StatCard title="Auto Renew Users" value={stats?.autoRenewUsers || 0} icon={RefreshCw} variant="primary" href="/users?billing=auto_renew" />
-                <StatCard title="Pending Requests" value={stats?.pendingRequests || 0} icon={ClipboardList} variant="warning" href="/users/requests" />
+                {hasPermission('users.all.view') && <StatCard title="Auto Renew Users" value={stats?.autoRenewUsers || 0} icon={RefreshCw} variant="primary" href="/users?billing=auto_renew" />}
+                {hasPermission('users.requests.view') && <StatCard title="Pending Requests" value={stats?.pendingRequests || 0} icon={ClipboardList} variant="warning" href="/users/requests" />}
               </>
             )}
           </div>
@@ -77,7 +116,7 @@ export default function Dashboard() {
       )}
 
       {/* Bill Stats Grid */}
-      {hasPermission('dashboard.total_bill') && (
+      {canViewBillingStats && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">Billing Statistics</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
@@ -96,7 +135,7 @@ export default function Dashboard() {
                 {hasPermission('dashboard.already_paid_bill') && <StatCard title="Already Paid Bill" value={formatBDT(stats?.alreadyPaidBill || 0)} icon={CreditCard} variant="success" href="/recharge/manage" />}
                 {hasPermission('dashboard.connection_fee') && <StatCard title="Connection Fee" value={formatBDT(stats?.totalConnectionFee || 0)} icon={Cable} variant="primary" href="/users" />}
                 {hasPermission('dashboard.extra_income') && <StatCard title="Extra Income" value={formatBDT(stats?.totalExtraIncome || 0)} icon={PlusCircle} variant="success" href="/finance/income" />}
-                <StatCard title="Auto Renew Bill" value={formatBDT(stats?.autoRenewBill || 0)} icon={RefreshCw} variant="success" href="/recharge/statistics?billing=auto_renew" />
+                {hasPermission('recharge.statistics') && <StatCard title="Auto Renew Bill" value={formatBDT(stats?.autoRenewBill || 0)} icon={RefreshCw} variant="success" href="/recharge/statistics?billing=auto_renew" />}
               </>
             )}
           </div>
