@@ -273,20 +273,15 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
         <form onSubmit={handleSubmit}>
           {(() => {
-            const availableTabs = [
-              hasPermission('users.edit.personal') && 'personal',
-              hasPermission('users.edit.address') && 'address',
-              hasPermission('users.edit.connection') && 'connection',
-              'billing',
-            ].filter(Boolean) as string[];
-            const tabCount = availableTabs.length || 1;
-            const defaultTab = availableTabs[0] || 'personal';
+            const canEditPersonal = hasPermission('users.edit.personal');
+            const canEditAddress = hasPermission('users.edit.address');
+            const canEditConnection = hasPermission('users.edit.connection');
             return (
-          <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className={`grid w-full`} style={{ gridTemplateColumns: `repeat(${tabCount}, minmax(0, 1fr))` }}>
-              {hasPermission('users.edit.personal') && <TabsTrigger value="personal">Personal</TabsTrigger>}
-              {hasPermission('users.edit.address') && <TabsTrigger value="address">Address</TabsTrigger>}
-              {hasPermission('users.edit.connection') && <TabsTrigger value="connection">Connection</TabsTrigger>}
+          <Tabs defaultValue="personal" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="personal">Personal</TabsTrigger>
+              <TabsTrigger value="address">Address</TabsTrigger>
+              <TabsTrigger value="connection">Connection</TabsTrigger>
               <TabsTrigger value="billing">Billing</TabsTrigger>
             </TabsList>
 
