@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
 import { useUserTransactions } from '@/hooks/useTransactions';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserBandwidth } from '@/hooks/useUserBandwidth';
 import { Button } from '@/components/ui/button';
