@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { useBrandingSettings } from '@/components/settings/BrandingSettings';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
-const userSubItems = [
+const userSubItems: SidebarSubItem[] = [
   { icon: UserPlus, label: 'Create User', path: '/users/create', subKey: 'sub.users.create', permissions: ['users.create.service_type', 'users.create.connection_date', 'users.create.expire_date', 'users.create.monthly_bill'] },
   { icon: UserCheck, label: 'All Users', path: '/users', subKey: 'sub.users.all', permissions: ['users.all.view'] },
   { icon: ClipboardCheck, label: 'Requests', path: '/users/requests', subKey: 'sub.users.requests', permissions: ['users.requests.view'] },
