@@ -374,10 +374,23 @@ export default function ApprovedBillCollection() {
       {/* Transactions Table */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-success" />
-            Approved Transactions ({filteredTransactions.length})
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-success" />
+              Approved Transactions ({filteredTransactions.length})
+            </CardTitle>
+            {hasPermission('recharge.approved.delete_transaction') && selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedIds.size})`}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
