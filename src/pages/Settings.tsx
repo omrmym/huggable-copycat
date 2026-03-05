@@ -408,7 +408,8 @@ export default function SettingsPage() {
     { value: 'sms', label: 'SMS Manage', icon: MessageSquare, permission: 'settings.sms_gateway' },
     { value: 'notifications', label: 'Notifications', icon: Bell, permission: 'settings.branding' },
     { value: 'data', label: 'Data', icon: Database, permission: 'settings.activity' },
-    { value: 'system', label: 'System', icon: Server, permissions: ['settings.branding', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.customer_portal'] },
+    { value: 'system', label: 'System', icon: Server, permissions: ['settings.branding', 'settings.session', 'settings.timezone', 'settings.super_admin'] },
+    { value: 'customer-portal', label: 'Customer Portal', icon: Globe, permission: 'settings.customer_portal' },
   ];
 
   const visibleTabs = settingsTabs.filter(tab => {
