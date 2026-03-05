@@ -220,6 +220,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       income: {
         label: 'Income',
+        subKey: 'sub.finance.income',
         permissions: [
           { key: 'finance.income.view', label: 'View' },
           { key: 'finance.income.add', label: 'Add Income' },
