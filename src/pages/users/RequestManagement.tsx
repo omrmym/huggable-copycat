@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 export default function RequestManagement() {
+  const { hasPermission } = useHasPermission();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
@@ -196,12 +198,16 @@ export default function RequestManagement() {
                             <Button size="sm" variant="ghost" onClick={() => { setSelectedRequest(req); setViewDialogOpen(true); }}>
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700" onClick={() => approveMutation.mutate(req)} disabled={approveMutation.isPending}>
-                              {approveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => rejectMutation.mutate(req)} disabled={rejectMutation.isPending}>
-                              {rejectMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                            </Button>
+                            {hasPermission('users.requests.approve') && (
+                              <Button size="sm" variant="default" className="bg-success hover:bg-success/90 text-success-foreground" onClick={() => approveMutation.mutate(req)} disabled={approveMutation.isPending}>
+                                {approveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                              </Button>
+                            )}
+                            {hasPermission('users.requests.reject') && (
+                              <Button size="sm" variant="destructive" onClick={() => rejectMutation.mutate(req)} disabled={rejectMutation.isPending}>
+                                {rejectMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -218,25 +224,27 @@ export default function RequestManagement() {
           <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="w-5 h-5 text-success" />
                 Processed Requests ({processedRequests.length})
               </CardTitle>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={async () => {
-                  const ids = processedRequests.map((r: any) => r.id);
-                  const { error } = await supabase.from('user_requests').delete().in('id', ids);
-                  if (error) {
-                    toast({ title: "Error", description: error.message, variant: "destructive" });
-                  } else {
-                    queryClient.invalidateQueries({ queryKey: ['user-requests'] });
-                    toast({ title: "Cleared", description: "All processed requests removed." });
-                  }
-                }}
-              >
-                <Trash2 className="w-4 h-4 mr-1" /> Clear All
-              </Button>
+              {hasPermission('users.requests.delete') && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={async () => {
+                    const ids = processedRequests.map((r: any) => r.id);
+                    const { error } = await supabase.from('user_requests').delete().in('id', ids);
+                    if (error) {
+                      toast({ title: "Error", description: error.message, variant: "destructive" });
+                    } else {
+                      queryClient.invalidateQueries({ queryKey: ['user-requests'] });
+                      toast({ title: "Cleared", description: "All processed requests removed." });
+                    }
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" /> Clear All
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">

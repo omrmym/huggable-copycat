@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useCompletedTransactions } from '@/hooks/useTransactions';
@@ -53,6 +54,7 @@ const typeConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function ApprovedBillCollection() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   const [collectedByFilter, setCollectedByFilter] = useState<string>('all');
   const [methodFilter, setMethodFilter] = useState<string>('all');
@@ -381,16 +383,18 @@ export default function ApprovedBillCollection() {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-warning/30 text-warning hover:bg-warning/10"
-                            onClick={() => handleReject(tx.id)}
-                            disabled={rejectingId === tx.id}
-                          >
-                            <RotateCcw className="w-4 h-4 mr-1" />
-                            {rejectingId === tx.id ? 'Moving...' : 'Reject'}
-                          </Button>
+                          {hasPermission('recharge.approved.delete') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-warning/30 text-warning hover:bg-warning/10"
+                              onClick={() => handleReject(tx.id)}
+                              disabled={rejectingId === tx.id}
+                            >
+                              <RotateCcw className="w-4 h-4 mr-1" />
+                              {rejectingId === tx.id ? 'Moving...' : 'Reject'}
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ import { format, parseISO, isWithinInterval, startOfDay, endOfDay, startOfMonth 
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Income() {
+  const { hasPermission } = useHasPermission();
   const { user } = useAuth();
   const { data: incomeList = [], isLoading } = useIncome();
   const { data: incomeCategories = [] } = useIncomeCategories();
@@ -136,13 +138,14 @@ export default function Income() {
             onEndDateChange={setEndDate}
             onClear={clearDateFilter}
           />
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => handleOpenDialog()}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Income
-              </Button>
-            </DialogTrigger>
+          {hasPermission('finance.income.add') && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => handleOpenDialog()}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Income
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingIncome ? 'Edit Income' : 'Add New Income'}</DialogTitle>
@@ -220,6 +223,7 @@ export default function Income() {
               </form>
             </DialogContent>
           </Dialog>
+          )}
         </div>
 
         <Card>
@@ -265,12 +269,16 @@ export default function Income() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(income)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost" onClick={() => handleDelete(income.id)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
+                          {hasPermission('finance.income.edit') && (
+                            <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(income)}>
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {hasPermission('finance.income.delete') && (
+                            <Button size="icon" variant="ghost" onClick={() => handleDelete(income.id)}>
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

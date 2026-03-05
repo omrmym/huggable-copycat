@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -70,6 +71,7 @@ interface TransactionWithUser {
 }
 
 export default function ManageRecharge() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [collectByFilter, setCollectByFilter] = useState<string>('all');
@@ -165,6 +167,7 @@ export default function ManageRecharge() {
   };
 
   const handleRowClick = (tx: TransactionWithUser) => {
+    if (!hasPermission('recharge.manage.invoice')) return;
     setSelectedInvoice(tx);
     setInvoicePreviewOpen(true);
   };
@@ -405,14 +408,16 @@ export default function ManageRecharge() {
                       </TableCell>
                       <TableCell>{getStatusBadge(tx.status)}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={(e) => handleDeleteClick(e, tx)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {hasPermission('recharge.manage.delete') && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={(e) => handleDeleteClick(e, tx)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))

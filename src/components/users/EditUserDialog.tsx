@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useUpdateRadiusUser } from '@/hooks/useRadiusUsers';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
 import { useAreas } from '@/hooks/useAreas';
@@ -78,6 +79,7 @@ interface EditUserDialogProps {
 
 export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps) {
   const { isAdmin } = useAuth();
+  const { hasPermission } = useHasPermission();
   const updateUser = useUpdateRadiusUser();
   const { data: plans = [] } = useBillingPlans();
   const { data: areas = [] } = useAreas();
@@ -272,10 +274,10 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         <form onSubmit={handleSubmit}>
           <Tabs defaultValue="personal" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="personal">Personal</TabsTrigger>
-              <TabsTrigger value="address">Address</TabsTrigger>
-              <TabsTrigger value="connection">Connection</TabsTrigger>
-              <TabsTrigger value="billing">Billing</TabsTrigger>
+              {hasPermission('users.edit.personal') && <TabsTrigger value="personal">Personal</TabsTrigger>}
+              {hasPermission('users.edit.address') && <TabsTrigger value="address">Address</TabsTrigger>}
+              {hasPermission('users.edit.connection') && <TabsTrigger value="connection">Connection</TabsTrigger>}
+              {hasPermission('users.edit.billing') && <TabsTrigger value="billing">Billing</TabsTrigger>}
             </TabsList>
 
             {/* Personal Information Tab */}

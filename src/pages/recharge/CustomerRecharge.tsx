@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useNavigate } from 'react-router-dom';
 import { startOfMonth, endOfMonth, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -34,6 +35,7 @@ const statusConfig = {
 };
 
 export default function CustomerRecharge() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<RadiusUser | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -200,14 +202,16 @@ export default function CustomerRecharge() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            className="bg-gradient-primary text-primary-foreground"
-                            onClick={() => handleSelectUser(user)}
-                          >
-                            <Wallet className="w-4 h-4 mr-1" />
-                            Recharge
-                          </Button>
+                          {hasPermission('recharge.customer.recharge') && (
+                            <Button
+                              size="sm"
+                              className="bg-gradient-primary text-primary-foreground"
+                              onClick={() => handleSelectUser(user)}
+                            >
+                              <Wallet className="w-4 h-4 mr-1" />
+                              Recharge
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );

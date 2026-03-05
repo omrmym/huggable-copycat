@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useNavigate } from 'react-router-dom';
 import { sendSms } from '@/hooks/useSendSms';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -78,6 +79,7 @@ const typeConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function PendingBillCollection() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   
   const [collectedByFilter, setCollectedByFilter] = useState<string>('all');
@@ -363,7 +365,7 @@ export default function PendingBillCollection() {
                 Clear Filters
               </Button>
             )}
-            {isSomeSelected && (
+            {isSomeSelected && hasPermission('recharge.pending.approve') && (
               <Button
                 className="bg-success text-success-foreground ml-auto"
                 onClick={handleBulkApprove}
@@ -481,15 +483,17 @@ export default function PendingBillCollection() {
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-success text-success hover:bg-success hover:text-success-foreground"
-                            onClick={() => handleApprove(tx)}
-                            disabled={approveTransaction.isPending || !tx.radius_user_id}
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </Button>
+                          {hasPermission('recharge.pending.approve') && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-success text-success hover:bg-success hover:text-success-foreground"
+                              onClick={() => handleApprove(tx)}
+                              disabled={approveTransaction.isPending || !tx.radius_user_id}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
