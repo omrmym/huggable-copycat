@@ -138,13 +138,14 @@ export default function Income() {
             onEndDateChange={setEndDate}
             onClear={clearDateFilter}
           />
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => handleOpenDialog()}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Income
-              </Button>
-            </DialogTrigger>
+          {hasPermission('finance.income.add') && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => handleOpenDialog()}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Income
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingIncome ? 'Edit Income' : 'Add New Income'}</DialogTitle>
