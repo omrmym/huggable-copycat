@@ -998,16 +998,16 @@ export default function SettingsPage() {
           <PositionManagement />
 
           {/* Income Category Management */}
-          <IncomeCategoryManagement />
+          {hasPermission('settings.categories') && <IncomeCategoryManagement />}
 
           {/* Expense Category Management */}
-          <ExpenseCategoryManagement />
+          {hasPermission('settings.categories') && <ExpenseCategoryManagement />}
 
           {/* Connectivity Type Management */}
-          <ConnectivityTypeManagement />
+          {hasPermission('settings.connectivity_types') && <ConnectivityTypeManagement />}
 
           {/* Payment Method Management */}
-          <PaymentMethodManagement />
+          {hasPermission('settings.payment') && <PaymentMethodManagement />}
 
           {/* Request Success Note Settings */}
           <RequestNoteSettings />
