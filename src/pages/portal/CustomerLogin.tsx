@@ -52,9 +52,13 @@ export default function CustomerLogin() {
           <div className="flex justify-center mb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20">
-                <Network className="w-7 h-7 text-primary-foreground" />
+                {branding?.logo_url ? (
+                  <img src={branding.logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
+                ) : (
+                  <Network className="w-7 h-7 text-primary-foreground" />
+                )}
               </div>
-              <span className="text-2xl font-bold text-foreground">MikroBill</span>
+              <span className="text-2xl font-bold text-foreground">{branding?.company_name || 'MikroBill'}</span>
             </div>
           </div>
           <CardTitle className="text-foreground">Customer Portal</CardTitle>
