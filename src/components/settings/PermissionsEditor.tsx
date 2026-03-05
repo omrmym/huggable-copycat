@@ -159,6 +159,7 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.edit.billing_plan', label: 'Billing Plan' },
           { key: 'users.edit.connection_fee', label: 'Connection Fee' },
           { key: 'users.edit.expiration_date', label: 'Expiration Date' },
+          { key: 'users.edit.auto_renew', label: 'Auto Renew' },
         ],
       },
       auto_renew: {
