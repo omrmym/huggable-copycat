@@ -1289,11 +1289,6 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* Shareholders */}
-        <TabsContent value="shareholders" className="space-y-6">
-          {hasPermission('settings.shareholders') && <ShareholderManagement />}
-        </TabsContent>
       </Tabs>
     </DashboardLayout>
   );
