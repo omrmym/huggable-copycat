@@ -36,6 +36,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       billing_statistics: {
         label: 'Billing Statistics',
+        subKey: 'sub.dashboard.billing_statistics',
         permissions: [
           { key: 'dashboard.total_bill', label: 'Total Bill' },
           { key: 'dashboard.active_users_bill', label: 'Active Users Bill' },
