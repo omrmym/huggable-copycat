@@ -433,7 +433,15 @@ export default function ApprovedBillCollection() {
                 <TableBody>
                   {filteredTransactions.map((tx) => {
                     return (
-                      <TableRow key={tx.id} className="hover:bg-muted/30">
+                      <TableRow key={tx.id} className={cn("hover:bg-muted/30", selectedIds.has(tx.id) && "bg-muted/20")}>
+                        {hasPermission('recharge.approved.delete_transaction') && (
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedIds.has(tx.id)}
+                              onCheckedChange={() => toggleSelect(tx.id)}
+                            />
+                          </TableCell>
+                        )}
                         <TableCell className="text-muted-foreground">
                           {format(parseISO(tx.created_at), 'MMM dd, yyyy')}
                           <br />
