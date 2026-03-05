@@ -22,6 +22,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       user_statistics: {
         label: 'User Statistics',
+        subKey: 'sub.dashboard.user_statistics',
         permissions: [
           { key: 'dashboard.total_users', label: 'Total Users' },
           { key: 'dashboard.active_users', label: 'Active Users' },
@@ -35,6 +36,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       billing_statistics: {
         label: 'Billing Statistics',
+        subKey: 'sub.dashboard.billing_statistics',
         permissions: [
           { key: 'dashboard.total_bill', label: 'Total Bill' },
           { key: 'dashboard.active_users_bill', label: 'Active Users Bill' },
@@ -62,6 +64,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       employees: {
         label: 'Employee',
+        subKey: 'sub.hr.employees',
         permissions: [
           { key: 'hr.employees.view', label: 'View' },
           { key: 'hr.employees.add', label: 'Add Employee' },
@@ -71,6 +74,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       departments: {
         label: 'Department',
+        subKey: 'sub.hr.departments',
         permissions: [
           { key: 'hr.departments.view', label: 'View' },
           { key: 'hr.departments.add', label: 'Add Department' },
@@ -80,6 +84,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       leave_requests: {
         label: 'Leave Request',
+        subKey: 'sub.hr.leave',
         permissions: [
           { key: 'hr.leave.view', label: 'View' },
           { key: 'hr.leave.add', label: 'Add Request' },
@@ -90,6 +95,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       payroll: {
         label: 'Payroll',
+        subKey: 'sub.hr.payroll',
         permissions: [
           { key: 'hr.payroll.view', label: 'View' },
           { key: 'hr.payroll.add', label: 'Add Payment' },
@@ -216,6 +222,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       income: {
         label: 'Income',
+        subKey: 'sub.finance.income',
         permissions: [
           { key: 'finance.income.view', label: 'View' },
           { key: 'finance.income.add', label: 'Add Income' },
@@ -225,6 +232,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       expense: {
         label: 'Expense',
+        subKey: 'sub.finance.expense',
         permissions: [
           { key: 'finance.expense.view', label: 'View' },
           { key: 'finance.expense.add', label: 'Add Expense' },
@@ -244,6 +252,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       billing: {
         label: 'Billing Reports',
+        subKey: 'sub.reports.billing',
         permissions: [
           { key: 'reports.billing', label: 'Billing Report' },
           { key: 'reports.connection', label: 'Connection Fee Report' },
@@ -254,6 +263,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       financial: {
         label: 'Financial Reports',
+        subKey: 'sub.reports.financial',
         permissions: [
           { key: 'reports.expense', label: 'Expense Report' },
           { key: 'reports.income', label: 'Extra Income Report' },
@@ -262,6 +272,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       hr: {
         label: 'HR Reports',
+        subKey: 'sub.reports.hr',
         permissions: [
           { key: 'reports.salary', label: 'Employee Salary Report' },
           { key: 'reports.leave', label: 'Leave Report' },
@@ -269,6 +280,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       regulatory: {
         label: 'Regulatory Reports',
+        subKey: 'sub.reports.regulatory',
         permissions: [
           { key: 'reports.btrc', label: 'BTRC Report' },
         ],
@@ -303,6 +315,7 @@ export const PERMISSION_DEFINITIONS = {
     subcategories: {
       user_management: {
         label: 'User & Rule Management',
+        subKey: 'sub.settings.user_management',
         permissions: [
           { key: 'settings.users', label: 'Manage Software Users' },
           { key: 'settings.roles', label: 'Manage Rules' },
@@ -310,6 +323,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       network: {
         label: 'Network & Connectivity',
+        subKey: 'sub.settings.network',
         permissions: [
           { key: 'settings.mikrotik', label: 'Manage MikroTik Routers' },
           { key: 'settings.connectivity_types', label: 'Manage Connectivity Types' },
@@ -317,6 +331,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       finance_settings: {
         label: 'Finance Settings',
+        subKey: 'sub.settings.finance',
         permissions: [
           { key: 'settings.categories', label: 'Manage Expense/Income Categories' },
           { key: 'settings.payment', label: 'Manage Payment Methods' },
@@ -326,6 +341,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       system: {
         label: 'System Settings',
+        subKey: 'sub.settings.system',
         permissions: [
           { key: 'settings.branding', label: 'Branding & Theme' },
           { key: 'settings.sms_gateway', label: 'SMS Gateway Settings' },
