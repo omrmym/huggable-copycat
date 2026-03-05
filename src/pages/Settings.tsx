@@ -1289,6 +1289,11 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Customer Portal Settings */}
+        <TabsContent value="customer-portal" className="space-y-6">
+          <CustomerPortalSettings />
+        </TabsContent>
       </Tabs>
     </DashboardLayout>
   );
