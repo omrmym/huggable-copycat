@@ -32,6 +32,9 @@ export default function CreateUserPage() {
   const { data: routers = [] } = useMikrotikRouters();
   const createUser = useCreateRadiusUser();
   const { hasPermission } = useHasPermission();
+  const canEditServiceType = hasPermission('users.create.service_type');
+  const canEditConnectionDate = hasPermission('users.create.connection_date');
+  const canEditExpireDate = hasPermission('users.create.expire_date');
   const canEditMonthlyBill = hasPermission('users.create.monthly_bill');
 
   // reseller_office will be set to "Main-User" for admin panel users
@@ -405,12 +408,23 @@ export default function CreateUserPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Service Type</Label>
-                <Input
-                  className="bg-muted border-border cursor-not-allowed"
-                  value="Hotspot"
-                  disabled
-                  readOnly
-                />
+                {canEditServiceType ? (
+                  <Select value={formData.service_type} onValueChange={(value: "hotspot") => setFormData({ ...formData, service_type: value })}>
+                    <SelectTrigger className="bg-secondary border-border">
+                      <SelectValue placeholder="Select service type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hotspot">Hotspot</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    className="bg-muted border-border cursor-not-allowed"
+                    value="Hotspot"
+                    disabled
+                    readOnly
+                  />
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Connection Type</Label>
@@ -483,21 +497,49 @@ export default function CreateUserPage() {
               </div>
               <div className="space-y-2">
                 <Label>Connection Date</Label>
-                <Input
-                  className="bg-muted border-border cursor-not-allowed"
-                  value={formData.connection_date ? format(formData.connection_date, "PPP") : ""}
-                  disabled
-                  readOnly
-                />
+                {canEditConnectionDate ? (
+                  <Input
+                    type="date"
+                    className="bg-secondary border-border"
+                    value={formData.connection_date ? format(formData.connection_date, "yyyy-MM-dd") : ""}
+                    onChange={(e) => {
+                      const date = new Date(e.target.value);
+                      if (!isNaN(date.getTime())) {
+                        handleConnectionDateChange(date);
+                      }
+                    }}
+                  />
+                ) : (
+                  <Input
+                    className="bg-muted border-border cursor-not-allowed"
+                    value={formData.connection_date ? format(formData.connection_date, "PPP") : ""}
+                    disabled
+                    readOnly
+                  />
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Expire Date</Label>
-                <Input
-                  className="bg-muted border-border cursor-not-allowed"
-                  value={formData.expires_at ? format(formData.expires_at, "PPP") : ""}
-                  disabled
-                  readOnly
-                />
+                {canEditExpireDate ? (
+                  <Input
+                    type="datetime-local"
+                    className="bg-secondary border-border"
+                    value={formData.expires_at ? format(formData.expires_at, "yyyy-MM-dd'T'HH:mm") : ""}
+                    onChange={(e) => {
+                      const date = new Date(e.target.value);
+                      if (!isNaN(date.getTime())) {
+                        setFormData({ ...formData, expires_at: date });
+                      }
+                    }}
+                  />
+                ) : (
+                  <Input
+                    className="bg-muted border-border cursor-not-allowed"
+                    value={formData.expires_at ? format(formData.expires_at, "PPP") : ""}
+                    disabled
+                    readOnly
+                  />
+                )}
               </div>
             </div>
           </CardContent>
