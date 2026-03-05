@@ -287,6 +287,11 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
             {/* Personal Information Tab */}
             <TabsContent value="personal" className="space-y-4 mt-4">
+              {!canEditPersonal && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 border border-border rounded-md px-3 py-2">
+                  <Lock className="h-3 w-3" /> Read-only mode. You need edit permission to modify personal information.
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name</Label>
@@ -295,6 +300,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                     placeholder="Enter full name"
+                    disabled={!canEditPersonal}
+                    className={!canEditPersonal ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="space-y-2">
@@ -304,6 +311,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.father_name}
                     onChange={(e) => setFormData({ ...formData, father_name: e.target.value })}
                     placeholder="Enter father's name"
+                    disabled={!canEditPersonal}
+                    className={!canEditPersonal ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="space-y-2">
@@ -311,8 +320,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                   <Select
                     value={formData.gender}
                     onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                    disabled={!canEditPersonal}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={!canEditPersonal ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
@@ -327,8 +337,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                   <Select
                     value={formData.customer_type}
                     onValueChange={(value) => setFormData({ ...formData, customer_type: value })}
+                    disabled={!canEditPersonal}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={!canEditPersonal ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -345,6 +356,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.nid_number}
                     onChange={(e) => setFormData({ ...formData, nid_number: e.target.value })}
                     placeholder="Enter NID number"
+                    disabled={!canEditPersonal}
+                    className={!canEditPersonal ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="space-y-2">
@@ -354,6 +367,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="Enter phone number"
+                    disabled={!canEditPersonal}
+                    className={!canEditPersonal ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="col-span-2 space-y-2">
@@ -364,6 +379,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="Enter email address"
+                    disabled={!canEditPersonal}
+                    className={!canEditPersonal ? 'opacity-60' : ''}
                   />
                 </div>
               </div>
