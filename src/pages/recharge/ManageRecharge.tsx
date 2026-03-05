@@ -71,6 +71,7 @@ interface TransactionWithUser {
 }
 
 export default function ManageRecharge() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [collectByFilter, setCollectByFilter] = useState<string>('all');
