@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can read branding" ON public.app_settings FOR SELECT USING (key = 'branding');
