@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useNavigate } from 'react-router-dom';
 import { startOfMonth, endOfMonth, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';

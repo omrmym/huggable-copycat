@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

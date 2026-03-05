@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useNavigate } from 'react-router-dom';
 import { sendSms } from '@/hooks/useSendSms';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
