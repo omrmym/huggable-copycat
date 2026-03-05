@@ -169,7 +169,6 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'users.requests.view', label: 'View Requests' },
           { key: 'users.requests.approve', label: 'Approve Request' },
           { key: 'users.requests.reject', label: 'Reject Request' },
-          { key: 'users.requests.delete', label: 'Delete Request' },
         ],
       },
       location: {
