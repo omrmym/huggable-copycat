@@ -35,6 +35,7 @@ const statusConfig = {
 };
 
 export default function CustomerRecharge() {
+  const { hasPermission } = useHasPermission();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<RadiusUser | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
