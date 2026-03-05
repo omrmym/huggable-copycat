@@ -272,8 +272,18 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <Tabs defaultValue="personal" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+          {(() => {
+            const availableTabs = [
+              hasPermission('users.edit.personal') && 'personal',
+              hasPermission('users.edit.address') && 'address',
+              hasPermission('users.edit.connection') && 'connection',
+              hasPermission('users.edit.billing') && 'billing',
+            ].filter(Boolean) as string[];
+            const tabCount = availableTabs.length || 1;
+            const defaultTab = availableTabs[0] || 'personal';
+            return (
+          <Tabs defaultValue={defaultTab} className="w-full">
+            <TabsList className={`grid w-full`} style={{ gridTemplateColumns: `repeat(${tabCount}, minmax(0, 1fr))` }}>
               {hasPermission('users.edit.personal') && <TabsTrigger value="personal">Personal</TabsTrigger>}
               {hasPermission('users.edit.address') && <TabsTrigger value="address">Address</TabsTrigger>}
               {hasPermission('users.edit.connection') && <TabsTrigger value="connection">Connection</TabsTrigger>}
