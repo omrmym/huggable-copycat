@@ -703,13 +703,17 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                 </div>
                 <div className="col-span-2 flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
                   <div>
-                    <Label htmlFor="auto_renew" className="text-sm font-medium">Auto Renew</Label>
+                    <Label htmlFor="auto_renew" className="text-sm font-medium flex items-center gap-1">
+                      Auto Renew
+                      {!hasPermission('users.edit.auto_renew') && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    </Label>
                     <p className="text-xs text-muted-foreground">Monthly bill will be auto-generated when enabled</p>
                   </div>
                   <Switch
                     id="auto_renew"
                     checked={formData.auto_renew}
                     onCheckedChange={(checked) => setFormData({ ...formData, auto_renew: checked })}
+                    disabled={!hasPermission('users.edit.auto_renew')}
                   />
                 </div>
               </div>
