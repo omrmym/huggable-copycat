@@ -86,7 +86,7 @@ export default function UserProfile() {
   const { data: routers = [] } = useMikrotikRouters();
   const { data: transactions = [], isLoading: transactionsLoading } = useUserTransactions(userId);
   const updateUser = useUpdateRadiusUser();
-  
+  const { hasPermission } = useHasPermission();
 
   const user = users.find((u) => u.id === userId);
 
