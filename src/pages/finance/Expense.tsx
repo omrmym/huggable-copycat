@@ -138,13 +138,14 @@ export default function Expense() {
             onEndDateChange={setEndDate}
             onClear={clearDateFilter}
           />
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => handleOpenDialog()}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Expense
-              </Button>
-            </DialogTrigger>
+          {hasPermission('finance.expense.add') && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => handleOpenDialog()}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Expense
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingExpense ? 'Edit Expense' : 'Add New Expense'}</DialogTitle>
