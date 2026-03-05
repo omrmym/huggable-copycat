@@ -93,6 +93,7 @@ export const PERMISSION_DEFINITIONS = {
       },
       payroll: {
         label: 'Payroll',
+        subKey: 'sub.hr.payroll',
         permissions: [
           { key: 'hr.payroll.view', label: 'View' },
           { key: 'hr.payroll.add', label: 'Add Payment' },
