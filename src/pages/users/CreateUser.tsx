@@ -32,6 +32,9 @@ export default function CreateUserPage() {
   const { data: routers = [] } = useMikrotikRouters();
   const createUser = useCreateRadiusUser();
   const { hasPermission } = useHasPermission();
+  const canEditServiceType = hasPermission('users.create.service_type');
+  const canEditConnectionDate = hasPermission('users.create.connection_date');
+  const canEditExpireDate = hasPermission('users.create.expire_date');
   const canEditMonthlyBill = hasPermission('users.create.monthly_bill');
 
   // reseller_office will be set to "Main-User" for admin panel users
