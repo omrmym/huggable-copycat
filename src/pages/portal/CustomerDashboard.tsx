@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
 import { useUserTransactions } from '@/hooks/useTransactions';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserBandwidth } from '@/hooks/useUserBandwidth';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,7 @@ import {
 
 export default function CustomerDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { customer, logout, isLoading, refreshCustomer } = useCustomerAuth();
   const { data: plans = [] } = useBillingPlans();
   const { data: transactions = [], isLoading: transactionsLoading } = useUserTransactions(customer?.id);
@@ -79,6 +80,22 @@ export default function CustomerDashboard() {
   const nagadEnabled = paymentConfig?.nagad_enabled === true;
 
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshData = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshCustomer();
+      await queryClient.invalidateQueries();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshCustomer, queryClient]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/portal/login');
+  };
 
   if (isLoading) {
     return (
@@ -112,11 +129,6 @@ export default function CustomerDashboard() {
     if (mbps >= 1) return `${mbps.toFixed(1)} Mbps`;
     const kbps = bps / 1024;
     return `${kbps.toFixed(0)} Kbps`;
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/portal/login');
   };
 
   return (
@@ -163,11 +175,13 @@ export default function CustomerDashboard() {
             </div>
           </div>
           <Button 
-            onClick={() => refreshCustomer()} 
+            onClick={handleRefreshData} 
             variant="outline" 
             size="sm"
             className="border-border"
+            disabled={isRefreshing}
           >
+            {isRefreshing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Refresh Data
           </Button>
         </div>

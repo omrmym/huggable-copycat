@@ -70,13 +70,9 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   const refreshCustomer = async () => {
     if (!customer) return;
     const data = await refreshCustomerData(customer.id);
-    if (data && data.status === 'active') {
+    if (data) {
       setCustomer(data);
       localStorage.setItem(CUSTOMER_SESSION_KEY, JSON.stringify({ id: data.id }));
-    } else {
-      // User has been disabled/expired/suspended/deleted — force logout
-      setCustomer(null);
-      localStorage.removeItem(CUSTOMER_SESSION_KEY);
     }
   };
 
