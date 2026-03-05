@@ -343,7 +343,9 @@ export const PERMISSION_DEFINITIONS = {
     menuKey: 'menu.activity',
     permissions: [
       { key: 'activity.system', label: 'View System Activity' },
+      { key: 'activity.clear_system', label: 'Clear System Activity' },
       { key: 'activity.login', label: 'View Login Activity' },
+      { key: 'activity.clear_login', label: 'Clear Login Activity' },
       { key: 'activity.user', label: 'View User Activity' },
     ],
   },

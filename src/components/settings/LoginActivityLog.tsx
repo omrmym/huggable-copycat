@@ -149,6 +149,7 @@ export function LoginActivityLog() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {canClearLogs && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -185,6 +186,7 @@ export function LoginActivityLog() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            )}
             <Button
               variant="outline"
               size="sm"
