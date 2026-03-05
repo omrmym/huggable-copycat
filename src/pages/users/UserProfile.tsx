@@ -20,6 +20,7 @@ import { BandwidthHistoryChart } from '@/components/users/profile/BandwidthHisto
 import { ActivityLogTab } from '@/components/users/profile/ActivityLogTab';
 import { GraceActivationDialog } from '@/components/users/profile/GraceActivationDialog';
 import { sendSms } from '@/hooks/useSendSms';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

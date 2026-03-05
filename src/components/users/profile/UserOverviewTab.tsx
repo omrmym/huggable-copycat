@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MacLockControl } from './MacLockControl';
+import { useHasPermission } from '@/hooks/useHasPermission';
 import { useUserBandwidth } from '@/hooks/useUserBandwidth';
 import { 
   User, 
