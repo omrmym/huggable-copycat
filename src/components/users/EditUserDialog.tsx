@@ -468,6 +468,11 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
 
             {/* Connection Tab */}
             <TabsContent value="connection" className="space-y-4 mt-4">
+              {!canEditConnection && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 border border-border rounded-md px-3 py-2">
+                  <Lock className="h-3 w-3" /> Read-only mode. You need edit permission to modify connection information.
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="service_type">Service Type</Label>
@@ -482,8 +487,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                   <Select
                     value={formData.connectivity_type}
                     onValueChange={(value) => setFormData({ ...formData, connectivity_type: value })}
+                    disabled={!canEditConnection}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={!canEditConnection ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select device" />
                     </SelectTrigger>
                     <SelectContent>
@@ -505,6 +511,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     onChange={(e) => setFormData({ ...formData, mac_serial: e.target.value })}
                     placeholder="Enter Mac or Serial number"
                     required={['onu', 'fibre+onu'].includes(formData.connectivity_type?.toLowerCase() || '')}
+                    disabled={!canEditConnection}
+                    className={!canEditConnection ? 'opacity-60' : ''}
                   />
                   {['onu', 'fibre+onu'].includes(formData.connectivity_type?.toLowerCase() || '') && !formData.mac_serial && (
                     <p className="text-xs text-destructive">Required for ONU / Fibre+ONU devices</p>
@@ -517,6 +525,8 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.ip_address}
                     onChange={(e) => setFormData({ ...formData, ip_address: e.target.value })}
                     placeholder="e.g., 192.168.1.100"
+                    disabled={!canEditConnection}
+                    className={!canEditConnection ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="space-y-2">
@@ -526,19 +536,21 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     value={formData.mac_address}
                     onChange={(e) => setFormData({ ...formData, mac_address: e.target.value })}
                     placeholder="e.g., AA:BB:CC:DD:EE:FF"
+                    disabled={!canEditConnection}
+                    className={!canEditConnection ? 'opacity-60' : ''}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="router" className="flex items-center gap-1">
                     MikroTik Router
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {(!isAdmin || !canEditConnection) && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Select
                     value={formData.mikrotik_router_id}
                     onValueChange={(value) => setFormData({ ...formData, mikrotik_router_id: value })}
-                    disabled={!isAdmin}
+                    disabled={!isAdmin || !canEditConnection}
                   >
-                    <SelectTrigger className={!isAdmin ? 'opacity-60' : ''}>
+                    <SelectTrigger className={(!isAdmin || !canEditConnection) ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select router" />
                     </SelectTrigger>
                     <SelectContent>
@@ -555,8 +567,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                   <Select
                     value={formData.status}
                     onValueChange={(value: 'active' | 'disabled' | 'expired' | 'suspended') => setFormData({ ...formData, status: value })}
+                    disabled={!canEditConnection}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={!canEditConnection ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -570,7 +583,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                 <div className="space-y-2">
                   <Label htmlFor="reseller_office" className="flex items-center gap-1">
                     Branch
-                    {!isAdmin && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {(!isAdmin || !canEditConnection) && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <Select
                     value={formData.reseller_office}
@@ -581,9 +594,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         reseller_id: null
                       });
                     }}
-                    disabled={!isAdmin}
+                    disabled={!isAdmin || !canEditConnection}
                   >
-                    <SelectTrigger className={!isAdmin ? 'opacity-60' : ''}>
+                    <SelectTrigger className={(!isAdmin || !canEditConnection) ? 'opacity-60' : ''}>
                       <SelectValue placeholder="Select branch" />
                     </SelectTrigger>
                     <SelectContent>
