@@ -39,6 +39,7 @@ export const PERMISSION_DEFINITIONS = {
           { key: 'dashboard.already_paid_bill', label: 'Already Paid Bill' },
           { key: 'dashboard.connection_fee', label: 'Connection Fee' },
           { key: 'dashboard.extra_income', label: 'Extra Income' },
+          { key: 'dashboard.auto_renew_bill', label: 'Auto Renew Bill' },
         ],
       },
     },
