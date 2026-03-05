@@ -72,6 +72,13 @@ export default function SmsHistory() {
   const { data: smsData = [], isLoading } = useSmsHistory();
   const clearHistory = useClearSmsHistory();
   const queryClient = useQueryClient();
+  const { hasPermission } = useHasPermission();
+
+  const canViewHistory = hasPermission('sms.history');
+  const canSendSms = hasPermission('sms.send');
+  const canManageTemplates = hasPermission('sms.templates');
+
+  const defaultTab = canViewHistory ? 'history' : canManageTemplates ? 'templates' : 'history';
 
   const filtered = smsData.filter((sms) => {
     const matchSearch = !search || sms.recipient_phone.includes(search) || (sms.recipient_name || '').toLowerCase().includes(search.toLowerCase());
