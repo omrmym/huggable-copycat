@@ -18,6 +18,7 @@ export const PERMISSION_DEFINITIONS = {
   dashboard: {
     label: 'Dashboard',
     icon: LayoutDashboard,
+    menuKey: 'menu.dashboard',
     subcategories: {
       user_statistics: {
         label: 'User Statistics',
@@ -57,6 +58,7 @@ export const PERMISSION_DEFINITIONS = {
   hr: {
     label: 'HR Administration',
     icon: UserCheck,
+    menuKey: 'menu.hr_admin',
     subcategories: {
       employees: {
         label: 'Employee',
@@ -102,6 +104,7 @@ export const PERMISSION_DEFINITIONS = {
   users: {
     label: 'User Management',
     icon: Users,
+    menuKey: 'menu.users',
     subcategories: {
       create_user: {
         label: 'Create User',
@@ -178,6 +181,7 @@ export const PERMISSION_DEFINITIONS = {
   plans: {
     label: 'Billing Plans',
     icon: CreditCard,
+    menuKey: 'menu.plans',
     permissions: [
       { key: 'plans.view', label: 'View Plans' },
       { key: 'plans.create', label: 'Create Plans' },
@@ -188,6 +192,7 @@ export const PERMISSION_DEFINITIONS = {
   recharge: {
     label: 'Recharge & Billing',
     icon: DollarSign,
+    menuKey: 'menu.recharge',
     permissions: [
       { key: 'recharge.customer', label: 'Customer Recharge' },
       { key: 'recharge.manage', label: 'Manage Recharge' },
@@ -199,6 +204,7 @@ export const PERMISSION_DEFINITIONS = {
   finance: {
     label: 'Finance',
     icon: BarChart3,
+    menuKey: 'menu.finance',
     subcategories: {
       income: {
         label: 'Income',
@@ -226,6 +232,7 @@ export const PERMISSION_DEFINITIONS = {
   reports: {
     label: 'Reports',
     icon: FileText,
+    menuKey: 'menu.reports',
     subcategories: {
       billing: {
         label: 'Billing Reports',
@@ -264,6 +271,7 @@ export const PERMISSION_DEFINITIONS = {
   sms: {
     label: 'SMS',
     icon: FileText,
+    menuKey: 'menu.sms',
     permissions: [
       { key: 'sms.send', label: 'Send SMS' },
       { key: 'sms.history', label: 'View SMS History' },
@@ -273,6 +281,7 @@ export const PERMISSION_DEFINITIONS = {
   activity: {
     label: 'Activity & Logs',
     icon: FileText,
+    menuKey: 'menu.activity',
     permissions: [
       { key: 'activity.system', label: 'View System Activity' },
       { key: 'activity.login', label: 'View Login Activity' },
@@ -282,6 +291,7 @@ export const PERMISSION_DEFINITIONS = {
   settings: {
     label: 'Settings',
     icon: Settings,
+    menuKey: 'menu.settings',
     subcategories: {
       user_management: {
         label: 'User & Rule Management',
@@ -323,8 +333,30 @@ export const PERMISSION_DEFINITIONS = {
   },
 };
 
-// Helper to get all permissions from a category (including subcategories)
+// Helper to get all permissions from a category (including subcategories and menuKey)
 function getAllCategoryPermissions(category: typeof PERMISSION_DEFINITIONS[keyof typeof PERMISSION_DEFINITIONS]): string[] {
+  const permissions: string[] = [];
+  
+  // Include the menuKey as a permission
+  if ('menuKey' in category && category.menuKey) {
+    permissions.push(category.menuKey);
+  }
+  
+  if (category.permissions) {
+    permissions.push(...category.permissions.map(p => p.key));
+  }
+  
+  if ('subcategories' in category && category.subcategories) {
+    Object.values(category.subcategories).forEach(sub => {
+      permissions.push(...sub.permissions.map(p => p.key));
+    });
+  }
+  
+  return permissions;
+}
+
+// Get only child permissions (excluding menuKey) for count display
+function getChildPermissions(category: typeof PERMISSION_DEFINITIONS[keyof typeof PERMISSION_DEFINITIONS]): string[] {
   const permissions: string[] = [];
   
   if (category.permissions) {
@@ -429,12 +461,14 @@ export function PermissionsEditor({
       {/* Permission Categories Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {Object.entries(PERMISSION_DEFINITIONS).map(([categoryKey, category]) => {
-          const categoryPermissions = getAllCategoryPermissions(category);
-          const selectedCount = categoryPermissions.filter((p) =>
+          const childPermissions = getChildPermissions(category);
+          const selectedChildCount = childPermissions.filter((p) =>
             selectedPermissions.includes(p)
           ).length;
-          const allSelected = selectedCount === categoryPermissions.length;
-          const someSelected = selectedCount > 0 && !allSelected;
+          const menuKey = 'menuKey' in category ? category.menuKey : undefined;
+          const menuSelected = menuKey ? selectedPermissions.includes(menuKey) : false;
+          const allChildSelected = childPermissions.length > 0 && selectedChildCount === childPermissions.length;
+          const someChildSelected = selectedChildCount > 0;
           const IconComponent = category.icon;
 
           return (
@@ -442,29 +476,30 @@ export function PermissionsEditor({
               key={categoryKey}
               className={cn(
                 "rounded-xl border bg-card p-5 transition-all",
-                allSelected ? "border-primary/50 bg-primary/5" : "border-border",
-                someSelected && "border-primary/30"
+                menuSelected && allChildSelected ? "border-primary/50 bg-primary/5" : "border-border",
+                menuSelected && someChildSelected && !allChildSelected && "border-primary/30"
               )}
             >
-              {/* Category Header */}
+              {/* Category Header - toggles menu visibility independently */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id={`category-${categoryKey}`}
-                    checked={allSelected}
-                    data-state={someSelected ? 'indeterminate' : allSelected ? 'checked' : 'unchecked'}
-                    onCheckedChange={() => handleToggleCategory(categoryKey)}
+                    checked={menuSelected}
+                    onCheckedChange={() => {
+                      if (menuKey) handleToggle(menuKey);
+                    }}
                     disabled={disabled}
-                    className={cn("h-5 w-5", someSelected && "opacity-70")}
+                    className="h-5 w-5"
                   />
                   <div className="flex items-center gap-2">
                     <div className={cn(
                       "p-2 rounded-lg",
-                      allSelected ? "bg-primary/20" : "bg-muted"
+                      menuSelected ? "bg-primary/20" : "bg-muted"
                     )}>
                       <IconComponent className={cn(
                         "h-4 w-4",
-                        allSelected ? "text-primary" : "text-muted-foreground"
+                        menuSelected ? "text-primary" : "text-muted-foreground"
                       )} />
                     </div>
                     <Label
@@ -475,8 +510,8 @@ export function PermissionsEditor({
                     </Label>
                   </div>
                 </div>
-                <Badge variant={allSelected ? "default" : "secondary"} className="text-xs">
-                  {selectedCount}/{categoryPermissions.length}
+                <Badge variant={allChildSelected ? "default" : "secondary"} className="text-xs">
+                  {selectedChildCount}/{childPermissions.length}
                 </Badge>
               </div>
 
