@@ -403,7 +403,7 @@ export default function SettingsPage() {
     { value: 'admin-user', label: 'Software User', icon: Users, permission: 'settings.users' },
     { value: 'roles', label: 'Rule Manage', icon: Shield, permission: 'settings.roles' },
     { value: 'mikrotik', label: 'MikroTik Manage', icon: Server, permission: 'settings.mikrotik' },
-    { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories'] },
+    { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories', 'settings.shareholders'] },
     { value: 'sms', label: 'SMS Manage', icon: MessageSquare, permission: 'settings.sms_gateway' },
     { value: 'notifications', label: 'Notifications', icon: Bell, permission: 'settings.branding' },
     { value: 'data', label: 'Data', icon: Database, permission: 'settings.activity' },
