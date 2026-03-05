@@ -408,7 +408,7 @@ export default function SettingsPage() {
     { value: 'notifications', label: 'Notifications', icon: Bell, permission: 'settings.branding' },
     { value: 'data', label: 'Data', icon: Database, permission: 'settings.activity' },
     { value: 'system', label: 'System', icon: Server, permissions: ['settings.branding', 'settings.session', 'settings.timezone', 'settings.super_admin', 'settings.customer_portal'] },
-    { value: 'shareholders', label: 'Shareholders', icon: Users, permission: 'settings.shareholders' },
+    ];
   ];
 
   const visibleTabs = settingsTabs.filter(tab => {
