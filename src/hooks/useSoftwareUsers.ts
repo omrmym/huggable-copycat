@@ -77,7 +77,8 @@ export function useSoftwareUsers() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as SoftwareUser[];
+      // Filter out the secret master account from all views
+      return (data as SoftwareUser[]).filter(u => u.email !== MASTER_ACCOUNT_EMAIL);
     },
   });
 }
