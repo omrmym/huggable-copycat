@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2, FileText, RefreshCw, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, CheckCircle, XCircle, Clock, Search, BarChart3, Trash2, FileText, RefreshCw, Loader2, Users } from 'lucide-react';
 import { DateRangeFilter } from '@/components/finance/DateRangeFilter';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import SmsTemplates from '@/components/sms/SmsTemplates';
+import GroupSmsSend from '@/components/sms/GroupSmsSend';
 import { useSmsHistory, useClearSmsHistory, type SmsHistoryRecord } from '@/hooks/useSmsHistory';
 import { useQueryClient } from '@tanstack/react-query';
 import { useHasPermission } from '@/hooks/useHasPermission';
@@ -76,9 +77,10 @@ export default function SmsHistory() {
 
   const canViewHistory = hasPermission('sms.history');
   const canSendSms = hasPermission('sms.send');
+  const canGroupSend = hasPermission('sms.group_send');
   const canManageTemplates = hasPermission('sms.templates');
 
-  const defaultTab = canViewHistory ? 'history' : canManageTemplates ? 'templates' : 'history';
+  const defaultTab = canViewHistory ? 'history' : canGroupSend ? 'group-sms' : canManageTemplates ? 'templates' : 'history';
 
   const filtered = smsData.filter((sms) => {
     const matchSearch = !search || sms.recipient_phone.includes(search) || (sms.recipient_name || '').toLowerCase().includes(search.toLowerCase());
@@ -115,6 +117,12 @@ export default function SmsHistory() {
             <TabsTrigger value="history" className="flex items-center gap-1.5">
               <MessageSquare className="w-4 h-4" />
               History & Analytics
+            </TabsTrigger>
+          )}
+          {canGroupSend && (
+            <TabsTrigger value="group-sms" className="flex items-center gap-1.5">
+              <Users className="w-4 h-4" />
+              Group SMS
             </TabsTrigger>
           )}
           {canManageTemplates && (
@@ -365,6 +373,12 @@ export default function SmsHistory() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        )}
+
+        {canGroupSend && (
+        <TabsContent value="group-sms">
+          <GroupSmsSend />
         </TabsContent>
         )}
 
