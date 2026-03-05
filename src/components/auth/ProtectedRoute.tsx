@@ -88,7 +88,7 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
   // Find matching permission - check exact match first, then prefix matches
   const requiredPermissions = ROUTE_PERMISSIONS[routePath];
   
-  if (requiredPermissions && !routePath.match(/^\/users\/[0-9a-f-]+$/)) {
+  if (requiredPermissions && requiredPermissions.length > 0 && !routePath.match(/^\/users\/[0-9a-f-]+$/)) {
     if (!hasAnyPermission(requiredPermissions)) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
