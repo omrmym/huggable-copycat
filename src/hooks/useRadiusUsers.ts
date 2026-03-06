@@ -90,7 +90,7 @@ export function useCreateRadiusUser() {
           body: {
             action: 'sync-user',
             username: user.username,
-            password: user.password_hash,
+            user_id: data.id,
             service_type: user.service_type,
             disabled: (user.status || 'active') !== 'active',
           },
