@@ -775,8 +775,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ success: false, error: message }), {
+    console.error('Mikrotik sync error:', err);
+    return new Response(JSON.stringify({ success: false, error: 'An error occurred processing your request' }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -33,33 +33,23 @@ serve(async (req) => {
       .eq('login_user_id', login_user_id)
       .maybeSingle()
 
-    if (softwareUser) {
-      if (!softwareUser.is_active) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Account is inactive' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-        )
-      }
+    if (softwareUser && softwareUser.is_active) {
       return new Response(
         JSON.stringify({ success: true, email: softwareUser.email }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }
 
-    // Then check admin_users if needed? 
-    // Usually admin_users login by email, but the page supports User ID for admins too
-    // Let's check if admin_users has login_user_id. 
-    // Looking at schema: admin_users doesn't have login_user_id.
-    // However, the software_users table has a role, and admins might be in there.
-    
+    // Return generic error for all failure cases to prevent enumeration
     return new Response(
-      JSON.stringify({ success: false, error: 'User ID not found' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      JSON.stringify({ success: false, error: 'Invalid credentials' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
     )
 
   } catch (error) {
+    console.error('Login lookup error:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: 'An error occurred processing your request' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
