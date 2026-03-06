@@ -674,12 +674,41 @@ async function handleSyncUser(
 }
 
 async function handleDeleteUser(router: RouterConfig, username: string) {
+  let disconnectedSessions = 0;
+  let removedCookies = 0;
+
+  // 1. Remove from active sessions list
+  const sessions = await mikrotikRequest(router, `/ip/hotspot/active?=user=${username}`);
+  if (sessions.success && Array.isArray(sessions.data)) {
+    for (const session of sessions.data) {
+      const sessionId = (session as Record<string, string>)[".id"];
+      if (sessionId) {
+        await mikrotikRequest(router, `/ip/hotspot/active/remove`, "POST", { ".id": sessionId });
+      }
+    }
+    disconnectedSessions = (sessions.data as unknown[]).length;
+  }
+
+  // 2. Delete cookies for this user
+  const cookies = await mikrotikRequest(router, `/ip/hotspot/cookie?=user=${username}`);
+  if (cookies.success && Array.isArray(cookies.data)) {
+    for (const cookie of cookies.data) {
+      const cookieId = (cookie as Record<string, string>)[".id"];
+      if (cookieId) {
+        await mikrotikRequest(router, `/ip/hotspot/cookie/remove`, "POST", { ".id": cookieId });
+      }
+    }
+    removedCookies = (cookies.data as unknown[]).length;
+  }
+
+  // 3. Delete the hotspot user entry
   const existing = await mikrotikRequest(router, `/ip/hotspot/user?=name=${username}`);
   if (existing.success && Array.isArray(existing.data) && existing.data.length > 0) {
     const userId = (existing.data[0] as Record<string, string>)[".id"];
-    return await mikrotikRequest(router, `/ip/hotspot/user/${userId}`, "DELETE");
+    await mikrotikRequest(router, `/ip/hotspot/user/${userId}`, "DELETE");
   }
-  return { success: true, data: { message: "User not found on router, nothing to delete" } };
+
+  return { success: true, data: { message: "User deleted", disconnected: disconnectedSessions, cookies_removed: removedCookies } };
 }
 
 async function handleDisconnectUser(router: RouterConfig, username: string) {
