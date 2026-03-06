@@ -173,7 +173,7 @@ export function useUpdateRadiusUser() {
               body: {
                 action: 'sync-user',
                 username: data.username,
-                password: data.password_hash,
+                user_id: id,
                 service_type: data.service_type,
                 disabled: data.status !== 'active',
                 profile: profileName,
