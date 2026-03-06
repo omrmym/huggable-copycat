@@ -128,7 +128,7 @@ export function useUpdateRadiusUser() {
         .update(updates)
         .eq('id', id)
         .select(`
-          *,
+          id, username, full_name, status, service_type,
           plan:billing_plans(name)
         `)
         .single();
