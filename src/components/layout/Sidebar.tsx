@@ -131,7 +131,7 @@ export function Sidebar({ isCollapsed = false, onNavClick }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {showDashboard && (
-          <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+          <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} onClick={onNavClick}>
             <LayoutDashboard className="w-5 h-5" />
             <span>Dashboard</span>
           </Link>
