@@ -138,7 +138,7 @@ export function Sidebar({ isCollapsed = false, onNavClick }: SidebarProps) {
         )}
 
         {showHR && (
-          <Link to="/hr-admin" className={`nav-link ${location.pathname === '/hr-admin' ? 'active' : ''}`}>
+          <Link to="/hr-admin" className={`nav-link ${location.pathname === '/hr-admin' ? 'active' : ''}`} onClick={onNavClick}>
             <UserCog className="w-5 h-5" />
             <span>HR Admin</span>
           </Link>
