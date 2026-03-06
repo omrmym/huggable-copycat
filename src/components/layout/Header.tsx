@@ -212,8 +212,8 @@ export function Header({ title, subtitle, isSidebarCollapsed, onToggleSidebar }:
   };
 
   return (
-    <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
+    <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-3 md:px-6">
+      <div className="flex items-center gap-2 md:gap-4 min-w-0">
         {/* Sidebar Toggle Button */}
         <TooltipProvider>
           <Tooltip>
@@ -237,15 +237,15 @@ export function Header({ title, subtitle, isSidebarCollapsed, onToggleSidebar }:
           </Tooltip>
         </TooltipProvider>
 
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
-          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+        <div className="min-w-0">
+          <h1 className="text-base md:text-xl font-semibold text-foreground truncate">{title}</h1>
+          {subtitle && <p className="text-xs md:text-sm text-muted-foreground truncate">{subtitle}</p>}
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1 md:gap-4">
         {/* Search */}
-        <div className="relative" ref={searchRef}>
+        <div className="relative hidden md:block" ref={searchRef}>
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           {isSearching && (
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />
@@ -295,11 +295,11 @@ export function Header({ title, subtitle, isSidebarCollapsed, onToggleSidebar }:
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2">
+            <Button variant="ghost" className="gap-1 md:gap-2 px-1 md:px-3">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                 <User className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="text-sm">{displayName}</span>
+              <span className="text-sm hidden md:inline">{displayName}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-card border-border">

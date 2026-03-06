@@ -55,9 +55,10 @@ type SidebarSubItem = {
 
 interface SidebarProps {
   isCollapsed?: boolean;
+  onNavClick?: () => void;
 }
 
-export function Sidebar({ isCollapsed = false }: SidebarProps) {
+export function Sidebar({ isCollapsed = false, onNavClick }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
@@ -130,14 +131,14 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {showDashboard && (
-          <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
+          <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} onClick={onNavClick}>
             <LayoutDashboard className="w-5 h-5" />
             <span>Dashboard</span>
           </Link>
         )}
 
         {showHR && (
-          <Link to="/hr-admin" className={`nav-link ${location.pathname === '/hr-admin' ? 'active' : ''}`}>
+          <Link to="/hr-admin" className={`nav-link ${location.pathname === '/hr-admin' ? 'active' : ''}`} onClick={onNavClick}>
             <UserCog className="w-5 h-5" />
             <span>HR Admin</span>
           </Link>
@@ -156,7 +157,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
               {filteredUserItems.map(item => {
                 const isActive = location.pathname === item.path;
                 return (
-                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`}>
+                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`} onClick={onNavClick}>
                     <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
@@ -179,7 +180,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
               {filteredRechargeItems.map(item => {
                 const isActive = location.pathname === item.path;
                 return (
-                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`}>
+                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`} onClick={onNavClick}>
                     <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
@@ -202,7 +203,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
               {filteredFinanceItems.map(item => {
                 const isActive = location.pathname === item.path;
                 return (
-                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`}>
+                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`} onClick={onNavClick}>
                     <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
@@ -225,7 +226,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
               {filteredReportItems.map(item => {
                 const isActive = location.pathname === item.path;
                 return (
-                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`}>
+                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`} onClick={onNavClick}>
                     <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
@@ -236,21 +237,21 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
         )}
 
         {showPlans && (
-          <Link to="/plans" className={`nav-link ${location.pathname === '/plans' ? 'active' : ''}`}>
+          <Link to="/plans" className={`nav-link ${location.pathname === '/plans' ? 'active' : ''}`} onClick={onNavClick}>
             <CreditCard className="w-5 h-5" />
             <span>Plans</span>
           </Link>
         )}
 
         {showSMS && (
-          <Link to="/sms-history" className={`nav-link ${location.pathname === '/sms-history' ? 'active' : ''}`}>
+          <Link to="/sms-history" className={`nav-link ${location.pathname === '/sms-history' ? 'active' : ''}`} onClick={onNavClick}>
             <MessageSquare className="w-5 h-5" />
             <span>SMS History</span>
           </Link>
         )}
 
         {showActivity && (
-          <Link to="/activity" className={`nav-link ${location.pathname === '/activity' ? 'active' : ''}`}>
+          <Link to="/activity" className={`nav-link ${location.pathname === '/activity' ? 'active' : ''}`} onClick={onNavClick}>
             <Activity className="w-5 h-5" />
             <span>Activity</span>
           </Link>
@@ -258,7 +259,7 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
 
 
         {showSettings && (
-          <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>
+          <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`} onClick={onNavClick}>
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </Link>
