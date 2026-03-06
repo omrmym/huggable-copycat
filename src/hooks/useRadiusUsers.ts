@@ -24,12 +24,12 @@ export function useRadiusUsers() {
   return useQuery({
     queryKey: ['radius-users'],
     queryFn: async (): Promise<RadiusUser[]> => {
-      const { data, error } = await supabase
-        .from('radius_users')
+      const { data, error } = await (supabase
+        .from('radius_users_safe' as any)
         .select(`
           *,
           plan:billing_plans(*)
-        `)
+        `) as any)
         .is('reseller_id', null) // Only show users created by admin (not resellers)
         .order('created_at', { ascending: false });
 
@@ -79,7 +79,7 @@ export function useCreateRadiusUser() {
           ...user,
           created_by: userId || null,
         })
-        .select()
+        .select('id, username, full_name, service_type, status')
         .single();
 
       if (error) throw error;
@@ -90,7 +90,7 @@ export function useCreateRadiusUser() {
           body: {
             action: 'sync-user',
             username: user.username,
-            password: user.password_hash,
+            user_id: data.id,
             service_type: user.service_type,
             disabled: (user.status || 'active') !== 'active',
           },
@@ -128,7 +128,7 @@ export function useUpdateRadiusUser() {
         .update(updates)
         .eq('id', id)
         .select(`
-          *,
+          id, username, full_name, status, service_type,
           plan:billing_plans(name)
         `)
         .single();
@@ -173,7 +173,7 @@ export function useUpdateRadiusUser() {
               body: {
                 action: 'sync-user',
                 username: data.username,
-                password: data.password_hash,
+                user_id: id,
                 service_type: data.service_type,
                 disabled: data.status !== 'active',
                 profile: profileName,
@@ -343,7 +343,7 @@ export function useBulkTransferRouter() {
           // Get full user data for sync
           const { data: userData } = await supabase
             .from('radius_users')
-            .select('username, password_hash, service_type, status')
+            .select('username, service_type, status')
             .eq('id', user.id)
             .single();
 
@@ -352,7 +352,7 @@ export function useBulkTransferRouter() {
               body: {
                 action: 'sync-user',
                 username: userData.username,
-                password: userData.password_hash,
+                user_id: user.id,
                 service_type: userData.service_type,
                 disabled: userData.status !== 'active',
                 router_id: targetRouterId,
@@ -421,7 +421,7 @@ export function useRechargeUser() {
       // Get current user data including plan info
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('username, full_name, phone, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
+        .select('username, full_name, phone, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
         .eq('id', userId)
         .single();
 
@@ -513,7 +513,7 @@ export function useRechargeUser() {
           body: {
             action: 'sync-user',
             username: user.username,
-            password: user.password_hash,
+            user_id: userId,
             profile: profileName,
             service_type: user.service_type,
             disabled: false,

@@ -676,9 +676,25 @@ Deno.serve(async (req) => {
         result = await handleGetUserBandwidth(router!, username, supabase, body.radius_user_id, body.service_type);
         break;
 
-      case "sync-user":
-        result = await handleSyncUser(router!, username, password, profile, mac_address, disabled);
+      case "sync-user": {
+        let syncPassword = password;
+        // If no password provided, read from DB server-side using service role
+        if (!syncPassword && body.user_id) {
+          const svcSupabase = createClient(supabaseUrl, supabaseServiceKey);
+          const { data: pwdData } = await svcSupabase
+            .from("radius_users")
+            .select("password_hash")
+            .eq("id", body.user_id)
+            .single();
+          syncPassword = pwdData?.password_hash;
+        }
+        if (!syncPassword) {
+          result = { success: false, error: "Password required for sync" };
+        } else {
+          result = await handleSyncUser(router!, username, syncPassword, profile, mac_address, disabled);
+        }
         break;
+      }
 
       case "delete-user":
         result = await handleDeleteUser(router!, username);

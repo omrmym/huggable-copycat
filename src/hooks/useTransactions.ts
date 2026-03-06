@@ -216,7 +216,7 @@ export function useDeleteTransaction() {
           try {
             const { data: userData } = await supabase
               .from('radius_users')
-              .select('username, password_hash, service_type, status')
+              .select('id, username, service_type, status')
               .eq('id', userId)
               .single();
 
@@ -225,7 +225,7 @@ export function useDeleteTransaction() {
                 body: {
                   action: 'sync-user',
                   username: userData.username,
-                  password: userData.password_hash,
+                  user_id: userData.id,
                   service_type: userData.service_type,
                   disabled: userData.status !== 'active',
                 },

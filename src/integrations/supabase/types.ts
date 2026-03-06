@@ -158,6 +158,13 @@ export type Database = {
             referencedRelation: "radius_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bandwidth_history_radius_user_id_fkey"
+            columns: ["radius_user_id"]
+            isOneToOne: false
+            referencedRelation: "radius_users_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       billing_plans: {
@@ -390,6 +397,13 @@ export type Database = {
             columns: ["radius_user_id"]
             isOneToOne: false
             referencedRelation: "radius_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_change_requests_radius_user_id_fkey"
+            columns: ["radius_user_id"]
+            isOneToOne: false
+            referencedRelation: "radius_users_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -797,6 +811,13 @@ export type Database = {
             columns: ["radius_user_id"]
             isOneToOne: false
             referencedRelation: "radius_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mikrotik_sync_log_radius_user_id_fkey"
+            columns: ["radius_user_id"]
+            isOneToOne: false
+            referencedRelation: "radius_users_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1227,6 +1248,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reseller_user_recharges_radius_user_id_fkey"
+            columns: ["radius_user_id"]
+            isOneToOne: false
+            referencedRelation: "radius_users_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reseller_user_recharges_reseller_id_fkey"
             columns: ["reseller_id"]
             isOneToOne: false
@@ -1506,6 +1534,13 @@ export type Database = {
             referencedRelation: "radius_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sms_history_radius_user_id_fkey"
+            columns: ["radius_user_id"]
+            isOneToOne: false
+            referencedRelation: "radius_users_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       software_users: {
@@ -1632,6 +1667,13 @@ export type Database = {
             columns: ["radius_user_id"]
             isOneToOne: false
             referencedRelation: "radius_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_radius_user_id_fkey"
+            columns: ["radius_user_id"]
+            isOneToOne: false
+            referencedRelation: "radius_users_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1781,7 +1823,175 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      radius_users_safe: {
+        Row: {
+          address_details: string | null
+          area_id: string | null
+          auto_renew: boolean | null
+          billing_cycle: string | null
+          billing_type: string | null
+          connection_date: string | null
+          connection_fee: number | null
+          connectivity_type: string | null
+          created_at: string | null
+          created_by: string | null
+          customer_type: string | null
+          data_used_mb: number | null
+          device: string | null
+          district_id: string | null
+          email: string | null
+          expires_at: string | null
+          father_name: string | null
+          full_name: string | null
+          gender: string | null
+          grace_days_used: number | null
+          id: string | null
+          ip_address: string | null
+          last_login_at: string | null
+          mac_address: string | null
+          mac_locked: boolean | null
+          mac_serial: string | null
+          mikrotik_router_id: string | null
+          mikrotik_synced: boolean | null
+          monthly_bill: number | null
+          nid_number: string | null
+          phone: string | null
+          plan_id: string | null
+          police_station_id: string | null
+          reseller_id: string | null
+          reseller_office: string | null
+          service_type: string | null
+          status: string | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          address_details?: string | null
+          area_id?: string | null
+          auto_renew?: boolean | null
+          billing_cycle?: string | null
+          billing_type?: string | null
+          connection_date?: string | null
+          connection_fee?: number | null
+          connectivity_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          customer_type?: string | null
+          data_used_mb?: number | null
+          device?: string | null
+          district_id?: string | null
+          email?: string | null
+          expires_at?: string | null
+          father_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          grace_days_used?: number | null
+          id?: string | null
+          ip_address?: string | null
+          last_login_at?: string | null
+          mac_address?: string | null
+          mac_locked?: boolean | null
+          mac_serial?: string | null
+          mikrotik_router_id?: string | null
+          mikrotik_synced?: boolean | null
+          monthly_bill?: number | null
+          nid_number?: string | null
+          phone?: string | null
+          plan_id?: string | null
+          police_station_id?: string | null
+          reseller_id?: string | null
+          reseller_office?: string | null
+          service_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          address_details?: string | null
+          area_id?: string | null
+          auto_renew?: boolean | null
+          billing_cycle?: string | null
+          billing_type?: string | null
+          connection_date?: string | null
+          connection_fee?: number | null
+          connectivity_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          customer_type?: string | null
+          data_used_mb?: number | null
+          device?: string | null
+          district_id?: string | null
+          email?: string | null
+          expires_at?: string | null
+          father_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          grace_days_used?: number | null
+          id?: string | null
+          ip_address?: string | null
+          last_login_at?: string | null
+          mac_address?: string | null
+          mac_locked?: boolean | null
+          mac_serial?: string | null
+          mikrotik_router_id?: string | null
+          mikrotik_synced?: boolean | null
+          monthly_bill?: number | null
+          nid_number?: string | null
+          phone?: string | null
+          plan_id?: string | null
+          police_station_id?: string | null
+          reseller_id?: string | null
+          reseller_office?: string | null
+          service_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radius_users_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radius_users_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radius_users_mikrotik_router_id_fkey"
+            columns: ["mikrotik_router_id"]
+            isOneToOne: false
+            referencedRelation: "mikrotik_routers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radius_users_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "billing_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radius_users_police_station_id_fkey"
+            columns: ["police_station_id"]
+            isOneToOne: false
+            referencedRelation: "police_stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radius_users_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "resellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
