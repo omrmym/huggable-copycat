@@ -55,9 +55,10 @@ type SidebarSubItem = {
 
 interface SidebarProps {
   isCollapsed?: boolean;
+  onNavClick?: () => void;
 }
 
-export function Sidebar({ isCollapsed = false }: SidebarProps) {
+export function Sidebar({ isCollapsed = false, onNavClick }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
