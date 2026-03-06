@@ -701,11 +701,15 @@ async function handleDeleteUser(router: RouterConfig, username: string) {
     removedCookies = (cookies.data as unknown[]).length;
   }
 
-  // 3. Delete the hotspot user entry
+  // 3. Delete ALL hotspot user entries (handles duplicates)
   const existing = await mikrotikRequest(router, `/ip/hotspot/user?=name=${username}`);
   if (existing.success && Array.isArray(existing.data) && existing.data.length > 0) {
-    const userId = (existing.data[0] as Record<string, string>)[".id"];
-    await mikrotikRequest(router, `/ip/hotspot/user/${userId}`, "DELETE");
+    for (const entry of existing.data) {
+      const userId = (entry as Record<string, string>)[".id"];
+      if (userId) {
+        await mikrotikRequest(router, `/ip/hotspot/user/${userId}`, "DELETE");
+      }
+    }
   }
 
   return { success: true, data: { message: "User deleted", disconnected: disconnectedSessions, cookies_removed: removedCookies } };
