@@ -295,11 +295,11 @@ export function Header({ title, subtitle, isSidebarCollapsed, onToggleSidebar }:
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2">
+            <Button variant="ghost" className="gap-1 md:gap-2 px-1 md:px-3">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                 <User className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="text-sm">{displayName}</span>
+              <span className="text-sm hidden md:inline">{displayName}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-card border-border">

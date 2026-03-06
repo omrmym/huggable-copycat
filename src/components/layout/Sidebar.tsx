@@ -237,21 +237,21 @@ export function Sidebar({ isCollapsed = false, onNavClick }: SidebarProps) {
         )}
 
         {showPlans && (
-          <Link to="/plans" className={`nav-link ${location.pathname === '/plans' ? 'active' : ''}`}>
+          <Link to="/plans" className={`nav-link ${location.pathname === '/plans' ? 'active' : ''}`} onClick={onNavClick}>
             <CreditCard className="w-5 h-5" />
             <span>Plans</span>
           </Link>
         )}
 
         {showSMS && (
-          <Link to="/sms-history" className={`nav-link ${location.pathname === '/sms-history' ? 'active' : ''}`}>
+          <Link to="/sms-history" className={`nav-link ${location.pathname === '/sms-history' ? 'active' : ''}`} onClick={onNavClick}>
             <MessageSquare className="w-5 h-5" />
             <span>SMS History</span>
           </Link>
         )}
 
         {showActivity && (
-          <Link to="/activity" className={`nav-link ${location.pathname === '/activity' ? 'active' : ''}`}>
+          <Link to="/activity" className={`nav-link ${location.pathname === '/activity' ? 'active' : ''}`} onClick={onNavClick}>
             <Activity className="w-5 h-5" />
             <span>Activity</span>
           </Link>
@@ -259,7 +259,7 @@ export function Sidebar({ isCollapsed = false, onNavClick }: SidebarProps) {
 
 
         {showSettings && (
-          <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}>
+          <Link to="/settings" className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`} onClick={onNavClick}>
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </Link>
