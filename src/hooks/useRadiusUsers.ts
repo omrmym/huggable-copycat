@@ -421,7 +421,7 @@ export function useRechargeUser() {
       // Get current user data including plan info
       const { data: user, error: fetchError } = await supabase
         .from('radius_users')
-        .select('username, full_name, phone, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, password_hash, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
+        .select('username, full_name, phone, status, expires_at, billing_cycle, plan_id, grace_days_used, service_type, monthly_bill, billing_plans:plan_id(name, price, data_limit_mb, duration_days)')
         .eq('id', userId)
         .single();
 
