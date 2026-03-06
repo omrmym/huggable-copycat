@@ -513,7 +513,7 @@ export function useRechargeUser() {
           body: {
             action: 'sync-user',
             username: user.username,
-            password: user.password_hash,
+            user_id: userId,
             profile: profileName,
             service_type: user.service_type,
             disabled: false,
