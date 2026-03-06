@@ -79,7 +79,7 @@ export function useCreateRadiusUser() {
           ...user,
           created_by: userId || null,
         })
-        .select()
+        .select('id, username, full_name, service_type, status')
         .single();
 
       if (error) throw error;
