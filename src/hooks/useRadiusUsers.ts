@@ -24,12 +24,12 @@ export function useRadiusUsers() {
   return useQuery({
     queryKey: ['radius-users'],
     queryFn: async (): Promise<RadiusUser[]> => {
-      const { data, error } = await supabase
-        .from('radius_users')
+      const { data, error } = await (supabase
+        .from('radius_users_safe' as any)
         .select(`
           *,
           plan:billing_plans(*)
-        `)
+        `) as any)
         .is('reseller_id', null) // Only show users created by admin (not resellers)
         .order('created_at', { ascending: false });
 
