@@ -203,7 +203,7 @@ export function Sidebar({ isCollapsed = false, onNavClick }: SidebarProps) {
               {filteredFinanceItems.map(item => {
                 const isActive = location.pathname === item.path;
                 return (
-                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`}>
+                  <Link key={item.path} to={item.path} className={`nav-link text-sm ${isActive ? 'active' : ''}`} onClick={onNavClick}>
                     <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
