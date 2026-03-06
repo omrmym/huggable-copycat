@@ -654,6 +654,17 @@ async function handleSyncUser(
   const existing = await mikrotikRequest(router, `/ip/hotspot/user?=name=${username}`);
 
   if (existing.success && Array.isArray(existing.data) && existing.data.length > 0) {
+    // If duplicates exist, remove extras and keep only the first one
+    if (existing.data.length > 1) {
+      for (let i = 1; i < existing.data.length; i++) {
+        const dupId = (existing.data[i] as Record<string, string>)[".id"];
+        if (dupId) {
+          await mikrotikRequest(router, `/ip/hotspot/user/${dupId}`, "DELETE");
+        }
+      }
+      console.log(`Cleaned up ${existing.data.length - 1} duplicate entries for ${username}`);
+    }
+
     const userId = (existing.data[0] as Record<string, string>)[".id"];
     const updateBody: Record<string, unknown> = { password };
     if (profile) updateBody.profile = profile;
@@ -701,11 +712,15 @@ async function handleDeleteUser(router: RouterConfig, username: string) {
     removedCookies = (cookies.data as unknown[]).length;
   }
 
-  // 3. Delete the hotspot user entry
+  // 3. Delete ALL hotspot user entries (handles duplicates)
   const existing = await mikrotikRequest(router, `/ip/hotspot/user?=name=${username}`);
   if (existing.success && Array.isArray(existing.data) && existing.data.length > 0) {
-    const userId = (existing.data[0] as Record<string, string>)[".id"];
-    await mikrotikRequest(router, `/ip/hotspot/user/${userId}`, "DELETE");
+    for (const entry of existing.data) {
+      const userId = (entry as Record<string, string>)[".id"];
+      if (userId) {
+        await mikrotikRequest(router, `/ip/hotspot/user/${userId}`, "DELETE");
+      }
+    }
   }
 
   return { success: true, data: { message: "User deleted", disconnected: disconnectedSessions, cookies_removed: removedCookies } };
