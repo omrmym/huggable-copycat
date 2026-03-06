@@ -343,7 +343,7 @@ export function useBulkTransferRouter() {
           // Get full user data for sync
           const { data: userData } = await supabase
             .from('radius_users')
-            .select('username, password_hash, service_type, status')
+            .select('username, service_type, status')
             .eq('id', user.id)
             .single();
 
@@ -352,7 +352,7 @@ export function useBulkTransferRouter() {
               body: {
                 action: 'sync-user',
                 username: userData.username,
-                password: userData.password_hash,
+                user_id: user.id,
                 service_type: userData.service_type,
                 disabled: userData.status !== 'active',
                 router_id: targetRouterId,
