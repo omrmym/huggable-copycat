@@ -721,7 +721,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         <Label className="text-xs text-muted-foreground">Time</Label>
                         <Input
                           type="time"
-                          value={formData.expires_at ? format(new Date(formData.expires_at), "HH:mm") : "09:00"}
+                          value={formData.expires_at ? format(new Date(formData.expires_at), "HH:mm") : `${String(defaultExpHour).padStart(2,'0')}:${String(defaultExpMinute).padStart(2,'0')}`}
                           onChange={(e) => {
                             const [hours, minutes] = e.target.value.split(':').map(Number);
                             const d = formData.expires_at ? new Date(formData.expires_at) : new Date();
