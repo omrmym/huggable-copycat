@@ -65,9 +65,22 @@ export function useUserDataUsageChart(userId: string | undefined) {
       }
 
       const dataUsedMb = user.data_used_mb || 0;
-      const plan = user.billing_plans as { name: string; data_limit_mb: number | null } | null;
+      const plan = user.billing_plans as { name: string; data_limit_mb: number | null; duration_days: number | null } | null;
       const dataLimitMb = plan?.data_limit_mb || null;
       const planName = plan?.name || null;
+      const durationDays = plan?.duration_days || 30;
+
+      // Calculate billing cycle period
+      let cycleStart: string | null = null;
+      let cycleEnd: string | null = null;
+
+      if (user.expires_at) {
+        const expiresAt = new Date(user.expires_at);
+        const startDate = new Date(expiresAt);
+        startDate.setDate(startDate.getDate() - durationDays);
+        cycleStart = startDate.toISOString();
+        cycleEnd = expiresAt.toISOString();
+      }
 
       let percentageUsed = 0;
       let remainingMb: number | null = null;
@@ -83,6 +96,9 @@ export function useUserDataUsageChart(userId: string | undefined) {
         percentageUsed,
         remainingMb,
         planName,
+        cycleStart,
+        cycleEnd,
+        durationDays,
       };
     },
     enabled: !!userId,
