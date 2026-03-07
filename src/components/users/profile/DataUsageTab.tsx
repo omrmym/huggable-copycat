@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HardDrive, TrendingUp, Calendar, Activity, Loader2 } from 'lucide-react';
+import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock } from 'lucide-react';
 import { useUserDataUsageChart } from '@/hooks/useUserDataUsageChart';
+import { format } from 'date-fns';
 
 interface DataUsageTabProps {
   user: {
@@ -24,8 +25,49 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
   const dataLimit = liveData?.dataLimitMb ?? (user.plan?.data_limit_mb ?? null);
   const usagePercentage = dataLimit ? Math.min((dataUsedMb / dataLimit) * 100, 100) : 0;
 
+  const cycleStart = liveData?.cycleStart ? new Date(liveData.cycleStart) : null;
+  const cycleEnd = liveData?.cycleEnd ? new Date(liveData.cycleEnd) : null;
+  const durationDays = liveData?.durationDays ?? null;
+
+  // Calculate days remaining in cycle
+  const now = new Date();
+  const daysRemaining = cycleEnd ? Math.max(Math.ceil((cycleEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)), 0) : null;
+
   return (
     <div className="space-y-6">
+      {/* Billing Cycle Info */}
+      {cycleStart && cycleEnd && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-5 h-5 text-primary" />
+              <h4 className="font-semibold text-foreground">Current Billing Cycle</h4>
+              {durationDays && (
+                <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  {durationDays} Days Cycle
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-xs text-muted-foreground">Cycle Start</p>
+                <p className="font-medium text-sm">{format(cycleStart, 'dd MMM yyyy')}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Cycle End</p>
+                <p className="font-medium text-sm">{format(cycleEnd, 'dd MMM yyyy')}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Days Remaining</p>
+                <p className={`font-bold text-sm ${daysRemaining !== null && daysRemaining <= 3 ? 'text-destructive' : 'text-primary'}`}>
+                  {daysRemaining !== null ? `${daysRemaining} Days` : '-'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Main Data Usage Card */}
       <Card>
         <CardHeader>
@@ -59,6 +101,11 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
               </p>
               {liveData?.planName && (
                 <p className="text-xs text-muted-foreground mt-1">Plan: {liveData.planName}</p>
+              )}
+              {cycleStart && cycleEnd && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Cycle: {format(cycleStart, 'dd MMM')} - {format(cycleEnd, 'dd MMM yyyy')}
+                </p>
               )}
             </div>
 
@@ -146,12 +193,12 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
       {/* Usage Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Usage Details</CardTitle>
+          <CardTitle className="text-lg">Usage Details (Current Cycle)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex justify-between items-center py-3 border-b border-border">
-              <span className="text-muted-foreground">Total Data Used</span>
+              <span className="text-muted-foreground">Data Used (This Cycle)</span>
               <span className="font-mono font-medium">
                 {(dataUsedMb / 1024).toFixed(2)} GB ({dataUsedMb.toLocaleString()} MB)
               </span>
@@ -165,6 +212,14 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                 }
               </span>
             </div>
+            {cycleStart && cycleEnd && (
+              <div className="flex justify-between items-center py-3 border-b border-border">
+                <span className="text-muted-foreground">Billing Period</span>
+                <span className="font-medium">
+                  {format(cycleStart, 'dd MMM yyyy')} — {format(cycleEnd, 'dd MMM yyyy')}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between items-center py-3">
               <span className="text-muted-foreground">Status</span>
               <span className={`font-medium ${
