@@ -89,12 +89,22 @@ export default function CreateUserPage() {
     service_type: "hotspot" as "hotspot", // Hotspot only
   });
 
-  // Expiration date = current date at 9:00 AM (user pays first, then gets extended via recharge)
+  // Expiration date = current date at configured time
   const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
-    expireDate.setHours(9, 0, 0, 0);
+    expireDate.setHours(defaultExpHour, defaultExpMinute, 0, 0);
     return expireDate;
   };
+
+  // Update default expire date when settings load
+  useEffect(() => {
+    if (expTimeSettings) {
+      setFormData(prev => ({
+        ...prev,
+        expires_at: calculateExpirationDate(prev.connection_date),
+      }));
+    }
+  }, [expTimeSettings]);
 
   const handleConnectionDateChange = (date: Date) => {
     const newExpireDate = calculateExpirationDate(date);
