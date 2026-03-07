@@ -203,7 +203,6 @@ export default function UsersPage() {
     if (!expireDateUser || !newExpireDate) return;
     
     const expireDate = new Date(newExpireDate);
-    expireDate.setHours(9, 0, 0, 0);
     
     const now = new Date();
     const isBackdated = expireDate <= now;
