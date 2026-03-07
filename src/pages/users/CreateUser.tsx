@@ -44,10 +44,14 @@ export default function CreateUserPage() {
   const DEFAULT_DISTRICT_ID = "fa8c6591-13d1-4369-8f99-2acbb567f247"; // Mymensingh
   const DEFAULT_POLICE_STATION_ID = "69ca6f19-d373-420c-a098-e638fca8d844"; // Mymensingh Sadar
 
-  // Default expire date: today at 9:00 AM
+  const { data: expTimeSettings } = useExpirationTimeSettings();
+  const defaultExpHour = expTimeSettings?.hour ?? 9;
+  const defaultExpMinute = expTimeSettings?.minute ?? 0;
+
+  // Default expire date: today at configured time
   const getDefaultExpireDate = () => {
     const today = new Date();
-    today.setHours(9, 0, 0, 0);
+    today.setHours(defaultExpHour, defaultExpMinute, 0, 0);
     return today;
   };
 
