@@ -708,7 +708,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         onSelect={(date) => {
                           if (date) {
                             const existing = formData.expires_at ? new Date(formData.expires_at) : null;
-                            date.setHours(existing?.getHours() ?? 9, existing?.getMinutes() ?? 0, 0, 0);
+                            date.setHours(existing?.getHours() ?? defaultExpHour, existing?.getMinutes() ?? defaultExpMinute, 0, 0);
                             const newStatus = date <= new Date() ? 'expired' : 'active';
                             setFormData({ ...formData, expires_at: date.toISOString(), status: newStatus as any });
                           }
