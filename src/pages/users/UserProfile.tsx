@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PortalLinkCard } from '@/components/portal/PortalLinkCard';
-import { useRadiusUsers, useUpdateRadiusUser } from '@/hooks/useRadiusUsers';
+import { useRadiusUsers, useUpdateRadiusUser, useDisconnectUser } from '@/hooks/useRadiusUsers';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
 import { useAreas } from '@/hooks/useAreas';
 import { useDistricts } from '@/hooks/useDistricts';
@@ -58,6 +58,7 @@ import {
   Key,
   Package,
   Loader2,
+  Unplug,
   Clock,
   MessageSquare,
   Send,
@@ -268,6 +269,7 @@ export default function UserProfile() {
               Change Plan
             </Button>
           )}
+          <DisconnectUserButton username={user.username} serviceType={user.service_type} />
           {hasPermission('users.profile.edit') && (
             <Button 
               className="bg-gradient-primary text-primary-foreground"
@@ -585,5 +587,24 @@ export default function UserProfile() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+function DisconnectUserButton({ username, serviceType }: { username: string; serviceType: 'hotspot' | 'pppoe' }) {
+  const disconnectUser = useDisconnectUser();
+
+  return (
+    <Button
+      variant="outline"
+      className="border-destructive text-destructive hover:bg-destructive/10"
+      disabled={disconnectUser.isPending}
+      onClick={() => disconnectUser.mutate({ username, service_type: serviceType })}
+    >
+      {disconnectUser.isPending ? (
+        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Disconnecting...</>
+      ) : (
+        <><Unplug className="w-4 h-4 mr-2" /> Disconnect</>
+      )}
+    </Button>
   );
 }
