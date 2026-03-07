@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PortalLinkCard } from '@/components/portal/PortalLinkCard';
-import { useRadiusUsers, useUpdateRadiusUser } from '@/hooks/useRadiusUsers';
+import { useRadiusUsers, useUpdateRadiusUser, useDisconnectUser } from '@/hooks/useRadiusUsers';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
 import { useAreas } from '@/hooks/useAreas';
 import { useDistricts } from '@/hooks/useDistricts';
