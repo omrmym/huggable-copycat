@@ -29,6 +29,9 @@ export function useUserDataUsageChart(userId: string | undefined) {
           percentageUsed: 0,
           remainingMb: null,
           planName: null,
+          cycleStart: null,
+          cycleEnd: null,
+          durationDays: null,
         };
       }
 
