@@ -13,6 +13,9 @@ export interface UserDataUsage {
   percentageUsed: number;
   remainingMb: number | null;
   planName: string | null;
+  cycleStart: string | null;
+  cycleEnd: string | null;
+  durationDays: number | null;
 }
 
 export function useUserDataUsageChart(userId: string | undefined) {
