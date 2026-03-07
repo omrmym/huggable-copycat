@@ -1,0 +1,75 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useExpirationTimeSettings, useUpdateExpirationTimeSettings } from '@/hooks/useAppSettings';
+import { Clock, Save, Loader2 } from 'lucide-react';
+
+export function ExpirationTimeSettings() {
+  const { data: settings, isLoading } = useExpirationTimeSettings();
+  const updateSettings = useUpdateExpirationTimeSettings();
+  const [time, setTime] = useState('09:00');
+
+  useEffect(() => {
+    if (settings) {
+      const h = String(settings.hour).padStart(2, '0');
+      const m = String(settings.minute).padStart(2, '0');
+      setTime(`${h}:${m}`);
+    }
+  }, [settings]);
+
+  const handleSave = () => {
+    const [hours, minutes] = time.split(':').map(Number);
+    updateSettings.mutate({ hour: hours, minute: minutes });
+  };
+
+  return (
+    <Card className="bg-card border-border">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="w-5 h-5 text-primary" />
+          ডিফল্ট এক্সপায়ার টাইম
+        </CardTitle>
+        <CardDescription>
+          নতুন ইউজার তৈরি, রিচার্জ এবং গ্রেস অ্যাক্টিভেশনের সময় এক্সপায়ার টাইম হিসেবে এই সময় ব্যবহার হবে।
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="default-expire-time">এক্সপায়ার টাইম</Label>
+              <Input
+                id="default-expire-time"
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="max-w-xs"
+              />
+              <p className="text-xs text-muted-foreground">
+                বর্তমান সেটিং: {time} ({parseInt(time.split(':')[0]) >= 12 
+                  ? `${parseInt(time.split(':')[0]) === 12 ? 12 : parseInt(time.split(':')[0]) - 12}:${time.split(':')[1]} PM` 
+                  : `${parseInt(time.split(':')[0]) === 0 ? 12 : parseInt(time.split(':')[0])}:${time.split(':')[1]} AM`})
+              </p>
+            </div>
+            <Button
+              onClick={handleSave}
+              disabled={updateSettings.isPending}
+            >
+              {updateSettings.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> সেভ হচ্ছে...</>
+              ) : (
+                <><Save className="w-4 h-4 mr-2" /> সেভ করুন</>
+              )}
+            </Button>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
