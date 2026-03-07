@@ -89,6 +89,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
   const { data: routers = [] } = useMikrotikRouters();
   const { data: connectivityTypes = [] } = useConnectivityTypes();
   const { data: branches = [] } = useBranches();
+  const { data: expTimeSettings } = useExpirationTimeSettings();
+  const defaultExpHour = expTimeSettings?.hour ?? 9;
+  const defaultExpMinute = expTimeSettings?.minute ?? 0;
 
   // Branch options for dropdown with Main-User option
   const branchOptions = [
