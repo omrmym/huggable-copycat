@@ -62,9 +62,9 @@ export function ExpirationTimeSettings() {
               disabled={updateSettings.isPending}
             >
               {updateSettings.isPending ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> সেভ হচ্ছে...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
               ) : (
-                <><Save className="w-4 h-4 mr-2" /> সেভ করুন</>
+                <><Save className="w-4 h-4 mr-2" /> Save Settings</>
               )}
             </Button>
           </>
