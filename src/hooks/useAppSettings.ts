@@ -199,7 +199,6 @@ export function useUpdateExpirationTimeSettings() {
           .insert({
             key: 'default_expiration_time',
             value: settings as unknown as Json,
-            description: 'Default expiration time (hour:minute) for user accounts',
           })
           .select()
           .single();
