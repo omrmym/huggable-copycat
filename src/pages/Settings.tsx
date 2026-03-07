@@ -1034,6 +1034,9 @@ export default function SettingsPage() {
           {/* Timezone Settings */}
           <TimezoneSettings />
 
+          {/* Default Expiration Time Settings */}
+          <ExpirationTimeSettings />
+
           {/* System Information Card */}
           <Card className="bg-card border-border">
             <CardHeader>
