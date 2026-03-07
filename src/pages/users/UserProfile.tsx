@@ -269,6 +269,7 @@ export default function UserProfile() {
               Change Plan
             </Button>
           )}
+          <DisconnectUserButton username={user.username} serviceType={user.service_type} />
           {hasPermission('users.profile.edit') && (
             <Button 
               className="bg-gradient-primary text-primary-foreground"
