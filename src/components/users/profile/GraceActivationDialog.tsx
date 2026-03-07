@@ -34,6 +34,7 @@ export function GraceActivationDialog({
   const [graceDays, setGraceDays] = useState<string>('1');
   const updateUser = useUpdateRadiusUser();
   const { data: currentUserRole, isLoading: roleLoading } = useCurrentUserRole();
+  const { data: expTimeSettings } = useExpirationTimeSettings();
 
   const isSuperAdmin = currentUserRole?.isSuperAdmin || false;
   const maxGraceDays = currentUserRole?.settings?.max_grace_days || 5;
