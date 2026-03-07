@@ -40,10 +40,12 @@ export function useUserDataUsageChart(userId: string | undefined) {
         .from('radius_users')
         .select(`
           data_used_mb,
+          expires_at,
           plan_id,
           billing_plans (
             name,
-            data_limit_mb
+            data_limit_mb,
+            duration_days
           )
         `)
         .eq('id', userId)
@@ -56,6 +58,9 @@ export function useUserDataUsageChart(userId: string | undefined) {
           percentageUsed: 0,
           remainingMb: null,
           planName: null,
+          cycleStart: null,
+          cycleEnd: null,
+          durationDays: null,
         };
       }
 
