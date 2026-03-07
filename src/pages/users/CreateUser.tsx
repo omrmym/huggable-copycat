@@ -186,9 +186,9 @@ export default function CreateUserPage() {
         return;
       }
 
-      // expires_at = connection_date at 9:00 AM, status = expired (user must recharge to activate)
+      // expires_at = connection_date at configured time, status = expired (user must recharge to activate)
       const expireDate = new Date(formData.connection_date);
-      expireDate.setHours(9, 0, 0, 0);
+      expireDate.setHours(defaultExpHour, defaultExpMinute, 0, 0);
 
       await createUser.mutateAsync({
         full_name: formData.full_name || null,
