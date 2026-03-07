@@ -134,7 +134,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
   const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
     expireDate.setMonth(expireDate.getMonth() + 1);
-    expireDate.setHours(9, 0, 0, 0);
+    expireDate.setHours(defaultExpHour, defaultExpMinute, 0, 0);
     return expireDate;
   };
 
