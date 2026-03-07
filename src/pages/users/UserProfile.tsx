@@ -589,3 +589,22 @@ export default function UserProfile() {
     </DashboardLayout>
   );
 }
+
+function DisconnectUserButton({ username, serviceType }: { username: string; serviceType: 'hotspot' | 'pppoe' }) {
+  const disconnectUser = useDisconnectUser();
+
+  return (
+    <Button
+      variant="outline"
+      className="border-destructive text-destructive hover:bg-destructive/10"
+      disabled={disconnectUser.isPending}
+      onClick={() => disconnectUser.mutate({ username, service_type: serviceType })}
+    >
+      {disconnectUser.isPending ? (
+        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Disconnecting...</>
+      ) : (
+        <><Unplug className="w-4 h-4 mr-2" /> Disconnect</>
+      )}
+    </Button>
+  );
+}
