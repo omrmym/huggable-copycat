@@ -29,10 +29,10 @@ export function ExpirationTimeSettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-primary" />
-          ডিফল্ট এক্সপায়ার টাইম
+          Default Expiration Time
         </CardTitle>
         <CardDescription>
-          নতুন ইউজার তৈরি, রিচার্জ এবং গ্রেস অ্যাক্টিভেশনের সময় এক্সপায়ার টাইম হিসেবে এই সময় ব্যবহার হবে।
+          This time will be used as the default expiration time for new users, recharges, and grace activations. Applies to both existing and new users.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
