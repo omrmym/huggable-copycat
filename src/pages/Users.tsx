@@ -203,7 +203,6 @@ export default function UsersPage() {
     if (!expireDateUser || !newExpireDate) return;
     
     const expireDate = new Date(newExpireDate);
-    expireDate.setHours(9, 0, 0, 0);
     
     const now = new Date();
     const isBackdated = expireDate <= now;
@@ -635,7 +634,7 @@ export default function UsersPage() {
                 className="bg-secondary border-border"
               />
               <p className="text-xs text-muted-foreground">
-                Time will be set to 09:00 AM automatically
+                তারিখ ও সময় সেট করুন
               </p>
             </div>
           </div>

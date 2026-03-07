@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useExpirationTimeSettings } from '@/hooks/useAppSettings';
 import { useUpdateRadiusUser } from '@/hooks/useRadiusUsers';
 import { useCurrentUserRole } from '@/hooks/useCurrentUserRole';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ export function GraceActivationDialog({
   const [graceDays, setGraceDays] = useState<string>('1');
   const updateUser = useUpdateRadiusUser();
   const { data: currentUserRole, isLoading: roleLoading } = useCurrentUserRole();
+  const { data: expTimeSettings } = useExpirationTimeSettings();
 
   const isSuperAdmin = currentUserRole?.isSuperAdmin || false;
   const maxGraceDays = currentUserRole?.settings?.max_grace_days || 5;
@@ -49,8 +51,8 @@ export function GraceActivationDialog({
     
     const days = parsedDays;
     const newExpiresAt = addDays(new Date(), days);
-    // Set expiration to 09:00 AM
-    newExpiresAt.setHours(9, 0, 0, 0);
+    // Set expiration to configured default time
+    newExpiresAt.setHours(expTimeSettings?.hour ?? 9, expTimeSettings?.minute ?? 0, 0, 0);
 
     try {
       await updateUser.mutateAsync({

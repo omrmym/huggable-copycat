@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useExpirationTimeSettings } from "@/hooks/useAppSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -43,10 +44,14 @@ export default function CreateUserPage() {
   const DEFAULT_DISTRICT_ID = "fa8c6591-13d1-4369-8f99-2acbb567f247"; // Mymensingh
   const DEFAULT_POLICE_STATION_ID = "69ca6f19-d373-420c-a098-e638fca8d844"; // Mymensingh Sadar
 
-  // Default expire date: today at 9:00 AM
+  const { data: expTimeSettings } = useExpirationTimeSettings();
+  const defaultExpHour = expTimeSettings?.hour ?? 9;
+  const defaultExpMinute = expTimeSettings?.minute ?? 0;
+
+  // Default expire date: today at configured time
   const getDefaultExpireDate = () => {
     const today = new Date();
-    today.setHours(9, 0, 0, 0);
+    today.setHours(defaultExpHour, defaultExpMinute, 0, 0);
     return today;
   };
 
@@ -84,12 +89,22 @@ export default function CreateUserPage() {
     service_type: "hotspot" as "hotspot", // Hotspot only
   });
 
-  // Expiration date = current date at 9:00 AM (user pays first, then gets extended via recharge)
+  // Expiration date = current date at configured time
   const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
-    expireDate.setHours(9, 0, 0, 0);
+    expireDate.setHours(defaultExpHour, defaultExpMinute, 0, 0);
     return expireDate;
   };
+
+  // Update default expire date when settings load
+  useEffect(() => {
+    if (expTimeSettings) {
+      setFormData(prev => ({
+        ...prev,
+        expires_at: calculateExpirationDate(prev.connection_date),
+      }));
+    }
+  }, [expTimeSettings]);
 
   const handleConnectionDateChange = (date: Date) => {
     const newExpireDate = calculateExpirationDate(date);
@@ -171,9 +186,9 @@ export default function CreateUserPage() {
         return;
       }
 
-      // expires_at = connection_date at 9:00 AM, status = expired (user must recharge to activate)
+      // expires_at = connection_date at configured time, status = expired (user must recharge to activate)
       const expireDate = new Date(formData.connection_date);
-      expireDate.setHours(9, 0, 0, 0);
+      expireDate.setHours(defaultExpHour, defaultExpMinute, 0, 0);
 
       await createUser.mutateAsync({
         full_name: formData.full_name || null,

@@ -148,3 +148,71 @@ export function useTimezoneOffset() {
   const { data } = useTimezoneSettings();
   return data?.timezone_offset_hours ?? 6; // Default to UTC+6
 }
+
+// Expiration Time Settings
+export interface ExpirationTimeConfig {
+  hour: number;
+  minute: number;
+}
+
+export function useExpirationTimeSettings() {
+  return useQuery({
+    queryKey: ['app-settings', 'default_expiration_time'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('*')
+        .eq('key', 'default_expiration_time')
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) return { hour: 9, minute: 0 } as ExpirationTimeConfig;
+      return data.value as unknown as ExpirationTimeConfig;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useUpdateExpirationTimeSettings() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (settings: ExpirationTimeConfig) => {
+      const { data: existing } = await supabase
+        .from('app_settings')
+        .select('id')
+        .eq('key', 'default_expiration_time')
+        .maybeSingle();
+
+      if (existing) {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .update({ value: settings as unknown as Json })
+          .eq('key', 'default_expiration_time')
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      } else {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .insert({
+            key: 'default_expiration_time',
+            value: settings as unknown as Json,
+            description: 'Default expiration time (hour:minute) for user accounts',
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings', 'default_expiration_time'] });
+      toast.success('ডিফল্ট এক্সপায়ার টাইম সেভ হয়েছে!');
+    },
+    onError: (error: Error) => {
+      toast.error(`সেটিং সেভ করতে ব্যর্থ: ${error.message}`);
+    },
+  });
+}

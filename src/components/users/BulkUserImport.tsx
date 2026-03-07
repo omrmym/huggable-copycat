@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useExpirationTimeSettings } from "@/hooks/useAppSettings";
 import { readExcelFile, writeExcelFile } from "@/lib/excelUtils";
 import { useCreateRadiusUser } from "@/hooks/useRadiusUsers";
 import { useBillingPlans } from "@/hooks/useBillingPlans";
@@ -49,11 +50,13 @@ export function BulkUserImport() {
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
 
-  // Default expire date: today + 1 month at 9:00 AM
+  const { data: expTimeSettings } = useExpirationTimeSettings();
+
+  // Default expire date: today + 1 month at configured time
   const getDefaultExpireDate = () => {
     const date = new Date();
     date.setMonth(date.getMonth() + 1);
-    date.setHours(9, 0, 0, 0);
+    date.setHours(expTimeSettings?.hour ?? 9, expTimeSettings?.minute ?? 0, 0, 0);
     return date;
   };
 

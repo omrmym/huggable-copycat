@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useHasPermission } from '@/hooks/useHasPermission';
 import { useUpdateRadiusUser } from '@/hooks/useRadiusUsers';
 import { useBillingPlans } from '@/hooks/useBillingPlans';
+import { useExpirationTimeSettings } from '@/hooks/useAppSettings';
 import { useAreas } from '@/hooks/useAreas';
 import { useDistricts } from '@/hooks/useDistricts';
 import { usePoliceStations } from '@/hooks/usePoliceStations';
@@ -88,6 +89,9 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
   const { data: routers = [] } = useMikrotikRouters();
   const { data: connectivityTypes = [] } = useConnectivityTypes();
   const { data: branches = [] } = useBranches();
+  const { data: expTimeSettings } = useExpirationTimeSettings();
+  const defaultExpHour = expTimeSettings?.hour ?? 9;
+  const defaultExpMinute = expTimeSettings?.minute ?? 0;
 
   // Branch options for dropdown with Main-User option
   const branchOptions = [
@@ -130,7 +134,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
   const calculateExpirationDate = (connectionDate: Date): Date => {
     const expireDate = new Date(connectionDate);
     expireDate.setMonth(expireDate.getMonth() + 1);
-    expireDate.setHours(9, 0, 0, 0);
+    expireDate.setHours(defaultExpHour, defaultExpMinute, 0, 0);
     return expireDate;
   };
 
@@ -704,7 +708,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         onSelect={(date) => {
                           if (date) {
                             const existing = formData.expires_at ? new Date(formData.expires_at) : null;
-                            date.setHours(existing?.getHours() ?? 9, existing?.getMinutes() ?? 0, 0, 0);
+                            date.setHours(existing?.getHours() ?? defaultExpHour, existing?.getMinutes() ?? defaultExpMinute, 0, 0);
                             const newStatus = date <= new Date() ? 'expired' : 'active';
                             setFormData({ ...formData, expires_at: date.toISOString(), status: newStatus as any });
                           }
@@ -717,7 +721,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                         <Label className="text-xs text-muted-foreground">Time</Label>
                         <Input
                           type="time"
-                          value={formData.expires_at ? format(new Date(formData.expires_at), "HH:mm") : "09:00"}
+                          value={formData.expires_at ? format(new Date(formData.expires_at), "HH:mm") : `${String(defaultExpHour).padStart(2,'0')}:${String(defaultExpMinute).padStart(2,'0')}`}
                           onChange={(e) => {
                             const [hours, minutes] = e.target.value.split(':').map(Number);
                             const d = formData.expires_at ? new Date(formData.expires_at) : new Date();
