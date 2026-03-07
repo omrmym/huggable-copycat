@@ -59,6 +59,7 @@ import { ThemeSettings } from '@/components/settings/ThemeSettings';
 import { SmsGatewaySettings } from '@/components/settings/SmsGatewaySettings';
 import { ShareholderManagement } from '@/components/settings/ShareholderManagement';
 import { CustomerPortalSettings } from '@/components/settings/CustomerPortalSettings';
+import { ExpirationTimeSettings } from '@/components/settings/ExpirationTimeSettings';
 import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface ConnectionStatus {
