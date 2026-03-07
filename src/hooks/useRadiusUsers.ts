@@ -499,7 +499,8 @@ export function useRechargeUser() {
       if (graceDaysUsed > 0) {
         newExpiresAt.setDate(newExpiresAt.getDate() - graceDaysUsed);
       }
-      newExpiresAt.setHours(9, 0, 0, 0);
+      const expTime = await getDefaultExpirationTime();
+      newExpiresAt.setHours(expTime.hour, expTime.minute, 0, 0);
 
       // Update user: activate, extend expiry, reset grace days, reset data usage
       const updateData: Record<string, unknown> = {

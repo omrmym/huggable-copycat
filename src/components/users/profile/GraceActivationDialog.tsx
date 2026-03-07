@@ -51,8 +51,8 @@ export function GraceActivationDialog({
     
     const days = parsedDays;
     const newExpiresAt = addDays(new Date(), days);
-    // Set expiration to 09:00 AM
-    newExpiresAt.setHours(9, 0, 0, 0);
+    // Set expiration to configured default time
+    newExpiresAt.setHours(expTimeSettings?.hour ?? 9, expTimeSettings?.minute ?? 0, 0, 0);
 
     try {
       await updateUser.mutateAsync({

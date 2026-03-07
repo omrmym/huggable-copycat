@@ -634,7 +634,7 @@ export default function UsersPage() {
                 className="bg-secondary border-border"
               />
               <p className="text-xs text-muted-foreground">
-                Time will be set to 09:00 AM automatically
+                তারিখ ও সময় সেট করুন
               </p>
             </div>
           </div>
