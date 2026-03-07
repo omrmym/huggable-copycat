@@ -5,6 +5,20 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase
 import { logSystemActivity } from '@/hooks/useSystemActivity';
 import { sendSms } from '@/hooks/useSendSms';
 
+// Helper to fetch default expiration time from app_settings
+async function getDefaultExpirationTime(): Promise<{ hour: number; minute: number }> {
+  const { data } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'default_expiration_time')
+    .maybeSingle();
+  if (data?.value && typeof data.value === 'object' && 'hour' in (data.value as any)) {
+    const v = data.value as any;
+    return { hour: v.hour ?? 9, minute: v.minute ?? 0 };
+  }
+  return { hour: 9, minute: 0 };
+}
+
 export type { Tables };
 
 export type UserStatus = 'active' | 'disabled' | 'expired' | 'suspended';
