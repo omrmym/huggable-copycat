@@ -199,7 +199,6 @@ export function useUpdateExpirationTimeSettings() {
           .insert({
             key: 'default_expiration_time',
             value: settings as unknown as Json,
-            description: 'Default expiration time (hour:minute) for user accounts',
           })
           .select()
           .single();
@@ -209,10 +208,10 @@ export function useUpdateExpirationTimeSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['app-settings', 'default_expiration_time'] });
-      toast.success('ডিফল্ট এক্সপায়ার টাইম সেভ হয়েছে!');
+      toast.success('Default expiration time saved successfully!');
     },
     onError: (error: Error) => {
-      toast.error(`সেটিং সেভ করতে ব্যর্থ: ${error.message}`);
+      toast.error(`Failed to save settings: ${error.message}`);
     },
   });
 }

@@ -29,10 +29,10 @@ export function ExpirationTimeSettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="w-5 h-5 text-primary" />
-          ডিফল্ট এক্সপায়ার টাইম
+          Default Expiration Time
         </CardTitle>
         <CardDescription>
-          নতুন ইউজার তৈরি, রিচার্জ এবং গ্রেস অ্যাক্টিভেশনের সময় এক্সপায়ার টাইম হিসেবে এই সময় ব্যবহার হবে।
+          This time will be used as the default expiration time for new users, recharges, and grace activations. Applies to both existing and new users.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -43,7 +43,7 @@ export function ExpirationTimeSettings() {
         ) : (
           <>
             <div className="space-y-2">
-              <Label htmlFor="default-expire-time">এক্সপায়ার টাইম</Label>
+              <Label htmlFor="default-expire-time">Expiration Time</Label>
               <Input
                 id="default-expire-time"
                 type="time"
@@ -52,7 +52,7 @@ export function ExpirationTimeSettings() {
                 className="max-w-xs"
               />
               <p className="text-xs text-muted-foreground">
-                বর্তমান সেটিং: {time} ({parseInt(time.split(':')[0]) >= 12 
+                Current setting: {time} ({parseInt(time.split(':')[0]) >= 12 
                   ? `${parseInt(time.split(':')[0]) === 12 ? 12 : parseInt(time.split(':')[0]) - 12}:${time.split(':')[1]} PM` 
                   : `${parseInt(time.split(':')[0]) === 0 ? 12 : parseInt(time.split(':')[0])}:${time.split(':')[1]} AM`})
               </p>
@@ -62,9 +62,9 @@ export function ExpirationTimeSettings() {
               disabled={updateSettings.isPending}
             >
               {updateSettings.isPending ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> সেভ হচ্ছে...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
               ) : (
-                <><Save className="w-4 h-4 mr-2" /> সেভ করুন</>
+                <><Save className="w-4 h-4 mr-2" /> Save Settings</>
               )}
             </Button>
           </>
