@@ -13,6 +13,9 @@ export interface UserDataUsage {
   percentageUsed: number;
   remainingMb: number | null;
   planName: string | null;
+  cycleStart: string | null;
+  cycleEnd: string | null;
+  durationDays: number | null;
 }
 
 export function useUserDataUsageChart(userId: string | undefined) {
@@ -26,6 +29,9 @@ export function useUserDataUsageChart(userId: string | undefined) {
           percentageUsed: 0,
           remainingMb: null,
           planName: null,
+          cycleStart: null,
+          cycleEnd: null,
+          durationDays: null,
         };
       }
 
@@ -34,10 +40,12 @@ export function useUserDataUsageChart(userId: string | undefined) {
         .from('radius_users')
         .select(`
           data_used_mb,
+          expires_at,
           plan_id,
           billing_plans (
             name,
-            data_limit_mb
+            data_limit_mb,
+            duration_days
           )
         `)
         .eq('id', userId)
@@ -50,13 +58,29 @@ export function useUserDataUsageChart(userId: string | undefined) {
           percentageUsed: 0,
           remainingMb: null,
           planName: null,
+          cycleStart: null,
+          cycleEnd: null,
+          durationDays: null,
         };
       }
 
       const dataUsedMb = user.data_used_mb || 0;
-      const plan = user.billing_plans as { name: string; data_limit_mb: number | null } | null;
+      const plan = user.billing_plans as { name: string; data_limit_mb: number | null; duration_days: number | null } | null;
       const dataLimitMb = plan?.data_limit_mb || null;
       const planName = plan?.name || null;
+      const durationDays = plan?.duration_days || 30;
+
+      // Calculate billing cycle period
+      let cycleStart: string | null = null;
+      let cycleEnd: string | null = null;
+
+      if (user.expires_at) {
+        const expiresAt = new Date(user.expires_at);
+        const startDate = new Date(expiresAt);
+        startDate.setDate(startDate.getDate() - durationDays);
+        cycleStart = startDate.toISOString();
+        cycleEnd = expiresAt.toISOString();
+      }
 
       let percentageUsed = 0;
       let remainingMb: number | null = null;
@@ -72,6 +96,9 @@ export function useUserDataUsageChart(userId: string | undefined) {
         percentageUsed,
         remainingMb,
         planName,
+        cycleStart,
+        cycleEnd,
+        durationDays,
       };
     },
     enabled: !!userId,
