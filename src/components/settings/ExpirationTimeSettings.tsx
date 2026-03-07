@@ -43,7 +43,7 @@ export function ExpirationTimeSettings() {
         ) : (
           <>
             <div className="space-y-2">
-              <Label htmlFor="default-expire-time">এক্সপায়ার টাইম</Label>
+              <Label htmlFor="default-expire-time">Expiration Time</Label>
               <Input
                 id="default-expire-time"
                 type="time"
@@ -52,7 +52,7 @@ export function ExpirationTimeSettings() {
                 className="max-w-xs"
               />
               <p className="text-xs text-muted-foreground">
-                বর্তমান সেটিং: {time} ({parseInt(time.split(':')[0]) >= 12 
+                Current setting: {time} ({parseInt(time.split(':')[0]) >= 12 
                   ? `${parseInt(time.split(':')[0]) === 12 ? 12 : parseInt(time.split(':')[0]) - 12}:${time.split(':')[1]} PM` 
                   : `${parseInt(time.split(':')[0]) === 0 ? 12 : parseInt(time.split(':')[0])}:${time.split(':')[1]} AM`})
               </p>
