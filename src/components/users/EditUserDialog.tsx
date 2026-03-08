@@ -683,6 +683,17 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     className={!hasPermission('users.edit.connection_fee') ? 'opacity-60' : ''}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="data_limit_mb">Data Limit (MB)</Label>
+                  <Input
+                    id="data_limit_mb"
+                    type="number"
+                    value={formData.data_limit_mb}
+                    onChange={(e) => setFormData({ ...formData, data_limit_mb: e.target.value })}
+                    placeholder="Unlimited (from plan)"
+                  />
+                  <p className="text-xs text-muted-foreground">Leave empty to use plan's data limit. Set 0 for unlimited.</p>
+                </div>
                 <div className="col-span-2 space-y-2">
                   <Label className="flex items-center gap-1">
                     Expiration Date
