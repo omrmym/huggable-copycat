@@ -23,7 +23,8 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
 
   // Use live data if available, otherwise fall back to static user data
   const dataUsedMb = liveData?.dataUsedMb ?? user.data_used_mb;
-  const dataLimit = liveData?.dataLimitMb ?? (user.plan?.data_limit_mb ?? null);
+  const fallbackLimit = user.data_limit_mb ?? user.plan?.data_limit_mb ?? null;
+  const dataLimit = liveData?.dataLimitMb ?? fallbackLimit;
   const usagePercentage = dataLimit ? Math.min((dataUsedMb / dataLimit) * 100, 100) : 0;
 
   const cycleStart = liveData?.cycleStart ? new Date(liveData.cycleStart) : null;
