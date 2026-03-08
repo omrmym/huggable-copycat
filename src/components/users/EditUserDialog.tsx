@@ -236,6 +236,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         expires_at: formData.expires_at || null,
         status: formData.status,
         auto_renew: formData.auto_renew,
+        data_limit_mb: formData.data_limit_mb ? parseFloat(formData.data_limit_mb) : null,
       };
 
       await updateUser.mutateAsync(updateData);
