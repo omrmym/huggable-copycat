@@ -1,0 +1,1 @@
+ALTER TABLE public.radius_users ADD COLUMN data_limit_mb numeric DEFAULT NULL;
