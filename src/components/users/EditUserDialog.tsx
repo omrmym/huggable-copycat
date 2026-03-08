@@ -70,6 +70,7 @@ interface RadiusUser {
   connection_date: string | null;
   status: 'active' | 'disabled' | 'expired' | 'suspended';
   auto_renew?: boolean;
+  data_limit_mb?: number | null;
 }
 
 interface EditUserDialogProps {
@@ -128,6 +129,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     expires_at: '',
     status: 'active' as 'active' | 'disabled' | 'expired' | 'suspended',
     auto_renew: false,
+    data_limit_mb: '',
   });
 
   // Calculate expiration date
@@ -169,6 +171,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         expires_at: user.expires_at || '',
         status: user.status,
         auto_renew: user.auto_renew || false,
+        data_limit_mb: user.data_limit_mb?.toString() || '',
       });
     }
   }, [user, open]);
@@ -233,6 +236,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         expires_at: formData.expires_at || null,
         status: formData.status,
         auto_renew: formData.auto_renew,
+        data_limit_mb: formData.data_limit_mb ? parseFloat(formData.data_limit_mb) : null,
       };
 
       await updateUser.mutateAsync(updateData);
@@ -678,6 +682,17 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
                     disabled={!hasPermission('users.edit.connection_fee')}
                     className={!hasPermission('users.edit.connection_fee') ? 'opacity-60' : ''}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="data_limit_mb">Data Limit (MB)</Label>
+                  <Input
+                    id="data_limit_mb"
+                    type="number"
+                    value={formData.data_limit_mb}
+                    onChange={(e) => setFormData({ ...formData, data_limit_mb: e.target.value })}
+                    placeholder="Unlimited (from plan)"
+                  />
+                  <p className="text-xs text-muted-foreground">Leave empty to use plan's data limit. Set 0 for unlimited.</p>
                 </div>
                 <div className="col-span-2 space-y-2">
                   <Label className="flex items-center gap-1">

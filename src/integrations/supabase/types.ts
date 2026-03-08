@@ -950,6 +950,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           customer_type: string | null
+          data_limit_mb: number | null
           data_used_mb: number | null
           device: string | null
           district_id: string | null
@@ -992,6 +993,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_type?: string | null
+          data_limit_mb?: number | null
           data_used_mb?: number | null
           device?: string | null
           district_id?: string | null
@@ -1034,6 +1036,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_type?: string | null
+          data_limit_mb?: number | null
           data_used_mb?: number | null
           device?: string | null
           district_id?: string | null
