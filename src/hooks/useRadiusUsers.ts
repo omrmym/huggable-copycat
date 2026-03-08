@@ -136,10 +136,10 @@ export function useUpdateRadiusUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: RadiusUserUpdate & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: RadiusUserUpdate & { id: string; data_limit_mb?: number | null }) => {
       const { data, error } = await supabase
         .from('radius_users')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select(`
           id, username, full_name, status, service_type,
