@@ -70,6 +70,7 @@ interface RadiusUser {
   connection_date: string | null;
   status: 'active' | 'disabled' | 'expired' | 'suspended';
   auto_renew?: boolean;
+  data_limit_mb?: number | null;
 }
 
 interface EditUserDialogProps {
