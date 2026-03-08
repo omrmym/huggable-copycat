@@ -40,6 +40,7 @@ export function useUserDataUsageChart(userId: string | undefined) {
         .from('radius_users')
         .select(`
           data_used_mb,
+          data_limit_mb,
           expires_at,
           plan_id,
           billing_plans (
@@ -66,7 +67,7 @@ export function useUserDataUsageChart(userId: string | undefined) {
 
       const dataUsedMb = user.data_used_mb || 0;
       const plan = user.billing_plans as { name: string; data_limit_mb: number | null; duration_days: number | null } | null;
-      const dataLimitMb = plan?.data_limit_mb || null;
+      const dataLimitMb = user.data_limit_mb ?? plan?.data_limit_mb ?? null;
       const planName = plan?.name || null;
       const durationDays = plan?.duration_days || 30;
 
