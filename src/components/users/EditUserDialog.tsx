@@ -129,6 +129,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     expires_at: '',
     status: 'active' as 'active' | 'disabled' | 'expired' | 'suspended',
     auto_renew: false,
+    data_limit_mb: '',
   });
 
   // Calculate expiration date
