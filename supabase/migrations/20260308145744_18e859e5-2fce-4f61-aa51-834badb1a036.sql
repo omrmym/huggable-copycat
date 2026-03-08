@@ -1,0 +1,1 @@
+ALTER VIEW public.radius_users_safe SET (security_invoker = true);
