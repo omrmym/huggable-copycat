@@ -171,6 +171,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         expires_at: user.expires_at || '',
         status: user.status,
         auto_renew: user.auto_renew || false,
+        data_limit_mb: user.data_limit_mb?.toString() || '',
       });
     }
   }, [user, open]);
