@@ -7,6 +7,7 @@ interface DataUsageTabProps {
   user: {
     id: string;
     data_used_mb: number;
+    data_limit_mb?: number | null;
     plan?: {
       data_limit_mb: number | null;
     } | null;
