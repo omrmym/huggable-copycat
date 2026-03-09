@@ -121,7 +121,7 @@ export default function Dashboard() {
       {canViewBillingStats && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">Billing Statistics</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {statsLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="bg-card border border-border rounded-xl p-4">
