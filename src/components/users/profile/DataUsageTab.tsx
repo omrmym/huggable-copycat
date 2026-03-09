@@ -1,7 +1,23 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock, RefreshCw } from 'lucide-react';
+import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock, RefreshCw, RotateCcw } from 'lucide-react';
 import { useUserDataUsageChart } from '@/hooks/useUserDataUsageChart';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface DataUsageTabProps {
   user: {
