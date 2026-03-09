@@ -83,7 +83,7 @@ serve(async (req) => {
     let responseData: Record<string, unknown>;
     try {
       responseData = JSON.parse(responseText);
-    } catch {
+    } catch (_e) {
       responseData = { raw_response: responseText };
     }
 
