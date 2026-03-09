@@ -35,6 +35,8 @@ interface DataUsageTabProps {
 }
 
 export function DataUsageTab({ user }: DataUsageTabProps) {
+  const [isResetting, setIsResetting] = useState(false);
+  const queryClient = useQueryClient();
   const { data: liveData, isLoading: liveLoading, refetch } = useUserDataUsageChart(user.id);
 
   // Use live data if available, otherwise fall back to static user data
