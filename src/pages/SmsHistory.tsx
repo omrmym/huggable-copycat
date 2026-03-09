@@ -133,6 +133,10 @@ export default function SmsHistory() {
               Templates
             </TabsTrigger>
           )}
+          <TabsTrigger value="balance-code" className="flex items-center gap-1.5">
+            <Code className="w-4 h-4" />
+            Balance Check
+          </TabsTrigger>
         </TabsList>
 
         {canViewHistory && (
