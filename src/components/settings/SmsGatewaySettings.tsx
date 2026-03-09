@@ -480,9 +480,9 @@ export function SmsGatewaySettings() {
               variant="outline"
               size="sm"
               onClick={() => refetchBalance()}
-              disabled={balanceLoading}
+              disabled={balanceFetching}
             >
-              <RefreshCw className={`w-4 h-4 mr-1.5 ${balanceLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${balanceFetching ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
