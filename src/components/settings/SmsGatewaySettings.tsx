@@ -18,6 +18,7 @@ interface SmsGatewayConfig {
   api_url: string;
   api_key: string;
   sender_id: string;
+  balance_api_url: string;
   bill_reminder: boolean;
   bill_reminder_days: number;
   bill_reminder_template: string;
@@ -44,6 +45,7 @@ const defaultConfig: SmsGatewayConfig = {
   api_url: '',
   api_key: '',
   sender_id: '',
+  balance_api_url: 'http://bulksmsbd.net/api/getBalanceApi',
   bill_reminder: true,
   bill_reminder_days: 3,
   bill_reminder_template: defaultTemplates[0].message,
@@ -230,6 +232,16 @@ export function SmsGatewaySettings() {
                   value={config.sender_id}
                   onChange={(e) => setConfig({ ...config, sender_id: e.target.value })}
                 />
+              </div>
+              <div className="space-y-1">
+                <Label>Balance API URL</Label>
+                <Input
+                  placeholder="http://bulksmsbd.net/api/getBalanceApi"
+                  className="bg-secondary border-border"
+                  value={config.balance_api_url || ''}
+                  onChange={(e) => setConfig({ ...config, balance_api_url: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">API key will be appended automatically as ?api_key=...</p>
               </div>
             </div>
           </div>

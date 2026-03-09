@@ -49,7 +49,7 @@ serve(async (req) => {
 
     const config = settings.value as Record<string, unknown>;
     const api_key = config.api_key as string;
-    const api_url = config.api_url as string;
+    const balance_api_url = (config.balance_api_url as string) || 'http://bulksmsbd.net/api/getBalanceApi';
 
     if (!api_key) {
       return new Response(JSON.stringify({ success: false, error: 'SMS API key not configured', balance: null }), {
@@ -58,18 +58,9 @@ serve(async (req) => {
       });
     }
 
-    // Build balance API URL using GET with api_key as query param
-    let baseHost = 'bulksmsbd.net';
-    if (api_url) {
-      try {
-        const parsed = new URL(api_url);
-        baseHost = parsed.host;
-      } catch {
-        // Use default
-      }
-    }
-
-    const balanceUrl = `http://${baseHost}/api/getBalanceApi?api_key=${encodeURIComponent(api_key)}`;
+    // Build balance URL using configured balance_api_url
+    const separator = balance_api_url.includes('?') ? '&' : '?';
+    const balanceUrl = `${balance_api_url}${separator}api_key=${encodeURIComponent(api_key)}`;
 
     console.log(`Checking SMS balance via ${balanceUrl}`);
 
