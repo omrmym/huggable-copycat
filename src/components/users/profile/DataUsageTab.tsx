@@ -19,7 +19,7 @@ interface DataUsageTabProps {
 }
 
 export function DataUsageTab({ user }: DataUsageTabProps) {
-  const { data: liveData, isLoading: liveLoading } = useUserDataUsageChart(user.id);
+  const { data: liveData, isLoading: liveLoading, refetch } = useUserDataUsageChart(user.id);
 
   // Use live data if available, otherwise fall back to static user data
   const dataUsedMb = liveData?.dataUsedMb ?? user.data_used_mb;
