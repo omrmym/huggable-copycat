@@ -138,6 +138,13 @@ export default function Dashboard() {
                 {hasPermission('dashboard.connection_fee') && <StatCard title="Connection Fee" value={formatBDT(stats?.totalConnectionFee || 0)} icon={Cable} variant="primary" href="/users" />}
                 {hasPermission('dashboard.extra_income') && <StatCard title="Extra Income" value={formatBDT(stats?.totalExtraIncome || 0)} icon={PlusCircle} variant="success" href="/finance/income" />}
                 {hasPermission('dashboard.auto_renew_bill') && <StatCard title="Auto Renew Bill" value={formatBDT(stats?.autoRenewBill || 0)} icon={RefreshCw} variant="success" href="/recharge/statistics?billing=auto_renew" />}
+                <StatCard 
+                  title="SMS Balance" 
+                  value={smsBalanceLoading ? '...' : (smsBalanceData?.balance != null ? `৳${smsBalanceData.balance}` : 'N/A')} 
+                  icon={MessageSquare} 
+                  variant="primary" 
+                  href="/sms-history" 
+                />
               </>
             )}
           </div>

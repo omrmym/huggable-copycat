@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.bkash-payment]
 verify_jwt = false
+
+[functions.sms-balance]
+verify_jwt = false
