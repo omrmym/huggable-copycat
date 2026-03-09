@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock } from 'lucide-react';
+import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock, RefreshCw } from 'lucide-react';
 import { useUserDataUsageChart } from '@/hooks/useUserDataUsageChart';
 import { format } from 'date-fns';
 
@@ -19,7 +19,7 @@ interface DataUsageTabProps {
 }
 
 export function DataUsageTab({ user }: DataUsageTabProps) {
-  const { data: liveData, isLoading: liveLoading } = useUserDataUsageChart(user.id);
+  const { data: liveData, isLoading: liveLoading, refetch } = useUserDataUsageChart(user.id);
 
   // Use live data if available, otherwise fall back to static user data
   const dataUsedMb = liveData?.dataUsedMb ?? user.data_used_mb;
@@ -76,7 +76,7 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="w-5 h-5" />
             Data Usage Overview
-            <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground ml-auto">
+            <span className="flex items-center gap-2 text-xs font-normal text-muted-foreground ml-auto">
               {liveLoading ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : (
@@ -86,6 +86,13 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                 </span>
               )}
               Live
+              <button
+                onClick={() => refetch()}
+                className="p-1 rounded-md hover:bg-muted transition-colors"
+                title="Refresh data"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${liveLoading ? 'animate-spin' : ''}`} />
+              </button>
             </span>
           </CardTitle>
         </CardHeader>
@@ -101,13 +108,11 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                   : 'Unlimited data plan'
                 }
               </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Current billing cycle usage • Resets on recharge
+              </p>
               {liveData?.planName && (
                 <p className="text-xs text-muted-foreground mt-1">Plan: {liveData.planName}</p>
-              )}
-              {cycleStart && cycleEnd && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Cycle: {format(cycleStart, 'dd MMM')} - {format(cycleEnd, 'dd MMM yyyy')}
-                </p>
               )}
             </div>
 
