@@ -76,7 +76,7 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="w-5 h-5" />
             Data Usage Overview
-            <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground ml-auto">
+            <span className="flex items-center gap-2 text-xs font-normal text-muted-foreground ml-auto">
               {liveLoading ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : (
@@ -86,6 +86,13 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                 </span>
               )}
               Live
+              <button
+                onClick={() => refetch()}
+                className="p-1 rounded-md hover:bg-muted transition-colors"
+                title="Refresh data"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${liveLoading ? 'animate-spin' : ''}`} />
+              </button>
             </span>
           </CardTitle>
         </CardHeader>
