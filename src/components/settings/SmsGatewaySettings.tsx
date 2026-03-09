@@ -83,11 +83,7 @@ export function SmsGatewaySettings() {
 
   useEffect(() => {
     if (savedConfig) {
-      setConfig({
-        ...defaultConfig,
-        ...savedConfig,
-        balance_api_url: savedConfig.balance_api_url || defaultConfig.balance_api_url,
-      });
+      setConfig({ ...defaultConfig, ...savedConfig });
     }
   }, [savedConfig]);
 
