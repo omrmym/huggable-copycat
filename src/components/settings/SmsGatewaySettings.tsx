@@ -62,7 +62,7 @@ export function SmsGatewaySettings() {
   const [config, setConfig] = useState<SmsGatewayConfig>(defaultConfig);
   const [testPhone, setTestPhone] = useState('');
   
-  const { data: smsBalanceData, isLoading: balanceLoading, refetch: refetchBalance } = useSmsBalance();
+  const { data: smsBalanceData, isLoading: balanceLoading, isFetching: balanceFetching, refetch: refetchBalance } = useSmsBalance();
 
   const { data: savedConfig, isLoading } = useQuery({
     queryKey: ['app-settings', 'sms_gateway'],
@@ -480,9 +480,9 @@ export function SmsGatewaySettings() {
               variant="outline"
               size="sm"
               onClick={() => refetchBalance()}
-              disabled={balanceLoading}
+              disabled={balanceFetching}
             >
-              <RefreshCw className={`w-4 h-4 mr-1.5 ${balanceLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${balanceFetching ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
@@ -492,7 +492,7 @@ export function SmsGatewaySettings() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">
-                {balanceLoading ? (
+                {balanceFetching ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : smsBalanceData?.balance != null ? (
                   `৳${smsBalanceData.balance}`
