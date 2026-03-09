@@ -250,7 +250,7 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
             body: {
               action: 'sync-user',
               username: user.username,
-              password: '', // not changing password
+              user_id: user.id,
               service_type: formData.service_type,
               disabled: formData.status !== 'active',
             },
