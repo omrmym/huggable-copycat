@@ -45,6 +45,7 @@ const defaultConfig: SmsGatewayConfig = {
   api_url: '',
   api_key: '',
   sender_id: '',
+  balance_api_url: 'http://bulksmsbd.net/api/getBalanceApi',
   bill_reminder: true,
   bill_reminder_days: 3,
   bill_reminder_template: defaultTemplates[0].message,
