@@ -18,6 +18,7 @@ interface SmsGatewayConfig {
   api_url: string;
   api_key: string;
   sender_id: string;
+  balance_api_url: string;
   bill_reminder: boolean;
   bill_reminder_days: number;
   bill_reminder_template: string;
