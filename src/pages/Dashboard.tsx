@@ -8,10 +8,11 @@ import { MonthlyPaidUsersChart } from '@/components/dashboard/MonthlyPaidUsersCh
 import { DailyNewUsersChart } from '@/components/dashboard/DailyNewUsersChart';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useRadiusUsers } from '@/hooks/useRadiusUsers';
-import { Users, Wifi, UserX, UserCheck, CreditCard, Receipt, BadgeDollarSign, Clock, Cable, PlusCircle, UserMinus, RefreshCw, ClipboardList } from 'lucide-react';
+import { Users, Wifi, UserX, UserCheck, CreditCard, Receipt, BadgeDollarSign, Clock, Cable, PlusCircle, UserMinus, RefreshCw, ClipboardList, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatBDT } from '@/lib/utils';
 import { useHasPermission } from '@/hooks/useHasPermission';
+import { useSmsBalance } from '@/hooks/useSmsBalance';
 
 export default function Dashboard() {
   const { hasPermission, hasAnyPermission, isLoading: permissionsLoading } = useHasPermission();
