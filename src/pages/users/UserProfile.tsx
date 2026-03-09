@@ -304,14 +304,25 @@ export default function UserProfile() {
                   ) : (
                     <Network className="w-4 h-4" />
                   )}
-                  <span className="capitalize">{user.service_type}</span>
+                  <span className="capitalize">{user.service_type === 'pppoe' ? 'PPPoE' : user.service_type}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   <span>
-                    Joined {new Date(user.created_at).toLocaleDateString()}
+                    Joined {new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                   </span>
                 </div>
+                {user.expires_at && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      {(() => {
+                        const daysLeft = Math.ceil((new Date(user.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                        return daysLeft > 0 ? `${daysLeft} days remaining` : 'Expired';
+                      })()}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
