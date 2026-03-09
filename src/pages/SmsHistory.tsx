@@ -395,6 +395,10 @@ export default function SmsHistory() {
           <SmsTemplates />
         </TabsContent>
         )}
+
+        <TabsContent value="balance-code">
+          <SmsBalanceCodeSection />
+        </TabsContent>
       </Tabs>
     </DashboardLayout>
   );
