@@ -45,7 +45,7 @@ const defaultConfig: SmsGatewayConfig = {
   api_url: '',
   api_key: '',
   sender_id: '',
-  balance_api_url: 'http://bulksmsbd.net/api/getBalanceApi',
+  balance_api_url: '',
   bill_reminder: true,
   bill_reminder_days: 3,
   bill_reminder_template: defaultTemplates[0].message,
@@ -83,11 +83,7 @@ export function SmsGatewaySettings() {
 
   useEffect(() => {
     if (savedConfig) {
-      setConfig({
-        ...defaultConfig,
-        ...savedConfig,
-        balance_api_url: savedConfig.balance_api_url || defaultConfig.balance_api_url,
-      });
+      setConfig({ ...defaultConfig, ...savedConfig });
     }
   }, [savedConfig]);
 
