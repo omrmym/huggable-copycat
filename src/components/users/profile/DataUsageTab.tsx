@@ -183,6 +183,37 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                 </p>
               </div>
             )}
+
+            {/* Reset Data Usage Button */}
+            <div className="flex justify-center pt-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={isResetting || dataUsedMb === 0}>
+                    {isResetting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                    )}
+                    Reset Data Usage
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reset Data Usage?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will reset the data usage counter to 0 MB for this user. 
+                      Current usage: {(dataUsedMb / 1024).toFixed(2)} GB. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetDataUsage}>
+                      Yes, Reset
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </CardContent>
       </Card>
