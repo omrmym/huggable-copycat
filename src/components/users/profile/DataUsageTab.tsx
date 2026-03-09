@@ -1,7 +1,23 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock, RefreshCw } from 'lucide-react';
+import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock, RefreshCw, RotateCcw } from 'lucide-react';
 import { useUserDataUsageChart } from '@/hooks/useUserDataUsageChart';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface DataUsageTabProps {
   user: {
@@ -19,6 +35,8 @@ interface DataUsageTabProps {
 }
 
 export function DataUsageTab({ user }: DataUsageTabProps) {
+  const [isResetting, setIsResetting] = useState(false);
+  const queryClient = useQueryClient();
   const { data: liveData, isLoading: liveLoading, refetch } = useUserDataUsageChart(user.id);
 
   // Use live data if available, otherwise fall back to static user data
@@ -34,6 +52,26 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
   // Calculate days remaining in cycle
   const now = new Date();
   const daysRemaining = cycleEnd ? Math.max(Math.ceil((cycleEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)), 0) : null;
+
+  const handleResetDataUsage = async () => {
+    setIsResetting(true);
+    try {
+      const { error } = await supabase
+        .from('radius_users')
+        .update({ data_used_mb: 0 })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast.success('Data usage reset to 0 successfully');
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['radius-user'] });
+    } catch (err: any) {
+      toast.error('Failed to reset data usage: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -145,6 +183,37 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                 </p>
               </div>
             )}
+
+            {/* Reset Data Usage Button */}
+            <div className="flex justify-center pt-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={isResetting || dataUsedMb === 0}>
+                    {isResetting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                    )}
+                    Reset Data Usage
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reset Data Usage?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will reset the data usage counter to 0 MB for this user. 
+                      Current usage: {(dataUsedMb / 1024).toFixed(2)} GB. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleResetDataUsage}>
+                      Yes, Reset
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </CardContent>
       </Card>
