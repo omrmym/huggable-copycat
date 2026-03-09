@@ -493,6 +493,70 @@ export function SmsGatewaySettings() {
             Save SMS Settings
           </Button>
         </div>
+
+        {/* SMS Credit Balance Section */}
+        <div className="pt-6 border-t border-border space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium flex items-center gap-2">
+              <Wallet className="w-4 h-4 text-primary" />
+              SMS Credit Balance
+            </h4>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetchBalance()}
+              disabled={balanceLoading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${balanceLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+          <div className="flex items-center gap-4 p-4 rounded-lg border border-border bg-secondary/50">
+            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Wallet className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">
+                {balanceLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : smsBalanceData?.balance != null ? (
+                  `৳${smsBalanceData.balance}`
+                ) : (
+                  <span className="text-muted-foreground text-base">Not Available</span>
+                )}
+              </p>
+              <p className="text-xs text-muted-foreground">Available Credit</p>
+            </div>
+          </div>
+
+          {/* PHP Source Code */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium flex items-center gap-2 text-sm">
+                <Code className="w-4 h-4 text-primary" />
+                PHP Source Code (Credit Balance)
+              </h4>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(phpBalanceCode);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+              >
+                {copied ? <Check className="w-4 h-4 mr-1.5 text-emerald-500" /> : <Copy className="w-4 h-4 mr-1.5" />}
+                {copied ? 'Copied!' : 'Copy'}
+              </Button>
+            </div>
+            <pre className="bg-secondary rounded-lg p-4 overflow-x-auto text-xs font-mono text-foreground border border-border max-h-64">
+              <code>{phpBalanceCode}</code>
+            </pre>
+            <p className="text-xs text-muted-foreground">
+              Replace <code className="bg-secondary px-1 py-0.5 rounded text-primary">YOUR_API_KEY_HERE</code> with your actual BulkSMSBD API key.
+            </p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
