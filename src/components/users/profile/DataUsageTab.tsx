@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock } from 'lucide-react';
+import { HardDrive, TrendingUp, Calendar, Activity, Loader2, Clock, RefreshCw } from 'lucide-react';
 import { useUserDataUsageChart } from '@/hooks/useUserDataUsageChart';
 import { format } from 'date-fns';
 
