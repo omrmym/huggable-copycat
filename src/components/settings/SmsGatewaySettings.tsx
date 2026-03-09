@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { MessageSquare, Save, Loader2, Send, Wallet, RefreshCw, Code, Copy, Check } from 'lucide-react';
+import { MessageSquare, Save, Loader2, Send, Wallet, RefreshCw } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { useSmsBalance } from '@/hooks/useSmsBalance';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
