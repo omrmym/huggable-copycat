@@ -65,6 +65,113 @@ const statusIcons: Record<string, React.ReactNode> = {
   pending: <Clock className="w-3.5 h-3.5" />,
 };
 
+const phpBalanceCode = `<?php
+function get_balance() {
+    $url = "http://bulksmsbd.net/api/getBalanceApi";
+    $api_key = "YOUR_API_KEY_HERE";
+
+    $data = [
+        "api_key" => $api_key
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    return $response;
+}
+
+// Usage
+echo get_balance();
+?>`;
+
+function SmsBalanceCodeSection() {
+  const { data: smsBalanceData, isLoading, refetch } = useSmsBalance();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(phpBalanceCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      {/* Live Balance Card */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wallet className="w-5 h-5 text-primary" />
+            SMS Credit Balance
+          </CardTitle>
+          <CardDescription>Current balance from your BulkSMSBD account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Wallet className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-foreground">
+                {isLoading ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : smsBalanceData?.balance != null ? (
+                  `৳${smsBalanceData.balance}`
+                ) : (
+                  <span className="text-muted-foreground text-lg">Not Available</span>
+                )}
+              </p>
+              <p className="text-sm text-muted-foreground">Available Credit</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-auto"
+              onClick={() => refetch()}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* PHP Source Code Card */}
+      <Card className="bg-card border-border">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Code className="w-5 h-5 text-primary" />
+                PHP Source Code (Credit Balance)
+              </CardTitle>
+              <CardDescription>Use this PHP code to check your SMS credit balance from your own server</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleCopy}>
+              {copied ? <Check className="w-4 h-4 mr-1.5 text-emerald-500" /> : <Copy className="w-4 h-4 mr-1.5" />}
+              {copied ? 'Copied!' : 'Copy Code'}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <pre className="bg-secondary rounded-lg p-4 overflow-x-auto text-sm font-mono text-foreground border border-border">
+            <code>{phpBalanceCode}</code>
+          </pre>
+          <p className="text-xs text-muted-foreground mt-3">
+            Replace <code className="bg-secondary px-1 py-0.5 rounded text-primary">YOUR_API_KEY_HERE</code> with your actual BulkSMSBD API key.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function SmsHistory() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
