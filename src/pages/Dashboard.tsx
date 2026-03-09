@@ -18,6 +18,7 @@ export default function Dashboard() {
   const { hasPermission, hasAnyPermission, isLoading: permissionsLoading } = useHasPermission();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: users = [], isLoading: usersLoading } = useRadiusUsers();
+  const { data: smsBalanceData, isLoading: smsBalanceLoading } = useSmsBalance();
 
   const formatDataSize = (mb: number) => {
     if (mb >= 1024 * 1024) {
