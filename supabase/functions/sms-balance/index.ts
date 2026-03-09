@@ -58,25 +58,24 @@ serve(async (req) => {
       });
     }
 
-    let balanceUrl = 'http://bulksmsbd.net/api/getBalanceApi';
+    // Build balance API URL using GET with api_key as query param
+    let baseHost = 'bulksmsbd.net';
     if (api_url) {
       try {
         const parsed = new URL(api_url);
-        balanceUrl = `${parsed.protocol}//${parsed.host}/api/getBalanceApi`;
+        baseHost = parsed.host;
       } catch {
         // Use default
       }
     }
 
-    const formData = new FormData();
-    formData.append('api_key', api_key);
+    const balanceUrl = `http://${baseHost}/api/getBalanceApi?api_key=${encodeURIComponent(api_key)}`;
 
-    const balanceResponse = await fetch(balanceUrl, {
-      method: 'POST',
-      body: formData,
-    });
+    console.log(`Checking SMS balance via ${balanceUrl}`);
 
+    const balanceResponse = await fetch(balanceUrl, { method: 'GET' });
     const responseText = await balanceResponse.text();
+    console.log(`SMS Balance API Response: ${responseText}`);
 
     let responseData: Record<string, unknown>;
     try {

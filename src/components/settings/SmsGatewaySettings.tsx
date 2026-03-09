@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { MessageSquare, Save, Loader2, Send, Wallet, RefreshCw, Code, Copy, Check } from 'lucide-react';
+import { MessageSquare, Save, Loader2, Send, Wallet, RefreshCw } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { useSmsBalance } from '@/hooks/useSmsBalance';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -56,36 +56,12 @@ const defaultConfig: SmsGatewayConfig = {
   service_activation_template: defaultTemplates[3].message,
 };
 
-const phpBalanceCode = `<?php
-function get_balance() {
-    $url = "http://bulksmsbd.net/api/getBalanceApi";
-    $api_key = "YOUR_API_KEY_HERE";
-
-    $data = [
-        "api_key" => $api_key
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    return $response;
-}
-
-// Usage
-echo get_balance();
-?>`;
 
 export function SmsGatewaySettings() {
   const queryClient = useQueryClient();
   const [config, setConfig] = useState<SmsGatewayConfig>(defaultConfig);
   const [testPhone, setTestPhone] = useState('');
-  const [copied, setCopied] = useState(false);
+  
   const { data: smsBalanceData, isLoading: balanceLoading, refetch: refetchBalance } = useSmsBalance();
 
   const { data: savedConfig, isLoading } = useQuery({
@@ -528,33 +504,8 @@ export function SmsGatewaySettings() {
             </div>
           </div>
 
-          {/* PHP Source Code */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h4 className="font-medium flex items-center gap-2 text-sm">
-                <Code className="w-4 h-4 text-primary" />
-                PHP Source Code (Credit Balance)
-              </h4>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  navigator.clipboard.writeText(phpBalanceCode);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}
-              >
-                {copied ? <Check className="w-4 h-4 mr-1.5 text-emerald-500" /> : <Copy className="w-4 h-4 mr-1.5" />}
-                {copied ? 'Copied!' : 'Copy'}
-              </Button>
-            </div>
-            <pre className="bg-secondary rounded-lg p-4 overflow-x-auto text-xs font-mono text-foreground border border-border max-h-64">
-              <code>{phpBalanceCode}</code>
-            </pre>
-            <p className="text-xs text-muted-foreground">
-              Replace <code className="bg-secondary px-1 py-0.5 rounded text-primary">YOUR_API_KEY_HERE</code> with your actual BulkSMSBD API key.
-            </p>
-          </div>
+
+
         </div>
       </CardContent>
     </Card>
