@@ -64,11 +64,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-      return new Response(JSON.stringify({ success: false, error: 'SMS API key not configured', balance: null }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     // Build balance URL using configured balance_api_url
     const separator = balance_api_url.includes('?') ? '&' : '?';
