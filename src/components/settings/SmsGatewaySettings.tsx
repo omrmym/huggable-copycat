@@ -62,7 +62,7 @@ export function SmsGatewaySettings() {
   const [config, setConfig] = useState<SmsGatewayConfig>(defaultConfig);
   const [testPhone, setTestPhone] = useState('');
   
-  const { data: smsBalanceData, isLoading: balanceLoading, refetch: refetchBalance } = useSmsBalance();
+  const { data: smsBalanceData, isLoading: balanceLoading, isFetching: balanceFetching, refetch: refetchBalance } = useSmsBalance();
 
   const { data: savedConfig, isLoading } = useQuery({
     queryKey: ['app-settings', 'sms_gateway'],
