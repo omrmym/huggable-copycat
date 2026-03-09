@@ -49,9 +49,21 @@ serve(async (req) => {
 
     const config = settings.value as Record<string, unknown>;
     const api_key = config.api_key as string;
-    const balance_api_url = (config.balance_api_url as string) || 'http://bulksmsbd.net/api/getBalanceApi';
+    const balance_api_url = (config.balance_api_url as string) || '';
 
     if (!api_key) {
+      return new Response(JSON.stringify({ success: false, error: 'SMS API key not configured', balance: null }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!balance_api_url) {
+      return new Response(JSON.stringify({ success: false, error: 'Balance API URL not configured', balance: null }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
       return new Response(JSON.stringify({ success: false, error: 'SMS API key not configured', balance: null }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
