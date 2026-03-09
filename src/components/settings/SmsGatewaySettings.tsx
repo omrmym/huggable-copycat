@@ -492,7 +492,7 @@ export function SmsGatewaySettings() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">
-                {balanceLoading ? (
+                {balanceFetching ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : smsBalanceData?.balance != null ? (
                   `৳${smsBalanceData.balance}`
