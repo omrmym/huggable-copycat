@@ -56,30 +56,6 @@ const defaultConfig: SmsGatewayConfig = {
   service_activation_template: defaultTemplates[3].message,
 };
 
-const phpBalanceCode = `<?php
-function get_balance() {
-    $url = "http://bulksmsbd.net/api/getBalanceApi";
-    $api_key = "YOUR_API_KEY_HERE";
-
-    $data = [
-        "api_key" => $api_key
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    return $response;
-}
-
-// Usage
-echo get_balance();
-?>`;
 
 export function SmsGatewaySettings() {
   const queryClient = useQueryClient();
