@@ -233,6 +233,16 @@ export function SmsGatewaySettings() {
                   onChange={(e) => setConfig({ ...config, sender_id: e.target.value })}
                 />
               </div>
+              <div className="space-y-1">
+                <Label>Balance API URL</Label>
+                <Input
+                  placeholder="http://bulksmsbd.net/api/getBalanceApi"
+                  className="bg-secondary border-border"
+                  value={config.balance_api_url || ''}
+                  onChange={(e) => setConfig({ ...config, balance_api_url: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">API key will be appended automatically as ?api_key=...</p>
+              </div>
             </div>
           </div>
 
