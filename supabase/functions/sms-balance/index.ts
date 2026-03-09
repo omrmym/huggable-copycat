@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,14 +20,12 @@ serve(async (req) => {
       });
     }
 
-    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Verify user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -35,15 +34,14 @@ serve(async (req) => {
       });
     }
 
-    // Get SMS gateway config from app_settings
-    const { data: settings, error: settingsError } = await supabase
+    const { data: settings } = await supabase
       .from('app_settings')
       .select('value')
       .eq('key', 'sms_gateway')
       .maybeSingle();
 
-    if (settingsError || !settings?.value) {
-      return new Response(JSON.stringify({ error: 'SMS gateway not configured', balance: null }), {
+    if (!settings?.value) {
+      return new Response(JSON.stringify({ success: false, error: 'SMS gateway not configured', balance: null }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -54,13 +52,12 @@ serve(async (req) => {
     const api_url = config.api_url as string;
 
     if (!api_key) {
-      return new Response(JSON.stringify({ error: 'SMS API key not configured', balance: null }), {
+      return new Response(JSON.stringify({ success: false, error: 'SMS API key not configured', balance: null }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Build balance API URL
     let balanceUrl = 'http://bulksmsbd.net/api/getBalanceApi';
     if (api_url) {
       try {
@@ -71,7 +68,6 @@ serve(async (req) => {
       }
     }
 
-    // Call BulkSMSBD balance API (POST with form data)
     const formData = new FormData();
     formData.append('api_key', api_key);
 
@@ -81,7 +77,6 @@ serve(async (req) => {
     });
 
     const responseText = await balanceResponse.text();
-    console.log(`SMS Balance API Response: ${responseText}`);
 
     let responseData: Record<string, unknown>;
     try {
