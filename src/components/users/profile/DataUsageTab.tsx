@@ -53,6 +53,26 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
   const now = new Date();
   const daysRemaining = cycleEnd ? Math.max(Math.ceil((cycleEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)), 0) : null;
 
+  const handleResetDataUsage = async () => {
+    setIsResetting(true);
+    try {
+      const { error } = await supabase
+        .from('radius_users')
+        .update({ data_used_mb: 0 })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast.success('Data usage reset to 0 successfully');
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['radius-user'] });
+    } catch (err: any) {
+      toast.error('Failed to reset data usage: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Billing Cycle Info */}
