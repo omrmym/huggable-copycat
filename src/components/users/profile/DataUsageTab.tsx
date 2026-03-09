@@ -109,7 +109,10 @@ export function DataUsageTab({ user }: DataUsageTabProps) {
                 }
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Current billing cycle usage • Resets on recharge
+                {cycleStart && cycleEnd
+                  ? `Cycle: ${format(cycleStart, 'dd MMM yyyy')} — ${format(cycleEnd, 'dd MMM yyyy')} • Resets on recharge`
+                  : 'Current billing cycle usage • Resets on recharge'
+                }
               </p>
               {liveData?.planName && (
                 <p className="text-xs text-muted-foreground mt-1">Plan: {liveData.planName}</p>
