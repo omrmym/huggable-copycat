@@ -917,7 +917,11 @@ export default function SettingsPage() {
         {/* Payment Management Settings */}
         <TabsContent value="payment" className="space-y-6">
           {hasPermission('settings.payment_gateway') && <PaymentGatewaySettings />}
-          {hasPermission('settings.shareholders') && <ShareholderManagement />}
+        </TabsContent>
+
+        {/* Shareholder Management */}
+        <TabsContent value="shareholder" className="space-y-6">
+          <ShareholderManagement />
         </TabsContent>
 
         {/* SMS Management Settings */}
