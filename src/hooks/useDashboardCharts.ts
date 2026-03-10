@@ -3,42 +3,50 @@ import { supabase } from '@/integrations/supabase/client';
 import { startOfMonth, endOfMonth, format, subMonths, startOfDay, subDays } from 'date-fns';
 
 // Helper to get admin-only user IDs (reseller_id is null)
-async function getAdminUserIds(): Promise<string[]> {
+async function getAdminUserIds(): Promise<Set<string>> {
   const { data } = await supabase
     .from('radius_users')
     .select('id')
     .is('reseller_id', null);
-  return data?.map(u => u.id) || [];
+  return new Set(data?.map(u => u.id) || []);
 }
 
 export function useMonthlyBillCollection() {
   return useQuery({
     queryKey: ['monthly-bill-collection'],
     queryFn: async () => {
-      const adminUserIds = await getAdminUserIds();
-      const months = [];
-      for (let i = 5; i >= 0; i--) {
-        const date = subMonths(new Date(), i);
-        const start = startOfMonth(date);
-        const end = endOfMonth(date);
-        
-        const { data } = await supabase
+      const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
+      const now = endOfMonth(new Date());
+
+      const [adminUserIds, { data: transactions }] = await Promise.all([
+        getAdminUserIds(),
+        supabase
           .from('transactions')
-          .select('amount, radius_user_id')
+          .select('amount, radius_user_id, created_at')
           .eq('status', 'completed')
           .eq('type', 'payment')
-          .gte('created_at', start.toISOString())
-          .lte('created_at', end.toISOString());
-        
-        // Filter to only include transactions for admin-created users
-        const adminTransactions = data?.filter(t => t.radius_user_id && adminUserIds.includes(t.radius_user_id)) || [];
-        const total = adminTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
-        months.push({
-          month: format(date, 'MMM'),
-          amount: total,
-        });
+          .gte('created_at', sixMonthsAgo.toISOString())
+          .lte('created_at', now.toISOString()),
+      ]);
+
+      // Build ordered month keys
+      const monthKeys: string[] = [];
+      for (let i = 5; i >= 0; i--) {
+        monthKeys.push(format(subMonths(new Date(), i), 'MMM'));
       }
-      return months;
+      const monthMap: Record<string, number> = {};
+      monthKeys.forEach(k => (monthMap[k] = 0));
+
+      (transactions || []).forEach(t => {
+        if (t.radius_user_id && adminUserIds.has(t.radius_user_id)) {
+          const key = format(new Date(t.created_at), 'MMM');
+          if (key in monthMap) {
+            monthMap[key] += Number(t.amount);
+          }
+        }
+      });
+
+      return monthKeys.map(month => ({ month, amount: monthMap[month] }));
     },
   });
 }
@@ -47,31 +55,39 @@ export function useDailyBillCollection() {
   return useQuery({
     queryKey: ['daily-bill-collection'],
     queryFn: async () => {
-      const adminUserIds = await getAdminUserIds();
-      const days = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = subDays(new Date(), i);
-        const start = startOfDay(date);
-        const end = new Date(start);
-        end.setHours(23, 59, 59, 999);
-        
-        const { data } = await supabase
+      const sevenDaysAgo = startOfDay(subDays(new Date(), 6));
+      const endOfToday = new Date(startOfDay(new Date()));
+      endOfToday.setHours(23, 59, 59, 999);
+
+      const [adminUserIds, { data: transactions }] = await Promise.all([
+        getAdminUserIds(),
+        supabase
           .from('transactions')
-          .select('amount, radius_user_id')
+          .select('amount, radius_user_id, created_at')
           .eq('status', 'completed')
           .eq('type', 'payment')
-          .gte('created_at', start.toISOString())
-          .lte('created_at', end.toISOString());
-        
-        // Filter to only include transactions for admin-created users
-        const adminTransactions = data?.filter(t => t.radius_user_id && adminUserIds.includes(t.radius_user_id)) || [];
-        const total = adminTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
-        days.push({
-          day: format(date, 'EEE'),
-          amount: total,
-        });
+          .gte('created_at', sevenDaysAgo.toISOString())
+          .lte('created_at', endOfToday.toISOString()),
+      ]);
+
+      const dayKeys: { key: string; label: string }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = subDays(new Date(), i);
+        dayKeys.push({ key: format(date, 'yyyy-MM-dd'), label: format(date, 'EEE') });
       }
-      return days;
+      const dayMap: Record<string, number> = {};
+      dayKeys.forEach(d => (dayMap[d.key] = 0));
+
+      (transactions || []).forEach(t => {
+        if (t.radius_user_id && adminUserIds.has(t.radius_user_id)) {
+          const key = format(new Date(t.created_at), 'yyyy-MM-dd');
+          if (key in dayMap) {
+            dayMap[key] += Number(t.amount);
+          }
+        }
+      });
+
+      return dayKeys.map(d => ({ day: d.label, amount: dayMap[d.key] }));
     },
   });
 }
@@ -80,30 +96,37 @@ export function useMonthlyPaidUsers() {
   return useQuery({
     queryKey: ['monthly-paid-users'],
     queryFn: async () => {
-      const adminUserIds = await getAdminUserIds();
-      const months = [];
-      for (let i = 5; i >= 0; i--) {
-        const date = subMonths(new Date(), i);
-        const start = startOfMonth(date);
-        const end = endOfMonth(date);
-        
-        const { data } = await supabase
+      const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
+      const now = endOfMonth(new Date());
+
+      const [adminUserIds, { data: transactions }] = await Promise.all([
+        getAdminUserIds(),
+        supabase
           .from('transactions')
-          .select('radius_user_id')
+          .select('radius_user_id, created_at')
           .eq('status', 'completed')
           .eq('type', 'payment')
-          .gte('created_at', start.toISOString())
-          .lte('created_at', end.toISOString());
-        
-        // Count unique admin-created users who paid
-        const adminTransactions = data?.filter(t => t.radius_user_id && adminUserIds.includes(t.radius_user_id)) || [];
-        const uniqueUsers = new Set(adminTransactions.map(t => t.radius_user_id));
-        months.push({
-          month: format(date, 'MMM'),
-          users: uniqueUsers.size,
-        });
+          .gte('created_at', sixMonthsAgo.toISOString())
+          .lte('created_at', now.toISOString()),
+      ]);
+
+      const monthKeys: string[] = [];
+      for (let i = 5; i >= 0; i--) {
+        monthKeys.push(format(subMonths(new Date(), i), 'MMM'));
       }
-      return months;
+      const monthMap: Record<string, Set<string>> = {};
+      monthKeys.forEach(k => (monthMap[k] = new Set()));
+
+      (transactions || []).forEach(t => {
+        if (t.radius_user_id && adminUserIds.has(t.radius_user_id)) {
+          const key = format(new Date(t.created_at), 'MMM');
+          if (key in monthMap) {
+            monthMap[key].add(t.radius_user_id);
+          }
+        }
+      });
+
+      return monthKeys.map(month => ({ month, users: monthMap[month].size }));
     },
   });
 }
@@ -112,27 +135,33 @@ export function useDailyNewUsers() {
   return useQuery({
     queryKey: ['daily-new-users'],
     queryFn: async () => {
-      const days = [];
+      const sevenDaysAgo = startOfDay(subDays(new Date(), 6));
+      const endOfToday = new Date(startOfDay(new Date()));
+      endOfToday.setHours(23, 59, 59, 999);
+
+      const { data: users } = await supabase
+        .from('radius_users')
+        .select('created_at')
+        .is('reseller_id', null)
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .lte('created_at', endOfToday.toISOString());
+
+      const dayKeys: { key: string; label: string }[] = [];
       for (let i = 6; i >= 0; i--) {
         const date = subDays(new Date(), i);
-        const start = startOfDay(date);
-        const end = new Date(start);
-        end.setHours(23, 59, 59, 999);
-        
-        // Only count admin-created users (reseller_id is null)
-        const { count } = await supabase
-          .from('radius_users')
-          .select('*', { count: 'exact', head: true })
-          .is('reseller_id', null)
-          .gte('created_at', start.toISOString())
-          .lte('created_at', end.toISOString());
-        
-        days.push({
-          day: format(date, 'EEE'),
-          users: count || 0,
-        });
+        dayKeys.push({ key: format(date, 'yyyy-MM-dd'), label: format(date, 'EEE') });
       }
-      return days;
+      const dayMap: Record<string, number> = {};
+      dayKeys.forEach(d => (dayMap[d.key] = 0));
+
+      (users || []).forEach(u => {
+        const key = format(new Date(u.created_at), 'yyyy-MM-dd');
+        if (key in dayMap) {
+          dayMap[key]++;
+        }
+      });
+
+      return dayKeys.map(d => ({ day: d.label, users: dayMap[d.key] }));
     },
   });
 }
