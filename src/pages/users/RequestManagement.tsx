@@ -83,7 +83,7 @@ export default function RequestManagement() {
         connectivity_type: 'shared',
         reseller_office: 'Main-User',
         service_type: 'hotspot',
-        status: 'disabled',
+        status: 'expired',
       });
 
       if (createError) throw createError;
