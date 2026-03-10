@@ -406,7 +406,8 @@ export default function SettingsPage() {
     { value: 'admin-user', label: 'Software User', icon: Users, permission: 'settings.users' },
     { value: 'roles', label: 'Rule Manage', icon: Shield, permission: 'settings.roles' },
     { value: 'mikrotik', label: 'MikroTik Manage', icon: Server, permission: 'settings.mikrotik' },
-    { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories', 'settings.shareholders'] },
+    { value: 'payment', label: 'Payment Manage', icon: CreditCard, permissions: ['settings.payment', 'settings.payment_gateway', 'settings.categories'] },
+    { value: 'shareholder', label: 'Shareholder', icon: Users, permission: 'settings.shareholders' },
     { value: 'sms', label: 'SMS Manage', icon: MessageSquare, permission: 'settings.sms_gateway' },
     { value: 'notifications', label: 'Notifications', icon: Bell, permission: 'settings.branding' },
     { value: 'data', label: 'Data', icon: Database, permission: 'settings.activity' },
@@ -916,7 +917,11 @@ export default function SettingsPage() {
         {/* Payment Management Settings */}
         <TabsContent value="payment" className="space-y-6">
           {hasPermission('settings.payment_gateway') && <PaymentGatewaySettings />}
-          {hasPermission('settings.shareholders') && <ShareholderManagement />}
+        </TabsContent>
+
+        {/* Shareholder Management */}
+        <TabsContent value="shareholder" className="space-y-6">
+          <ShareholderManagement />
         </TabsContent>
 
         {/* SMS Management Settings */}
