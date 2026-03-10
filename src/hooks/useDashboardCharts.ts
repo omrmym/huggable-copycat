@@ -23,7 +23,6 @@ export function useMonthlyBillCollection() {
         supabase
           .from('transactions')
           .select('amount, radius_user_id, created_at')
-          .eq('status', 'completed')
           .eq('type', 'payment')
           .gte('created_at', sixMonthsAgo.toISOString())
           .lte('created_at', now.toISOString()),
