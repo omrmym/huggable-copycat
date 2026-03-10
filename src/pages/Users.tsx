@@ -679,7 +679,6 @@ export default function UsersPage() {
                 <SelectContent>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="disabled">Disabled</SelectItem>
-                  <SelectItem value="expired">Expired</SelectItem>
                   <SelectItem value="suspended">Suspended</SelectItem>
                 </SelectContent>
               </Select>
