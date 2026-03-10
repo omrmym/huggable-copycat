@@ -102,7 +102,6 @@ export function useMonthlyPaidUsers() {
         supabase
           .from('transactions')
           .select('radius_user_id, created_at')
-          .eq('status', 'completed')
           .eq('type', 'payment')
           .gte('created_at', sixMonthsAgo.toISOString())
           .lte('created_at', now.toISOString()),
