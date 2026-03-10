@@ -63,7 +63,6 @@ export function useDailyBillCollection() {
         supabase
           .from('transactions')
           .select('amount, radius_user_id, created_at')
-          .eq('status', 'completed')
           .eq('type', 'payment')
           .gte('created_at', sevenDaysAgo.toISOString())
           .lte('created_at', endOfToday.toISOString()),
